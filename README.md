@@ -58,7 +58,7 @@ Before you begin, ensure you have the following installed:
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/dev-reactbd/shopcartpro.git
+git clone https://github.com/noorjsdivs/shopcartpro-yt
 cd shopcartpro
 ```
 
