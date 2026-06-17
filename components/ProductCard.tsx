@@ -103,7 +103,7 @@ const ProductCard = memo(({ product }: { product: Product }) => {
           discount={product?.discount}
           className="text-sm"
         />
-        <AddToCartButton product={product} className="w-36 rounded-full" />
+        <AddToCartButton product={product}className="w-full rounded-full" />
       </div>
     </div>
   );

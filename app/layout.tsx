@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import { UserDataProvider } from "@/contexts/UserDataContext";
 import "./globals.css";
 import Script from "next/script";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 
 const poppins = localFont({
   src: "./fonts/Poppins.woff2",
@@ -105,7 +106,13 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
         <body
           className={`${poppins.variable} ${raleway.variable} ${opensans.variable} antialiased`}
         >
-          <UserDataProvider>{children}</UserDataProvider>
+          <UserDataProvider>
+  <main className="pb-20 md:pb-0">
+    {children}
+  </main>
+
+  <MobileBottomNav />
+</UserDataProvider>
           <Toaster
             position="bottom-right"
             richColors

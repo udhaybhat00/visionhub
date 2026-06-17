@@ -1,5 +1,5 @@
 "use client";
-import { Loader2, Search, X, TrendingUp, Clock, Star } from "lucide-react";
+import { Loader2, Search, X, TrendingUp, Clock, Star, Mic } from "lucide-react";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { client } from "@/sanity/lib/client";
 import { Input } from "../ui/input";
@@ -18,14 +18,91 @@ const SearchBar = () => {
   const [loading, setLoading] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [featuredProduct, setFeaturedProduct] = useState([]);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [isMac, setIsMac] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const modalRef = useOutsideClick<HTMLDivElement>(() => setShowSearch(false));
+  const [isListening, setIsListening] = useState(false);
 
   // Detect if user is on Mac
   useEffect(() => {
     setIsMac(navigator.platform.toUpperCase().indexOf("MAC") >= 0);
   }, []);
+
+  useEffect(() => {
+  const stored = localStorage.getItem("recentSearches");
+
+  if (stored) {
+    setRecentSearches(JSON.parse(stored));
+  }
+}, []);
+
+const saveRecentSearch = (term: string) => {
+  if (!term.trim()) return;
+
+  const updated = [
+    term,
+    ...recentSearches.filter((item) => item !== term),
+  ].slice(0, 5);
+
+  setRecentSearches(updated);
+
+  localStorage.setItem(
+    "recentSearches",
+    JSON.stringify(updated)
+  );
+};
+
+const handleSearch = () => {
+  const term = search.trim();
+
+  if (!term || term.length < 3) return;
+
+  saveRecentSearch(term);
+};
+
+const startVoiceSearch = () => {
+  const SpeechRecognition =
+    (window as any).SpeechRecognition ||
+    (window as any).webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    alert("Voice search is not supported in this browser");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+
+  recognition.lang = "en-US";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  setIsListening(true);
+
+  recognition.start();
+
+ recognition.onresult = (event: any) => {
+  const transcript = event.results[0][0].transcript;
+
+  setSearch(transcript);
+
+  if (transcript.length > 2) {
+    saveRecentSearch(transcript);
+  }
+
+  setTimeout(() => {
+    handleSearch();
+  }, 100);
+};
+
+  recognition.onerror = () => {
+    setIsListening(false);
+  };
+
+  recognition.onend = () => {
+    setIsListening(false);
+  };
+};
 
   const fetchFeaturedProducts = useCallback(async () => {
     try {
@@ -84,15 +161,24 @@ const SearchBar = () => {
 
   // Fetch products from Sanity based on search input
   const fetchProducts = useCallback(async () => {
-    if (!search) {
-      setProducts([]);
-      return;
-    }
+  if (!search.trim()) {
+  setProducts([]);
+  setLoading(false);
+  return;
+}
 
     setLoading(true);
     try {
-      const query = `*[_type == "product" && name match $search] | order(name asc)`;
-      const params = { search: `${search}*` };
+  const query = `
+*[
+  _type == "product" &&
+  name match $search
+] | order(name asc)
+`;
+
+const params = {
+  search: `*${search}*`,
+};
       const response = await client.fetch(query, params);
       setProducts(response);
     } catch (error) {
@@ -103,13 +189,18 @@ const SearchBar = () => {
   }, [search]);
 
   // Debounce input changes to reduce API calls
-  useEffect(() => {
-    const debounceTimer = setTimeout(() => {
-      fetchProducts();
-    }, 300); // Delay of 300ms
+ useEffect(() => {
+  if (search.trim().length < 2) {
+    setProducts([]);
+    return;
+  }
 
-    return () => clearTimeout(debounceTimer); // Cleanup the timer
-  }, [fetchProducts]);
+  const debounceTimer = setTimeout(() => {
+    fetchProducts();
+  }, 300);
+
+  return () => clearTimeout(debounceTimer);
+}, [search, fetchProducts]);
   return (
     <>
       {/* Search Trigger Button - Modern Input Style */}
@@ -148,7 +239,13 @@ const SearchBar = () => {
       {/* Search Modal Overlay */}
       {showSearch && (
         <div
-          className={`fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-20 px-4 search-modal-overlay ${
+          className={`fixed inset-0 z-50
+
+    flex items-start justify-center
+
+    sm:pt-20 sm:px-4
+
+    search-modal-overlay ${
             showSearch ? "animate-fadeIn" : "animate-fadeOut"
           }`}
         >
@@ -156,14 +253,22 @@ const SearchBar = () => {
           <div className="absolute inset-0 w-full h-screen bg-black/60 backdrop-blur-sm" />
 
           {/* Modal Content */}
-          <div
-            ref={modalRef}
-            className={`relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden search-modal-content ${
-              showSearch ? "animate-scaleIn" : "animate-scaleOut"
-            }`}
-          >
+         <div
+  ref={modalRef}
+  className={`
+    relative
+    w-full
+    h-screen
+    sm:h-auto
+    sm:max-w-4xl
+    bg-white
+    flex
+    flex-col
+    sm:rounded-2xl
+  `}
+>
             {/* Header */}
-            <div className="bg-gradient-to-r from-shop_dark_green to-shop_light_green p-6 text-white">
+            <div className="sticky top-0 z-20 bg-gradient-to-r from-shop_dark_green to-shop_light_green p-6 text-white">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="bg-white/20 p-2 rounded-full">
@@ -191,41 +296,75 @@ const SearchBar = () => {
               </div>
 
               {/* Search Input */}
-              <form className="relative" onSubmit={(e) => e.preventDefault()}>
+              <form
+  className="relative"
+  onSubmit={(e) => {
+    e.preventDefault();
+    handleSearch();
+  }}
+>
+  
+
+  
                 <div className="relative">
-                  <Input
-                    ref={inputRef}
-                    placeholder="Search for Eyeglasses, Sunglasses and more..."
-                    className="w-full pl-12 pr-16 py-4 text-lg bg-white/10 border-white/20 placeholder:text-white/70 text-white focus:bg-white/20 focus:border-white/40 rounded-xl"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/70" />
-                  {search && (
+               <Input
+  ref={inputRef}
+  placeholder="Search for Eyeglasses, Sunglasses and more..."
+  className="w-full pl-12 pr-24 py-4 text-lg bg-white/10 border-white/20 placeholder:text-white/70 text-white focus:bg-white/20 focus:border-white/40 rounded-xl"
+  value={search}
+onChange={(e) => {
+  setSearch(e.target.value);
+}}
+/>
+                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/70" />
+
+<button
+  type="button"
+  onClick={startVoiceSearch}
+  className="absolute right-12 top-1/2 -translate-y-1/2"
+>
+  <Mic
+    className={`w-4 h-4 transition-all ${
+      isListening
+        ? "text-red-400 animate-pulse"
+        : "text-white/80 hover:text-white"
+    }`}
+  />
+</button>
+
+{search && (
                     <button
                       type="button"
-                      onClick={() => setSearch("")}
-                      className="absolute right-12 top-1/2 -translate-y-1/2 p-1 hover:bg-white/20 rounded-full transition-colors duration-200"
+                      onClick={() => {
+  setSearch("");
+  setProducts([]);
+}}
+                      className="absolute right-24 top-1/2 -translate-y-1/2 p-1 hover:bg-white/20 rounded-full transition-colors duration-200"
                     >
                       <X className="w-4 h-4 text-white/70 hover:text-white" />
                     </button>
                   )}
-                  <button
-                    type="submit"
-                    className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 p-2.5 rounded-lg transition-all duration-200"
-                  >
+                <button
+  type="button"
+  onClick={handleSearch}
+  className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 p-2.5 rounded-lg transition-all duration-200"
+>
                     <Search className="w-4 h-4 text-white" />
                   </button>
                 </div>
               </form>
             </div>
 <div className="px-4 py-3 bg-gray-50 border-b">
-  <p className="text-sm text-gray-600">
-    {products.length} product{products.length > 1 ? "s" : ""} found
-  </p>
+ <p className="text-sm text-gray-600">
+  {search
+    ? `${products.length} result${
+        products.length !== 1 ? "s" : ""
+      } for "${search}"`
+    : "Start typing to search"}
+</p>
 </div>
             {/* Content */}
-            <div className="max-h-[70vh] min-h-[55vh] overflow-y-auto">
+            <div className="flex-1 overflow-y-auto">
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-16 text-shop_dark_green">
                   <Loader2 className="w-8 h-8 animate-spin mb-3" />
@@ -242,7 +381,13 @@ const SearchBar = () => {
                       <div className="flex items-center gap-4">
                         <Link
                           href={`/product/${product?.slug?.current}`}
-                          onClick={() => setShowSearch(false)}
+                            onClick={() => {
+
+    handleSearch();
+
+    setShowSearch(false);
+
+  }}
                           className="relative h-24 w-24 sm:h-28 sm:w-28 flex-shrink-0 overflow-hidden rounded-xl bg-gray-50 border border-gray-100"
                         >
                           {product?.images && (
@@ -268,7 +413,13 @@ const SearchBar = () => {
                         <div className="flex-1 min-w-0">
                           <Link
                             href={`/product/${product?.slug?.current}`}
-                            onClick={() => setShowSearch(false)}
+                              onClick={() => {
+
+    handleSearch();
+
+    setShowSearch(false);
+
+  }}
                             className="block group-hover:text-shop_dark_green transition-colors duration-200"
                           >
                             <h3 className="font-semibold text-base sm:text-lg line-clamp-1 mb-1">
@@ -341,20 +492,57 @@ const SearchBar = () => {
                         </div>
 
                         {/* Featured Products Suggestions */}
-                        {featuredProduct?.length > 0 && (
-                          <div>
-                            <h4 className="text-sm font-semibold text-gray-700 mb-3 text-left">
-                              Popular Searches:
-                            </h4>
+                       {featuredProduct?.length > 0 && (
+  <div>
+
+    {recentSearches.length > 0 && (
+      <div className="mb-6">
+      <div className="flex justify-between items-center mb-3">
+  <h4 className="text-sm font-semibold text-gray-700">
+    Recent Searches
+  </h4>
+
+  <button
+    onClick={() => {
+      localStorage.removeItem("recentSearches");
+      setRecentSearches([]);
+    }}
+    className="text-xs text-red-500 hover:text-red-600"
+  >
+    Clear
+  </button>
+</div>
+
+        <div className="flex flex-wrap gap-2">
+          {recentSearches.map((item) => (
+            <button
+              key={item}
+              onClick={() => {
+  setSearch(item);
+  saveRecentSearch(item);
+}}
+              className="bg-gray-100 hover:bg-shop_light_green hover:text-white px-3 py-2 rounded-full text-sm transition-all"
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <h4 className="text-sm font-semibold text-gray-700 mb-3 text-left">
+      Popular Searches
+    </h4>
                             <div className="flex flex-wrap gap-2">
                               {featuredProduct
                                 .slice(0, 6)
                                 .map((item: Product) => (
                                   <button
                                     key={item?._id}
-                                    onClick={() =>
-                                      setSearch(item?.name as string)
-                                    }
+                                  onClick={() => {
+  setSearch(item?.name as string);
+  saveRecentSearch(item?.name as string);
+}}
                                     className="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-shop_light_green hover:bg-shop_light_green/5 px-3 py-2 rounded-full text-sm font-medium text-gray-700 hover:text-shop_dark_green transition-all duration-200"
                                   >
                                     <Search className="w-3 h-3" />
@@ -386,7 +574,10 @@ const SearchBar = () => {
                           </span>
                         </p>
                         <button
-                          onClick={() => setSearch("")}
+                          onClick={() => {
+  setSearch("");
+  setProducts([]);
+}}
                           className="bg-shop_dark_green hover:bg-shop_light_green text-white px-6 py-2 rounded-full font-medium transition-colors duration-200"
                         >
                           Clear Search
