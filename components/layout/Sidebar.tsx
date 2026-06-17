@@ -356,7 +356,7 @@ transition-all
           <h3 className="text-sm font-semibold text-shop_light_green uppercase tracking-wider mb-3">
             Follow Us
           </h3>
-          <div className="scale-125 origin-left">
+  <div className="overflow-hidden">
   <SocialMedia />
 </div>
         </div>
