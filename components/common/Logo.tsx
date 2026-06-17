@@ -67,7 +67,7 @@ const Logo = ({ className, variant = "default" }: Props) => {
 
         {/* Text Logo */}
         <div className="flex items-center">
-          <h1 className="text-3xl font-extrabold tracking-wide uppercase font-sans">
+         <h1 className="text-[1.75rem] md:text-3xl font-extrabold tracking-wide uppercase font-sans">
             <span className="text-current group-hover:text-shop_light_green hoverEffect">
               Vision
             </span>

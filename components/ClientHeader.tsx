@@ -70,7 +70,7 @@ const ClientHeader = () => {
           {/* Right Section: Search + Actions */}
           <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 ml-auto">
                        {/* Mobile Actions */}
-<div className="flex md:hidden items-center gap-2">
+<div className="flex md:hidden items-center gap-3">
   <CartIcon />
    <ClerkLoaded>
 

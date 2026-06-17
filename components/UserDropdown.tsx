@@ -49,13 +49,25 @@ const UserDropdown = () => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-       <button className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 hover:border-shop_orange hover:bg-gray-50 transition-all whitespace-nowrap flex-shrink-0">
+       <button
+  className="
+  inline-flex items-center gap-2
+  p-0 md:px-4 md:py-2
+  border-0 md:border md:border-gray-200
+  rounded-full
+  hover:border-shop_orange
+  hover:bg-gray-50
+  transition-all
+  whitespace-nowrap
+  flex-shrink-0
+"
+>
           <div className="relative flex-shrink-0">
             {user.imageUrl ? (
           <img
   src={user.imageUrl}
   alt={user.fullName || "User"}
-  className="w-9 h-9 rounded-full object-cover border border-gray-200"
+  className="w-8 h-8 md:w-9 md:h-9 rounded-full object-cover border border-gray-200"
 />
             ) : (
               <UserCircle className="w-8 h-8 text-gray-500 group-hover:text-shop_light_green transition-colors" />
