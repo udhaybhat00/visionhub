@@ -66,7 +66,7 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className={`fixed inset-y-0 h-screen left-0 z-50 w-full bg-primary/50 shadow-xl transform ${
+      className={`fixed inset-y-0 h-dvh left-0 z-50 w-full bg-primary/50 shadow-xl transform ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       } transition-transform ease-in-out duration-300`}
     >
@@ -75,7 +75,7 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.3 }}
         ref={sidebarRef}
-        className="w-[85%] max-w-[320px] bg-black z-50 h-screen text-primary-foreground p-6 border-r border-r-shop_dark_green flex flex-col gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-shop_dark_green scrollbar-track-transparent"
+        className="w-[90%] max-w-[340px] bg-black z-50 h-dvh text-primary-foreground p-5 border-r border-r-shop_dark_green flex flex-col gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-shop_dark_green scrollbar-track-transparent"
       >
         {/* Header */}
         <div className="flex items-center justify-between pb-5 border-b border-shop_dark_green">
@@ -89,62 +89,7 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
         </div>
 
 
-        {/* Mobile Quick Actions */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-shop_light_green uppercase tracking-wider">
-            Quick Access
-          </h3>
-          
-          <div className="grid grid-cols-2 gap-3">
-            {/* Shopping Cart */}
-            <Link
-              onClick={onClose}
-              href="/cart"
-              className="flex flex-col items-center gap-2 p-3 rounded-lg bg-shop_dark_green/30 hover:bg-shop_dark_green/50 transition-colors duration-200 text-center relative"
-            >
-              <ShoppingCart size={20} className="text-shop_light_green" />
-              <span className="text-xs font-medium text-zinc-300">Cart</span>
-              {items?.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-shop_btn_dark_green text-white h-4 w-4 rounded-full text-xs font-semibold flex items-center justify-center">
-                  {items.length}
-                </span>
-              )}
-            </Link>
-
-            {/* Wishlist */}
-            <Link
-              onClick={onClose}
-              href="/wishlist"
-              className="flex flex-col items-center gap-2 p-3 rounded-lg bg-shop_dark_green/30 hover:bg-shop_dark_green/50 transition-colors duration-200 text-center relative"
-            >
-              <Heart size={20} className="text-pink-400" />
-              <span className="text-xs font-medium text-zinc-300">
-                Wishlist
-              </span>
-              {favoriteProduct?.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-pink-500 text-white h-4 w-4 rounded-full text-xs font-semibold flex items-center justify-center">
-                  {favoriteProduct.length}
-                </span>
-              )}
-            </Link>
-
-            {/* Orders */}
-            <ClerkLoaded>
-              <SignedIn>
-                <Link
-                  onClick={onClose}
-                  href="/user/orders"
-                  className="flex flex-col items-center gap-2 p-3 rounded-lg bg-shop_dark_green/30 hover:bg-shop_dark_green/50 transition-colors duration-200 text-center"
-                >
-                  <Logs size={20} className="text-blue-400" />
-                  <span className="text-xs font-medium text-zinc-300">
-                    Orders
-                  </span>
-                </Link>
-              </SignedIn>
-            </ClerkLoaded>
-          </div>
-        </div>
+    
 
         <ClerkLoaded>
   <SignedOut>
@@ -243,7 +188,7 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
             Popular Categories
           </h3>
           <div className="flex flex-wrap gap-2">
-            {categoriesData.slice(0, 4).map((item) => (
+            {categoriesData.slice(0, 3).map((item) => (
               <Link
                 onClick={onClose}
                 key={item.title}
@@ -275,34 +220,6 @@ transition-all
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-shop_light_green uppercase tracking-wider">
-            Quick Actions
-          </h3>
-          <div className="grid grid-cols-2 gap-2">
-            <Link
-              onClick={onClose}
-              href="/deal"
-              className="flex flex-col items-center gap-1 p-3 rounded-lg bg-shop_dark_green/30 hover:bg-shop_dark_green/50 transition-colors duration-200 text-center"
-            >
-              <Flame size={20} className="text-shop_orange" />
-              <span className="text-xs font-medium text-zinc-300">
-                Hot Deals
-              </span>
-            </Link>
-            <Link
-              onClick={onClose}
-              href="/wishlist"
-              className="flex flex-col items-center gap-1 p-3 rounded-lg bg-shop_dark_green/30 hover:bg-shop_dark_green/50 transition-colors duration-200 text-center"
-            >
-              <Heart size={20} className="text-shop_light_green" />
-              <span className="text-xs font-medium text-zinc-300">
-                Wishlist
-              </span>
-            </Link>
-          </div>
-        </div>
 
         {/* Support Section */}
         <div className="space-y-3">
@@ -335,7 +252,7 @@ transition-all
         <div className="border-t border-shop_dark_green my-2"></div>
 
         {/* Promotional Banner */}
-        <div className="bg-gradient-to-r from-shop_dark_green to-shop_btn_dark_green rounded-lg p-4 text-center">
+        <div className="bg-gradient-to-r from-shop_dark_green to-shop_btn_dark_green rounded-lg p-3 text-center">
           <h4 className="text-sm font-bold text-shop_light_green mb-1">
             Special Offer!
           </h4>
@@ -352,12 +269,14 @@ transition-all
         </div>
 
         {/* Social Media */}
-        <div className="mt-4">
+        <div className="mt-2 pb-16">
           <h3 className="text-sm font-semibold text-shop_light_green uppercase tracking-wider mb-3">
             Follow Us
           </h3>
-  <div className="overflow-hidden">
-  <SocialMedia />
+ <div className="overflow-hidden md:hidden">
+<SocialMedia
+  iconClassName="border-zinc-600"
+/>
 </div>
         </div>
       </motion.div>

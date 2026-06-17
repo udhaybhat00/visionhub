@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import AnnouncementBar from "@/components/AnnouncementBar";
 import "../globals.css";
 
 export default async function RootLayout({
@@ -8,10 +9,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
-      <Header />
-      {children}
-      <Footer />
-    </>
+ <>
+  <AnnouncementBar />
+  <Header />
+  {children}
+  <Footer />
+</>
   );
 }

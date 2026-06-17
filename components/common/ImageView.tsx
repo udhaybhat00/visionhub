@@ -8,6 +8,8 @@ import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import Zoom from "react-medium-image-zoom";
+import "react-medium-image-zoom/dist/styles.css";
 
 interface Props {
   images?: Array<{
@@ -36,18 +38,20 @@ const ImageView = ({ images = [], isStock }: Props) => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-h-[550px] min-h-[450px] border border-dark-color/10 rounded-md group overflow-hidden"
+          className="w-full h-[280px] md:min-h-[450px] md:max-h-[550px] border border-dark-color/10 rounded-md group overflow-hidden"
         >
-          <Image
-            src={urlFor(active).url()}
-            alt="productImage"
-            width={700}
-            height={700}
-            priority
-            className={`w-full h-96 max-h-[550px] min-h-[500px] object-contain group-hover:scale-110 hoverEffect rounded-md ${
-              isStock === 0 ? "opacity-50" : ""
-            }`}
-          />
+          <Zoom>
+  <Image
+    src={urlFor(active).url()}
+    alt="productImage"
+    width={700}
+    height={700}
+    priority
+    className={`w-full h-[280px] md:h-[500px] object-contain group-hover:scale-110 transition-all duration-300 rounded-md cursor-zoom-in ${
+      isStock === 0 ? "opacity-50" : ""
+    }`}
+  />
+</Zoom>
         </motion.div>
       </AnimatePresence>
       <div className="grid grid-cols-6 gap-2 h-20 md:h-24">
