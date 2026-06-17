@@ -69,10 +69,25 @@ const ClientHeader = () => {
 
           {/* Right Section: Search + Actions */}
           <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 ml-auto">
+                       {/* Mobile Actions */}
+<div className="flex md:hidden items-center gap-2">
+  <CartIcon />
+   <ClerkLoaded>
+
+    <SignedIn>
+
+      <UserDropdown />
+
+    </SignedIn>
+
+  </ClerkLoaded>
+</div>
+
             {/* Search Bar */}
             <div className="flex-shrink-0">
               <SearchBar />
             </div>
+ 
 
             {/* Desktop Actions */}
             <div className="hidden lg:flex items-center gap-4">
