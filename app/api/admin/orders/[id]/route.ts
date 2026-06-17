@@ -4,6 +4,7 @@ import { isUserAdmin } from "@/lib/adminUtils";
 import { writeClient } from "@/sanity/lib/client";
 import { sendOrderStatusNotification } from "@/lib/notificationService";
 import { addWalletCredit } from "@/actions/walletActions";
+import { sendOrderStatusEmail } from "@/lib/orderEmails";
 
 export async function PATCH(
   req: NextRequest,
@@ -41,6 +42,8 @@ export async function PATCH(
       `*[_type == "order" && _id == $id][0] {
         _id,
         orderNumber,
+        customerName,
+email,
         status,
         paymentStatus,
         totalPrice,
@@ -190,7 +193,7 @@ export async function PATCH(
       try {
         await fetch(
           `${
-            process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+            process.env.NEXT_PUBLIC_BASE_URL || "https://visionhub.vercel.app"
           }/api/analytics/track`,
           {
             method: "POST",
@@ -218,27 +221,33 @@ export async function PATCH(
         const userClerkId =
           currentOrder.clerkUserId || currentOrder.user?.clerkUserId;
 
-        if (userClerkId) {
-          await sendOrderStatusNotification({
-            clerkUserId: userClerkId,
-            orderNumber: currentOrder.orderNumber,
-            orderId: id,
-            status: updateData.status,
-            previousStatus: currentOrder.status,
-          });
-        } else {
-          console.warn(
-            `⚠️ Cannot send notification: No clerkUserId found for order ${id}`
-          );
-        }
-      } catch (notificationError) {
-        console.error(
-          "Failed to send order status notification:",
-          notificationError
-        );
-        // Don't fail the request if notification fails
-      }
+       if (userClerkId) {
+  await sendOrderStatusNotification({
+    clerkUserId: userClerkId,
+    orderNumber: currentOrder.orderNumber,
+    orderId: id,
+    status: updateData.status,
+    previousStatus: currentOrder.status,
+  });
+
+  if (currentOrder.email) {
+  await sendOrderStatusEmail(
+    currentOrder.email,
+    currentOrder.customerName || "Customer",
+    currentOrder.orderNumber,
+    updateData.status
+  );
+}
+}
+
+} catch (notificationError) {
+  console.error(
+    "Failed to send order status notification:",
+    notificationError
+  );
+}
     }
+
 
     return NextResponse.json({
       message: walletRefunded

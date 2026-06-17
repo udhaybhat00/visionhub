@@ -16,7 +16,6 @@ import {
   Package,
   Loader2,
   X,
-  Wallet,
 } from "lucide-react";
 import useCartStore, { CartItem } from "@/store";
 import PriceFormatter from "@/components/PriceFormatter";
@@ -28,15 +27,6 @@ import { OrderAddressSelector } from "@/components/checkout/OrderAddressSelector
 import { useOrderPlacement } from "@/hooks/useOrderPlacement";
 import { CheckoutSkeleton } from "@/components/checkout/CheckoutSkeleton";
 import { OrderPlacementOverlay } from "@/components/cart/OrderPlacementSkeleton";
-import {
-  Dialog,
-  DialogPortal,
-  DialogOverlay,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import * as DialogPrimitive from "@radix-ui/react-dialog";
-import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import { cn } from "@/lib/utils";
 
 interface OrderAddress {
   _id: string;
@@ -66,7 +56,7 @@ export function CheckoutContent() {
     user: user!,
   });
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
-    useState<PaymentMethod>(PAYMENT_METHODS.STRIPE);
+    useState<PaymentMethod>(PAYMENT_METHODS.RAZORPAY);
   const [selectedAddress, setSelectedAddress] = useState<OrderAddress | null>(
     null
   );
@@ -79,7 +69,7 @@ export function CheckoutContent() {
     isBusiness: boolean;
     isActive: boolean;
   } | null>(null);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  
 
   // New pricing structure
   const grossSubtotal = getSubTotalPrice(); // Gross amount (before discount)
@@ -206,30 +196,10 @@ export function CheckoutContent() {
     }
   }, [cart, hasInitialCart, isLoaded]);
 
-  const handlePayNowClick = () => {
-    if (!selectedAddress) {
-      toast.error("Please select a shipping address");
-      return;
-    }
-    setShowPaymentModal(true);
-  };
-
-  const handlePaymentMethodSelect = async (method: "stripe" | "clerk") => {
-    setShowPaymentModal(false);
-
-    if (method === "clerk") {
-      // Process Clerk payment
-      await handlePlaceOrder("pay", "clerk");
-    } else {
-      // Process Stripe payment
-      await handlePlaceOrder("pay", "stripe");
-    }
-  };
 
   const handlePlaceOrder = async (
-    action: "pay" | "order",
-    paymentGateway?: "stripe" | "clerk"
-  ) => {
+  action: "pay"
+) => {
     if (!selectedAddress) {
       toast.error("Please select a shipping address");
       return;
@@ -238,12 +208,7 @@ export function CheckoutContent() {
     setActionType(action);
 
     // Determine payment method based on action and gateway
-    let paymentMethodToUse = selectedPaymentMethod;
-    if (action === "pay" && paymentGateway === "clerk") {
-      paymentMethodToUse = PAYMENT_METHODS.CLERK;
-    } else if (action === "pay" && paymentGateway === "stripe") {
-      paymentMethodToUse = PAYMENT_METHODS.STRIPE;
-    }
+   const paymentMethodToUse = PAYMENT_METHODS.RAZORPAY;
 
     const result = await placeOrder(
       selectedAddress,
@@ -258,7 +223,8 @@ export function CheckoutContent() {
       setIsRedirecting(true);
       if (
         action === "pay" &&
-        (result.isStripeRedirect || result.isClerkRedirect)
+        ("isStripeRedirect" in result && result.isStripeRedirect) ||
+("isClerkRedirect" in result && result.isClerkRedirect)
       ) {
         // Direct payment - clear cart and redirect
         resetCart();
@@ -270,13 +236,86 @@ export function CheckoutContent() {
             resetCart();
             window.location.href = result.redirectTo;
           },
-          action === "order" ? 1500 : 500
+          500
         );
       }
     }
 
     setActionType(null);
   };
+  const handleRazorpayPayment = async () => {
+  if (!selectedAddress) {
+    toast.error("Please select a shipping address");
+    return;
+  }
+
+  const response = await fetch("/api/razorpay/create-order", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      amount: total,
+    }),
+  });
+
+  if (!response.ok) {
+  toast.error("Failed to create Razorpay order");
+  return;
+}
+
+const order = await response.json();
+
+  const options = {
+  key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
+    amount: order.amount,
+    currency: "INR",
+    name: "VisionHub",
+    description: "Eyewear Purchase",
+    order_id: order.id,
+    prefill: {
+  name: user?.fullName || "",
+  email: user?.primaryEmailAddress?.emailAddress || "",
+},
+
+   handler: async function (response: any) {
+  try {
+    const verifyResponse = await fetch(
+      "/api/razorpay/verify-payment",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(response),
+      }
+    );
+
+    const result = await verifyResponse.json();
+
+    if (!result.success) {
+      toast.error("Payment verification failed");
+      return;
+    }
+
+    toast.success("Payment successful!");
+
+    await handlePlaceOrder("pay");
+  } catch (error) {
+    console.error(error);
+    toast.error("Payment verification failed");
+  }
+},
+
+    theme: {
+      color: "#1B4332",
+    },
+  };
+
+  const razorpay = new (window as any).Razorpay(options);
+
+  razorpay.open();
+};
 
   if (!isLoaded) {
     return <CheckoutSkeleton />;
@@ -331,62 +370,7 @@ export function CheckoutContent() {
     <div className="grid lg:grid-cols-3 gap-8">
       {/* Order Items */}
       <div className="lg:col-span-2 space-y-6">
-        {/* Payment Method */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="w-5 h-5" />
-              Payment Method
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RadioGroup
-              value={selectedPaymentMethod}
-              onValueChange={(value) =>
-                setSelectedPaymentMethod(value as PaymentMethod)
-              }
-              className="space-y-3"
-            >
-              <div className="flex items-start space-x-3 p-3 border rounded-lg">
-                <RadioGroupItem
-                  value={PAYMENT_METHODS.CASH_ON_DELIVERY}
-                  id="cod"
-                  className="mt-1"
-                />
-                <div className="flex-1">
-                  <Label htmlFor="cod" className="cursor-pointer">
-                    <div className="flex items-center gap-2 font-medium">
-                      <Truck className="w-4 h-4" />
-                      Cash on Delivery
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Pay when your order is delivered to your doorstep
-                    </p>
-                  </Label>
-                </div>
-              </div>
 
-              <div className="flex items-start space-x-3 p-3 border rounded-lg">
-                <RadioGroupItem
-                  value={PAYMENT_METHODS.STRIPE}
-                  id="stripe"
-                  className="mt-1"
-                />
-                <div className="flex-1">
-                  <Label htmlFor="stripe" className="cursor-pointer">
-                    <div className="flex items-center gap-2 font-medium">
-                      <CreditCard className="w-4 h-4" />
-                      Credit/Debit Card
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Pay securely with your credit or debit card via Stripe
-                    </p>
-                  </Label>
-                </div>
-              </div>
-            </RadioGroup>
-          </CardContent>
-        </Card>
         {/* Shipping Address */}
         <Card>
           <CardHeader>
@@ -547,7 +531,7 @@ export function CheckoutContent() {
 
         <div className="space-y-3">
           <Button
-            onClick={handlePayNowClick}
+            onClick={handleRazorpayPayment}
             disabled={isPlacingOrder || !selectedAddress || cart.length === 0}
             className="w-full h-12 text-lg font-semibold"
             size="lg"
@@ -565,31 +549,12 @@ export function CheckoutContent() {
             )}
           </Button>
 
-          <Button
-            onClick={() => handlePlaceOrder("order")}
-            disabled={isPlacingOrder || !selectedAddress || cart.length === 0}
-            variant="outline"
-            className="w-full h-12 text-lg font-semibold"
-            size="lg"
-          >
-            {isPlacingOrder && actionType === "order" ? (
-              <div className="flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Placing Order...
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Package className="w-5 h-5" />
-                Place Order (Pay Later)
-              </div>
-            )}
-          </Button>
         </div>
 
         <div className="text-center text-xs text-muted-foreground">
-          {selectedPaymentMethod === PAYMENT_METHODS.STRIPE ? (
+          {selectedPaymentMethod === PAYMENT_METHODS.RAZORPAY ? (
             <>
-              <p>🔒 Secure checkout powered by Stripe</p>
+              <p>🔒 Secure checkout powered by Razorpay</p>
               <p>Your payment information is encrypted and secure</p>
             </>
           ) : (
@@ -608,57 +573,6 @@ export function CheckoutContent() {
           isCheckoutRedirect={actionType === "pay"}
         />
       )}
-
-      {/* Payment Method Selection Modal */}
-      <Dialog open={showPaymentModal} onOpenChange={setShowPaymentModal}>
-        <DialogPortal>
-          <DialogOverlay />
-          <DialogPrimitive.Content
-            className={cn(
-              "fixed left-[50%] top-[50%] z-50 grid w-full max-w-md translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg"
-            )}
-          >
-            <VisuallyHidden.Root>
-              <DialogTitle>Select Payment Method</DialogTitle>
-            </VisuallyHidden.Root>
-            <div className="text-center space-y-4">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 border-4 border-blue-100">
-                <CreditCard className="h-8 w-8 text-blue-600" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-xl font-bold text-gray-900">
-                  Choose Payment Method
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Select your preferred payment gateway to complete your order
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-col gap-3 pt-6">
-              <Button
-                onClick={() => handlePaymentMethodSelect("stripe")}
-                className="w-full h-12 bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 font-semibold shadow-lg hover:shadow-blue-200"
-                disabled={isPlacingOrder}
-              >
-                <CreditCard className="w-5 h-5 mr-2" />
-                Pay with Stripe
-              </Button>
-              <Button
-                onClick={() => handlePaymentMethodSelect("clerk")}
-                className="w-full h-12 bg-purple-600 hover:bg-purple-700 focus:ring-purple-500 font-semibold shadow-lg hover:shadow-purple-200"
-                disabled={isPlacingOrder}
-              >
-                <Wallet className="w-5 h-5 mr-2" />
-                Pay using Clerk
-              </Button>
-            </div>
-            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-              <X className="h-4 w-4" />
-              <span className="sr-only">Close</span>
-            </DialogPrimitive.Close>
-          </DialogPrimitive.Content>
-        </DialogPortal>
-      </Dialog>
     </div>
   );
 }

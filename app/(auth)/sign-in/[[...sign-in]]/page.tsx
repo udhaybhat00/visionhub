@@ -21,13 +21,13 @@ const SignInPage = () => {
     },
     {
       icon: Users,
-      title: "Trusted by Thousands",
-      description: "Join our community of satisfied customers",
+      title: "Trusted Shopping Experience",
+      description: "Secure access to orders, wishlist, and account settings.",
     },
     {
       icon: Star,
-      title: "Premium Experience",
-      description: "Access exclusive deals and personalized recommendations",
+      title: "Easy Order Management",
+      description: "Track orders and manage your account in one place.",
     },
   ];
 
@@ -38,14 +38,17 @@ const SignInPage = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,156,60,0.1)_0%,transparent_50%),radial-gradient(circle_at_80%_80%,rgba(251,108,8,0.08)_0%,transparent_50%),radial-gradient(circle_at_40%_40%,rgba(252,240,228,0.3)_0%,transparent_50%)]"></div>
 
         {/* Header */}
-        <header className="relative z-10 px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
+        <header className="relative z-10 px-4 sm:px-6 lg:px-8 py-3 lg:py-6">
+          <div className="relative flex items-center justify-center">
             <Link
               href="/"
-              className="flex items-center gap-2 text-shop_dark_green hover:text-shop_light_green transition-colors duration-200 font-medium"
+                className="absolute left-0 flex items-center gap-2 text-shop_dark_green hover:text-shop_light_green transition-colors duration-200 font-medium"
+
             >
               <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Back to Home</span>
+              <span className="hidden sm:inline font-medium">
+  Back to Home
+</span>
             </Link>
             <Logo />
           </div>
@@ -53,12 +56,12 @@ const SignInPage = () => {
 
         <div className="flex flex-col lg:flex-row min-h-[calc(100vh-120px)]">
           {/* Left Side - Welcome Content */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 py-8 lg:py-12"
-          >
+         <motion.div
+  initial={{ opacity: 0, x: -20 }}
+  animate={{ opacity: 1, x: 0 }}
+  transition={{ duration: 0.6 }}
+  className="hidden lg:flex flex-1 flex-col justify-center px-4 sm:px-6 lg:px-8 py-8 lg:py-12"
+>
             <div className="max-w-md mx-auto lg:max-w-lg lg:mx-0">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -125,14 +128,23 @@ const SignInPage = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 lg:py-12"
+            className="flex-1 flex items-start lg:items-center justify-center px-0 lg:px-8 py-2 lg:py-12"
           >
-            <div className="w-full max-w-md">
+            <div className="w-full max-w-md mx-auto">
+              <div className="lg:hidden text-center mb-3">
+  <h1 className="text-xl font-bold text-shop_dark_green">
+    Welcome Back
+  </h1>
+
+  <p className="text-sm text-gray-500 mt-2">
+    Sign in to continue shopping
+  </p>
+</div>
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-gray-100/50 p-8"
+                className="p-0 bg-transparent shadow-none border-0"
               >
                 {/* Clerk Sign In Component */}
                 <div className="clerk-sign-in">

@@ -14,6 +14,7 @@ import {
   Info,
   Grid3X3,
   Logs,
+    Search,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { FC } from "react";
@@ -21,7 +22,11 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { useOutsideClick } from "@/hooks";
 import { categoriesData } from "@/constants";
-import { ClerkLoaded, SignedIn } from "@clerk/nextjs";
+import {
+  ClerkLoaded,
+  SignedIn,
+  SignedOut,
+} from "@clerk/nextjs";
 import useStore from "@/store";
 import Logo from "../common/Logo";
 import SocialMedia from "../common/SocialMedia";
@@ -38,7 +43,7 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   // Enhanced menu sections with icons
   const userMenuItems = [
-    { title: "My Account", href: "/account", icon: User },
+    { title: "My Account", href: "/user/profile", icon: User },
     { title: "My Orders", href: "/orders", icon: Package },
     { title: "Wishlist", href: "/wishlist", icon: Heart },
     { title: "Shopping Cart", href: "/cart", icon: ShoppingCart },
@@ -70,10 +75,10 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.3 }}
         ref={sidebarRef}
-        className="min-w-72 max-w-96 bg-black z-50 h-screen text-primary-foreground p-6 border-r border-r-shop_dark_green flex flex-col gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-shop_dark_green scrollbar-track-transparent"
+        className="w-[85%] max-w-[320px] bg-black z-50 h-screen text-primary-foreground p-6 border-r border-r-shop_dark_green flex flex-col gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-shop_dark_green scrollbar-track-transparent"
       >
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-shop_dark_green">
+        <div className="flex items-center justify-between pb-5 border-b border-shop_dark_green">
           <Logo className="text-white" />
           <button
             onClick={onClose}
@@ -83,12 +88,14 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
           </button>
         </div>
 
+
         {/* Mobile Quick Actions */}
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-shop_light_green uppercase tracking-wider">
             Quick Access
           </h3>
-          <div className="grid grid-cols-3 gap-3">
+          
+          <div className="grid grid-cols-2 gap-3">
             {/* Shopping Cart */}
             <Link
               onClick={onClose}
@@ -139,8 +146,43 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* User Section */}
-        <div className="space-y-3">
+        <ClerkLoaded>
+  <SignedOut>
+    <div className="space-y-3">
+     <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
+  <h3 className="text-white font-semibold text-base mb-1">
+    👋 Welcome to VisionHub
+  </h3>
+
+  <p className="text-xs text-zinc-400 mb-4 leading-relaxed">
+    Sign in to track orders, save your wishlist and unlock exclusive offers.
+  </p>
+</div>
+
+      <div className="flex flex-col gap-3">
+        <Link
+          onClick={onClose}
+          href="/sign-in"
+          className="w-full text-center py-3 rounded-xl border border-shop_orange text-shop_orange font-semibold hover:bg-shop_orange hover:text-white transition-all"
+        >
+          Sign In
+        </Link>
+
+        <Link
+          onClick={onClose}
+          href="/sign-up"
+          className="w-full text-center py-3 rounded-xl bg-shop_orange text-white font-semibold hover:opacity-90 transition-all"
+        >
+          Create Account
+        </Link>
+      </div>
+    </div>
+  </SignedOut>
+</ClerkLoaded>
+
+        <ClerkLoaded>
+  <SignedIn>
+    <div className="space-y-3">
           <h3 className="text-sm font-semibold text-shop_light_green uppercase tracking-wider">
             My Account
           </h3>
@@ -165,6 +207,8 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
             })}
           </div>
         </div>
+  </SignedIn>
+</ClerkLoaded>
 
         {/* Main Navigation */}
         <div className="space-y-3">
@@ -198,13 +242,25 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
           <h3 className="text-sm font-semibold text-shop_light_green uppercase tracking-wider">
             Popular Categories
           </h3>
-          <div className="flex flex-col gap-1">
-            {categoriesData.slice(0, 6).map((item) => (
+          <div className="flex flex-wrap gap-2">
+            {categoriesData.slice(0, 4).map((item) => (
               <Link
                 onClick={onClose}
                 key={item.title}
                 href={`/category/${item.href}`}
-                className="text-xs font-medium text-zinc-400 hover:text-shop_light_green transition-colors duration-200 py-1.5 px-2 rounded hover:bg-shop_dark_green/20 capitalize"
+                className="
+text-xs
+font-medium
+px-3
+py-2
+rounded-full
+bg-zinc-900
+border border-zinc-700
+text-zinc-300
+hover:border-shop_orange
+hover:text-shop_orange
+transition-all
+"
               >
                 {item.title}
               </Link>
@@ -300,7 +356,9 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
           <h3 className="text-sm font-semibold text-shop_light_green uppercase tracking-wider mb-3">
             Follow Us
           </h3>
-          <SocialMedia />
+          <div className="scale-125 origin-left">
+  <SocialMedia />
+</div>
         </div>
       </motion.div>
     </div>

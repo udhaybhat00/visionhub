@@ -8,7 +8,6 @@ import {
   ShoppingBag,
   CreditCard,
   Truck,
-  RotateCcw,
   User,
   MessageCircle,
 } from "lucide-react";
@@ -42,7 +41,7 @@ const faqs: FAQ[] = [
   // Shopping FAQs
   {
     id: "shopping-1",
-    question: "How do I place an order?",
+    question: "Browse our eyewear collection, select your preferred product, add it to your cart, and complete checkout using our secure payment system.",
     answer:
       "To place an order, browse our products, add items to your cart, and proceed to checkout. You'll need to create an account or sign in, then provide your shipping information and payment details to complete your purchase.",
     category: "shopping",
@@ -93,9 +92,9 @@ const faqs: FAQ[] = [
   },
   {
     id: "payment-4",
-    question: "Can I get a refund if I'm not satisfied?",
+    question: "Are payments secure?",
     answer:
-      "Yes, we offer a 30-day money-back guarantee. If you're not completely satisfied with your purchase, you can return it within 30 days for a full refund. The item must be in original condition with all packaging.",
+      "Yes. VisionHub uses trusted payment gateways and industry-standard security measures to protect customer transactions.",
     category: "payment",
   },
 
@@ -104,21 +103,21 @@ const faqs: FAQ[] = [
     id: "shipping-1",
     question: "How much does shipping cost?",
     answer:
-      "Shipping costs vary based on your location and the shipping method you choose. Standard shipping is free for orders over $50. Express shipping options are available at checkout with their respective costs displayed.",
+      "Shipping costs vary based on your location and the shipping method you choose. Standard shipping is free for orders over ₹999. Express shipping options are available at checkout with their respective costs displayed.",
     category: "shipping",
   },
   {
     id: "shipping-2",
     question: "How long does delivery take?",
     answer:
-      "Standard shipping typically takes 3-7 business days within the continental US. Express shipping takes 1-3 business days. International shipping may take 7-14 business days depending on the destination country.",
+      "Delivery times vary depending on location, product availability, and courier operations. Estimated delivery information is provided during checkout whenever available.. Express shipping takes 1-3 business days. International shipping may take 7-14 business days depending on the destination country.",
     category: "shipping",
   },
   {
     id: "shipping-3",
-    question: "Do you ship internationally?",
+    question: "How can I track my order?",
     answer:
-      "Yes, we ship to most countries worldwide. International shipping costs and delivery times vary by destination. Customs duties and taxes may apply and are the responsibility of the recipient.",
+      "Tracking information will be shared once your order has been shipped. Customers can also check order updates through their account dashboard when available.",
     category: "shipping",
   },
   {
@@ -129,35 +128,22 @@ const faqs: FAQ[] = [
     category: "shipping",
   },
 
-  // Returns FAQs
   {
-    id: "returns-1",
-    question: "What is your return policy?",
-    answer:
-      "We offer a 30-day return policy from the date of delivery. Items must be unused, in original condition, and include all original packaging and accessories. Some items like personalized products may not be returnable.",
-    category: "returns",
-  },
-  {
-    id: "returns-2",
-    question: "How do I return an item?",
-    answer:
-      "To return an item, log into your account and request a return from your order history. We'll provide you with a prepaid return label and instructions. Package the item securely and drop it off at any authorized shipping location.",
-    category: "returns",
-  },
-  {
-    id: "returns-3",
-    question: "When will I receive my refund?",
-    answer:
-      "Refunds are processed within 2-3 business days after we receive your returned item. The refund will appear on your original payment method within 5-10 business days, depending on your bank or card issuer.",
-    category: "returns",
-  },
-  {
-    id: "returns-4",
-    question: "Can I exchange an item instead of returning it?",
-    answer:
-      "Yes, you can exchange items for a different size or color if available. Select the exchange option when initiating your return, and we'll send you the new item as soon as we receive the original.",
-    category: "returns",
-  },
+  id: "eyewear-1",
+  question: "Do you offer prescription eyewear?",
+  answer:
+    "Selected products support prescription lenses. Please review product specifications for availability.",
+  category: "shopping",
+},
+
+{
+  id: "eyewear-2",
+  question: "Are your products authentic?",
+  answer:
+    "Yes. VisionHub is committed to providing quality eyewear products sourced from trusted suppliers and brands.",
+  category: "shopping",
+},
+  
 
   // Account FAQs
   {
@@ -211,12 +197,6 @@ const categories = [
     count: faqs.filter((faq) => faq.category === "shipping").length,
   },
   {
-    id: "returns",
-    label: "Returns",
-    icon: RotateCcw,
-    count: faqs.filter((faq) => faq.category === "returns").length,
-  },
-  {
     id: "account",
     label: "Account",
     icon: User,
@@ -252,12 +232,11 @@ const FAQPage = () => {
               Frequently Asked Questions
             </h1>
             <p className="text-xl text-white/90 max-w-3xl mx-auto mb-6">
-              Find answers to common questions about shopping, payments,
-              shipping, and more. Can&apos;t find what you&apos;re looking for?
-              Contact our support team.
+              Find answers to common questions about eyewear, prescription options,
+orders, payments, shipping, and customer support.
             </p>
             <Badge className="bg-white/20 text-white border-white/30 hover:bg-white/30">
-              Updated Daily
+              VisionHub Help Center
             </Badge>
           </motion.div>
         </Container>
@@ -418,8 +397,7 @@ const FAQPage = () => {
                 Still need help?
               </CardTitle>
               <CardDescription className="text-white/80">
-                Our support team is here to assist you with any questions not
-                covered in our FAQ.
+                Need assistance with an order or product? Our customer support team is ready to help.
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center pb-8">

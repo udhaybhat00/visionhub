@@ -91,7 +91,7 @@ const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "INR",
     }).format(amount);
   };
 
@@ -112,7 +112,7 @@ const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
         return "bg-green-100 text-green-800";
       case "delivered":
         return "bg-green-100 text-green-800";
-      case "out_for_delivery":
+      case "shipped":
         return "bg-blue-100 text-blue-800";
       case "ready_for_delivery":
         return "bg-cyan-100 text-cyan-800";
@@ -414,7 +414,7 @@ const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
                         <SelectItem value="ready_for_delivery">
                           ✅ Ready for Delivery
                         </SelectItem>
-                        <SelectItem value="out_for_delivery">
+                        <SelectItem value="shipped">
                           🚚 Out for Delivery
                         </SelectItem>
                         <SelectItem value="delivered">📬 Delivered</SelectItem>

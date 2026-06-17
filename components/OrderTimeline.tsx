@@ -74,20 +74,33 @@ const OrderTimeline: React.FC<OrderTimelineProps> = ({ order }) => {
     const isCancelled = order.status === "cancelled";
 
     // Determine current status for proper "current" highlighting
-    const isAddressConfirmed = !!order.addressConfirmedAt;
-    const isOrderConfirmed = !!order.orderConfirmedAt;
-    const isPacked = !!order.packedAt;
-    const isDispatched = !!(
-      order.dispatchedAt || order.assignedDeliverymanName
-    );
-    const isCashCollected = !!order.cashCollectedAt;
-    const isDelivered = !!order.deliveredAt;
+  const isOrderConfirmed = [
+  "confirmed",
+  "processing",
+  "shipped",
+  "delivered",
+].includes(order.status);
+
+const isPacked = [
+  "processing",
+  "shipped",
+  "delivered",
+].includes(order.status);
+
+const isDispatched = [
+  "shipped",
+  "delivered",
+].includes(order.status);
+
+const isDelivered = order.status === "delivered";
+
+const isCashCollected = !!order.cashCollectedAt;
     const isCOD = order.paymentStatus === "pending";
 
     // 1. Order Placed - Always completed
     events.push({
-      title: "Order Placed",
-      description: "Your order has been received",
+     title: "Order Placed",
+     description: "Your order has been received successfully",
       date: order.orderDate,
       status: "completed",
       icon: <ClipboardCheck className="w-5 h-5" />,
@@ -105,27 +118,6 @@ const OrderTimeline: React.FC<OrderTimelineProps> = ({ order }) => {
       return events; // Return early to stop showing further timeline steps
     }
 
-    // 2. Address Confirmation - Always show
-    if (isAddressConfirmed) {
-      events.push({
-        title: "Address Confirmed",
-        description: order.addressConfirmedBy
-          ? `Confirmed by ${order.addressConfirmedBy}`
-          : "Delivery address verified",
-        date: order.addressConfirmedAt,
-        status: "completed",
-        icon: <MapPin className="w-5 h-5" />,
-        employee: order.addressConfirmedBy,
-      });
-    } else {
-      events.push({
-        title: "Address Confirmation",
-        description: "Waiting for address verification",
-        status: "current",
-        icon: <MapPin className="w-5 h-5" />,
-      });
-    }
-
     // 3. Order Confirmation - Always show
     if (isOrderConfirmed) {
       events.push({
@@ -140,9 +132,9 @@ const OrderTimeline: React.FC<OrderTimelineProps> = ({ order }) => {
       });
     } else {
       events.push({
-        title: "Order Confirmation",
-        description: "Pending order confirmation",
-        status: isAddressConfirmed ? "current" : "pending",
+       title: "Order Confirmed",
+description: "Your order has been verified and confirmed",
+        status: "current",
         icon: <CheckCircle className="w-5 h-5" />,
       });
     }
@@ -150,7 +142,7 @@ const OrderTimeline: React.FC<OrderTimelineProps> = ({ order }) => {
     // 4. Packing - Always show
     if (isPacked) {
       events.push({
-        title: "Order Packed",
+        title: "Eyewear Ready",
         description: order.packedBy
           ? `Packed by ${order.packedBy}`
           : "Your order has been packed",
@@ -161,8 +153,8 @@ const OrderTimeline: React.FC<OrderTimelineProps> = ({ order }) => {
       });
     } else {
       events.push({
-        title: "Order Packing",
-        description: "Your order will be packed soon",
+        title: "Preparing Your Eyewear",
+description: "Your eyewear is being prepared for dispatch",
         status: isOrderConfirmed ? "current" : "pending",
         icon: <PackageCheck className="w-5 h-5" />,
       });
@@ -171,7 +163,7 @@ const OrderTimeline: React.FC<OrderTimelineProps> = ({ order }) => {
     // 5. Out for Delivery - Always show
     if (isDispatched) {
       events.push({
-        title: "Out for Delivery",
+        title: "Shipped",
         description: order.assignedDeliverymanName
           ? `Assigned to ${order.assignedDeliverymanName}`
           : "Order is out for delivery",
@@ -182,8 +174,8 @@ const OrderTimeline: React.FC<OrderTimelineProps> = ({ order }) => {
       });
     } else {
       events.push({
-        title: "Out for Delivery",
-        description: "Your order will be dispatched for delivery",
+        title: "Shipped",
+        description: "Your package has been shipped",
         status: isPacked ? "current" : "pending",
         icon: <Truck className="w-5 h-5" />,
       });
@@ -210,8 +202,8 @@ const OrderTimeline: React.FC<OrderTimelineProps> = ({ order }) => {
     } else if (order.paymentCompletedAt && !isCashCollected) {
       // Online payment already completed
       events.push({
-        title: "Payment Received",
-        description: "Payment completed online",
+        title: "Payment Confirmed",
+description: "Payment received successfully",
         date: order.paymentCompletedAt,
         status: "completed",
         icon: <DollarSign className="w-5 h-5" />,

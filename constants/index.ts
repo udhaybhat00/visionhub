@@ -1,16 +1,16 @@
 export const headerData = [
   { title: "Home", href: "/" },
-  { title: "Shop", href: "/shop" },
-  { title: "Hot Deal", href: "/deal" },
-  { title: "Blog", href: "/blog" },
+  { title: "Eyeglasses", href: "/shop?type=eyeglasses" },
+  { title: "Sunglasses", href: "/shop?type=sunglasses" },
+  { title: "Brands", href: "/brands" },
   { title: "Contact", href: "/contact" },
 ];
 
 export const productType = [
-  { title: "Gadget", value: "gadget" },
-  { title: "Appliances", value: "appliances" },
-  { title: "Refrigerators", value: "refrigerators" },
-  { title: "Others", value: "others" },
+  { title: "Sunglasses", value: "sunglasses" },
+  { title: "Eyeglasses", value: "eyeglasses" },
+  { title: "Contact Lenses", value: "contact-lenses" },
+  { title: "Accessories", value: "accessories" },
 ];
 
 export const quickLinksData = [
@@ -23,16 +23,14 @@ export const quickLinksData = [
 ];
 
 export const categoriesData = [
-  { title: "Mobiles", href: "mobiles" },
-  { title: "Appliances", href: "appliances" },
-  { title: "Smartphones", href: "smartphones" },
-  { title: "Air Conditioners", href: "air-conditioners" },
-  { title: "Washing Machine", href: "washing-machine" },
-  { title: "Kitchen Appliances", href: "kitchen-appliances" },
-  { title: "Gadget Accessories", href: "gadget-accessories" },
-  // { title: "Electronics", href: "electronics" },
-  // { title: "Home & Garden", href: "home-garden" },
-  // { title: "Sports & Fitness", href: "sports-fitness" },
+  { title: "Men's Sunglasses", href: "mens-sunglasses" },
+  { title: "Women's Sunglasses", href: "womens-sunglasses" },
+  { title: "Power Glasses", href: "power-glasses" },
+  { title: "Computer Glasses", href: "computer-glasses" },
+  { title: "Contact Lenses", href: "contact-lenses" },
+  { title: "Sports Glasses", href: "sports-glasses" },
+  { title: "Kids Glasses", href: "kids-glasses" },
+  { title: "Accessories", href: "accessories" },
 ];
 
 // Enhanced user account menu items
@@ -56,29 +54,50 @@ export const supportData = [
   { title: "Size Guide", href: "/size-guide" },
 ];
 export const faqsData = [
-  {
-    question: "What services does Shopcart offer?",
-    answer:
-      "Shopcart offers a wide range of technology solutions including custom software development, cloud services, and digital transformation consulting.",
-  },
-  {
-    question: "How can I get support for Shopcart products?",
-    answer:
-      "You can reach our support team through our contact page or by emailing support@Shopcart.com.",
-  },
-  {
-    question: "Does Shopcart offer training for its products?",
-    answer:
-      "Yes, we offer comprehensive training programs for all our products and services. Please contact our sales team for more information.",
-  },
-  {
-    question: "What industries does Shopcart serve?",
-    answer:
-      "Shopcart serves a wide range of industries including finance, healthcare, retail, and manufacturing.",
-  },
-  {
-    question: "How does Shopcart ensure data security?",
-    answer:
-      "We employ industry-standard security measures and comply with all relevant data protection regulations to ensure the security of our clients' data.",
-  },
+{
+question: "How can I place an order?",
+answer:
+"Browse our collection, select your preferred eyewear product, add it to your cart, and complete the checkout process using our secure payment system.",
+},
+{
+question: "Do you sell authentic products?",
+answer:
+"Yes. VisionHub is committed to providing quality eyewear products sourced from trusted suppliers and brands.",
+},
+{
+question: "Do you offer prescription eyewear?",
+answer:
+"Selected products support prescription lenses. Please check the product details page for availability and specifications.",
+},
+{
+question: "How can I track my order?",
+answer:
+"Once your order is shipped, tracking details will be provided through email or other available communication channels.",
+},
+{
+question: "What payment methods do you accept?",
+answer:
+"We accept secure online payments through supported payment gateways, including major cards, UPI, and other available payment options.",
+},
+{
+question: "Do you offer returns or exchanges?",
+answer:
+"Currently, VisionHub does not offer returns or exchanges unless required by applicable law or if a product arrives damaged during shipping.",
+},
+{
+question: "How long does shipping take?",
+answer:
+"Delivery times vary depending on your location and product availability. Estimated delivery information is provided during checkout whenever possible.",
+},
+{
+question: "Is my personal information secure?",
+answer:
+"Yes. We use industry-standard security practices to protect customer information and ensure secure transactions.",
+},
+{
+question: "How can I contact customer support?",
+answer:
+"You can reach our support team through the Contact Us page, email, or available communication channels during business hours.",
+},
 ];
+

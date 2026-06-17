@@ -31,10 +31,9 @@ export default async function Home() {
       />
 
       <HomeBanner />
-      <div className="py-10">
+      <div className="pt-4 pb-10">
         <ProductGrid />
         <HomeCategories categories={categories} />
-        <ShopFeatures />
         <ShopByBrands />
         <LatestBlog />
       </div>

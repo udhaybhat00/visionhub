@@ -114,7 +114,7 @@ export const POST = async (request: NextRequest) => {
         })
       ),
       totalPrice: totalAmount,
-      currency: "USD",
+      currency: "INR",
       amountDiscount: 0, // Can be calculated if you have discount logic
       address: {
         _type: "object",
@@ -127,24 +127,21 @@ export const POST = async (request: NextRequest) => {
       status: ORDER_STATUSES.PENDING,
       orderDate: new Date().toISOString(),
       paymentMethod,
-      paymentStatus:
-        paymentMethod === PAYMENT_METHODS.CASH_ON_DELIVERY
-          ? PAYMENT_STATUSES.PENDING
-          : PAYMENT_STATUSES.PENDING,
+      paymentStatus: PAYMENT_STATUSES.PAID,
       subtotal,
       shipping,
       tax,
       // Add payment-specific fields based on payment method
-      ...(paymentMethod === PAYMENT_METHODS.STRIPE && {
+      ...(paymentMethod === PAYMENT_METHODS.RAZORPAY && {
         stripeCustomerId: "", // Will be populated when needed for invoicing
         stripePaymentIntentId: "", // Will be populated for Stripe payments
         stripeCheckoutSessionId: "", // Will be populated for Stripe payments
       }),
-      ...(paymentMethod === PAYMENT_METHODS.CLERK && {
+      ...(paymentMethod === PAYMENT_METHODS.RAZORPAY && {
         clerkPaymentId: "", // Will be populated for Clerk payments
         clerkPaymentStatus: "pending", // Initial status
       }),
-      ...(paymentMethod === PAYMENT_METHODS.CASH_ON_DELIVERY && {
+      ...(paymentMethod === PAYMENT_METHODS.RAZORPAY && {
         stripePaymentIntentId: `cod_${orderNumber}`,
       }),
     };
@@ -156,7 +153,7 @@ export const POST = async (request: NextRequest) => {
     try {
       await fetch(
         `${
-          process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+          process.env.NEXT_PUBLIC_BASE_URL || "https://visionhub.vercel.app"
         }/api/analytics/track`,
         {
           method: "POST",
@@ -189,7 +186,7 @@ export const POST = async (request: NextRequest) => {
       // Also track purchase event for e-commerce analytics
       await fetch(
         `${
-          process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+          process.env.NEXT_PUBLIC_BASE_URL || "https://visionhub.vercel.app"
         }/api/analytics/track`,
         {
           method: "POST",
@@ -199,7 +196,7 @@ export const POST = async (request: NextRequest) => {
             eventParams: {
               orderId: createdOrder._id,
               value: totalAmount,
-              currency: "USD",
+              currency: "INR",
               items: items.map((item: CartItem) => ({
                 productId: item.product._id,
                 name: item.product.name || "Unknown Product",

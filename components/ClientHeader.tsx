@@ -78,7 +78,6 @@ const ClientHeader = () => {
             <div className="hidden lg:flex items-center gap-4">
               <CartIcon />
               <FavoriteButton />
-              <NotificationBell />
 
               <ClerkLoaded>
                 <SignedIn>
@@ -86,19 +85,39 @@ const ClientHeader = () => {
                 </SignedIn>
 
                 <SignedOut>
-                  <div className="flex items-center gap-3">
-                    <Link
-                      href={getSignInUrl()}
-                      className="bg-transparent border border-shop_btn_dark_green hover:bg-shop_btn_dark_green text-shop_btn_dark_green  hover:text-white px-2 py-1.5 rounded text-xs font-semibold hoverEffect"
-                    >
-                      Sign In
-                    </Link>
-                    <Link
-                      href={getSignUpUrl()}
-                      className="bg-shop_btn_dark_green border border-shop_btn_dark_green hover:bg-transparent text-white hover:text-shop_btn_dark_green px-2 py-1.5 rounded text-xs font-semibold hoverEffect"
-                    >
-                      Sign Up
-                    </Link>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+        <Link
+  href={getSignInUrl()}
+  className="
+  px-5 py-2
+  rounded-full
+  border border-gray-200
+  bg-white
+  text-gray-700
+  text-sm font-semibold
+  hover:border-shop_orange
+  hover:text-shop_orange
+  transition-all
+  "
+>
+  Sign In
+</Link>
+               <Link
+  href={getSignUpUrl()}
+  className="
+  px-5 py-2
+  rounded-full
+  bg-shop_orange
+  text-white
+  text-sm font-semibold
+  shadow-sm
+  hover:shadow-md
+  hover:scale-105
+  transition-all
+  "
+>
+  Sign Up
+</Link>
                   </div>
                 </SignedOut>
               </ClerkLoaded>
@@ -108,7 +127,6 @@ const ClientHeader = () => {
             <div className="hidden md:flex lg:hidden items-center gap-2">
               <CartIcon />
               <FavoriteButton />
-              <NotificationBell />
 
               <ClerkLoaded>
                 <SignedIn>
@@ -133,30 +151,8 @@ const ClientHeader = () => {
               </ClerkLoaded>
             </div>
 
-            {/* Mobile Actions (Small screens) */}
-            <div className="flex md:hidden items-center gap-1">
-              <ClerkLoaded>
-                <SignedIn>
-                  <UserDropdown />
-                </SignedIn>
-                <SignedOut>
-                  <div className="flex items-center gap-1">
-                    <Link
-                      href={getSignInUrl()}
-                      className="bg-transparent border border-shop_btn_dark_green hover:bg-shop_btn_dark_green text-shop_btn_dark_green  hover:text-white px-2 py-1.5 rounded text-xs font-semibold hoverEffect"
-                    >
-                      Sign In
-                    </Link>
-                    <Link
-                      href={getSignUpUrl()}
-                      className="bg-shop_btn_dark_green border border-shop_btn_dark_green hover:bg-transparent text-white hover:text-shop_btn_dark_green px-2 py-1.5 rounded text-xs font-semibold hoverEffect"
-                    >
-                      Sign Up
-                    </Link>
-                  </div>
-                </SignedOut>
-              </ClerkLoaded>
-            </div>
+           <div className="hidden md:hidden">
+</div>
           </div>
         </div>
       </Container>

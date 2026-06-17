@@ -20,12 +20,12 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 const AboutPage = () => {
-  const stats = [
-    { number: "10K+", label: "Happy Customers", icon: Users },
-    { number: "500+", label: "Products", icon: ShoppingBag },
-    { number: "50+", label: "Brands", icon: Award },
-    { number: "99%", label: "Satisfaction", icon: Heart },
-  ];
+ const stats = [
+  { number: "100+", label: "Eyewear Styles", icon: ShoppingBag },
+  { number: "10+", label: "Categories", icon: Award },
+  { number: "24/7", label: "Support", icon: Users },
+  { number: "100%", label: "Authentic Products", icon: Shield },
+];
 
   const values = [
     {
@@ -36,45 +36,33 @@ const AboutPage = () => {
     },
     {
       icon: Shield,
-      title: "Quality Assurance",
+      title: "Premium Quality",
       description: "We ensure every product meets our high standards.",
       color: "text-shop_dark_green",
     },
     {
       icon: Zap,
-      title: "Innovation",
+      title: "Vision & Comfort",
       description: "Constantly evolving to bring you the latest and greatest.",
       color: "text-shop_orange",
     },
     {
       icon: Globe,
-      title: "Sustainability",
+      title: "Trusted Service",
       description:
         "Committed to eco-friendly practices and responsible sourcing.",
       color: "text-shop_light_green",
     },
   ];
 
-  const team = [
-    {
-      name: "Sarah Johnson",
-      role: "CEO & Founder",
-      image: "/images/team/ceo.jpg",
-      description: "Visionary leader with 15+ years in e-commerce",
-    },
-    {
-      name: "Michael Chen",
-      role: "CTO",
-      image: "/images/team/cto.jpg",
-      description: "Tech innovator driving our digital transformation",
-    },
-    {
-      name: "Emily Rodriguez",
-      role: "Head of Design",
-      image: "/images/team/design.jpg",
-      description: "Creative force behind our user experience",
-    },
-  ];
+ const team = [
+  {
+    name: "Shivam Bhat",
+    role: "Founder & CEO",
+    description:
+      "Building VisionHub with a vision to provide premium eyewear, sunglasses, contact lenses, and eye-care essentials while delivering a seamless shopping experience.",
+  },
+];
 
   return (
     <div className="bg-gradient-to-b from-shop_light_bg to-white min-h-screen">
@@ -90,13 +78,14 @@ const AboutPage = () => {
               Est. 2025
             </Badge>
             <h1 className="text-5xl lg:text-6xl font-bold mb-6">
-              About ShopCart
+              About VisionHub
             </h1>
-            <p className="text-xl lg:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed">
-              We&apos;re revolutionizing online shopping with curated products,
-              exceptional service, and innovative technology that puts customers
-              first.
-            </p>
+           <p className="text-xl lg:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed">
+  VisionHub is your trusted destination for premium eyewear,
+  sunglasses, prescription glasses, contact lenses, and accessories.
+  We combine style, comfort, and quality to help you see clearly and
+  look your best every day.
+</p>
           </motion.div>
         </Container>
       </section>
@@ -140,19 +129,19 @@ const AboutPage = () => {
                 Our Story
               </Badge>
               <h2 className="text-4xl font-bold text-shop_dark_green mb-6">
-                Building the Future of E-commerce
+                Helping You See Better, Every Day
               </h2>
               <p className="text-lg text-dark-text mb-6 leading-relaxed">
-                Founded in 2020 with a simple mission: make online shopping more
-                personal, more accessible, and more enjoyable for everyone. What
-                started as a small team with big dreams has grown into a
-                platform trusted by thousands of customers worldwide.
+                VisionHub was created with a simple mission: to make premium eyewear
+accessible, stylish, and affordable. We carefully curate sunglasses,
+eyeglasses, contact lenses, and accessories from trusted brands to help
+customers find the perfect fit for their lifestyle.
               </p>
               <p className="text-lg text-dark-text mb-8 leading-relaxed">
-                We believe shopping should be an experience, not just a
-                transaction. That&apos;s why we carefully curate every product,
-                partner with ethical brands, and continuously innovate to serve
-                you better.
+               Whether you're looking for fashion-forward frames, prescription
+eyewear, or everyday eye-care essentials, VisionHub is committed to
+delivering quality products, reliable service, and a seamless shopping
+experience.
               </p>
               <Button
                 asChild
@@ -181,10 +170,9 @@ const AboutPage = () => {
                   </div>
                 </div>
                 <blockquote className="text-lg italic">
-                  &quot;Shopping should be delightful, not a chore. We&apos;re
-                  here to make every purchase feel special.&quot;
+                  &quot;Great vision starts with quality eyewear. Our goal is to help every customer find the perfect balance of comfort, style, and clarity.&quot;
                 </blockquote>
-                <p className="mt-4 font-semibold">- Sarah Johnson, Founder</p>
+                <p className="mt-4 font-semibold">- VisionHub Team</p>
               </div>
             </motion.div>
           </div>
@@ -253,11 +241,10 @@ const AboutPage = () => {
               Leadership Team
             </Badge>
             <h2 className="text-4xl font-bold text-shop_dark_green mb-4">
-              Meet the Minds Behind ShopCart
+              Meet the Founder
             </h2>
             <p className="text-lg text-dark-text max-w-2xl mx-auto">
-              Our passionate team of experts working tirelessly to create the
-              best shopping experience for you.
+             VisionHub was founded with a mission to combine quality eyewear, modern style, and exceptional customer service into one trusted destination.
             </p>
           </motion.div>
 
@@ -305,11 +292,10 @@ const AboutPage = () => {
             className="text-center"
           >
             <h2 className="text-4xl font-bold mb-4">
-              Ready to Experience the Difference?
+              Find Your Perfect Pair
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Join thousands of satisfied customers who trust ShopCart for their
-              shopping needs.
+              Explore our collection of premium sunglasses, eyeglasses, contact lenses, and accessories designed for style, comfort, and clear vision.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button

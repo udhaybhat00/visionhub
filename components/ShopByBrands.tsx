@@ -5,26 +5,27 @@ import Link from "next/link";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 import { GitCompareArrows, Headset, ShieldCheck, Truck } from "lucide-react";
+import { BadgeCheck } from "lucide-react";
 
 const extraData = [
   {
     title: "Free Delivery",
-    description: "Free shipping over $100",
+    description: "Free shipping across India",
     icon: <Truck size={45} />,
   },
+{
+  title: "Quality Checked",
+  description: "Every frame is inspected before dispatch",
+  icon: <BadgeCheck size={45} />,
+},
   {
-    title: "Free Return",
-    description: "Free shipping over $100",
-    icon: <GitCompareArrows size={45} />,
-  },
-  {
-    title: "Customer Support",
-    description: "Friendly 27/7 customer support",
+    title: "Eye Care Support",
+    description: "Expert assistance for eyewear selection",
     icon: <Headset size={45} />,
   },
   {
-    title: "Money Back guarantee",
-    description: "Quality checked by our team",
+    title: "100% Genuine",
+    description: "Authentic eyewear from trusted brands",
     icon: <ShieldCheck size={45} />,
   },
 ];
@@ -39,18 +40,18 @@ const ShopByBrands = async () => {
         <div className="inline-flex items-center gap-3 mb-4">
           <div className="h-1 w-12 bg-gradient-to-r from-shop_orange to-shop_light_orange rounded-full"></div>
           <Title className="text-3xl lg:text-4xl font-bold text-dark-color">
-            Shop By Brands
+            Premium Eyewear Brands
           </Title>
           <div className="h-1 w-12 bg-gradient-to-l from-shop_orange to-shop_light_orange rounded-full"></div>
         </div>
         <p className="text-light-color text-lg max-w-2xl mx-auto">
-          Discover products from your favorite trusted brands
+          Explore world-class eyewear brands trusted by millions.
         </p>
         <Link
           href={"/shop"}
           className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-shop_light_pink text-shop_dark_green font-semibold rounded-full hover:bg-shop_orange hover:text-white border-2 border-shop_orange hoverEffect"
         >
-          Explore All Brands
+          View All Brands
           <svg
             className="w-4 h-4 hoverEffect group-hover:translate-x-1"
             fill="none"
@@ -111,10 +112,10 @@ const ShopByBrands = async () => {
       <div className="bg-white rounded-3xl shadow-xl border border-shop_light_green/10 p-8 lg:p-12">
         <div className="text-center mb-10">
           <h3 className="text-2xl lg:text-3xl font-bold text-dark-color mb-3">
-            Why Choose Us?
+            Why Choose VisionHub?
           </h3>
           <p className="text-light-color text-lg">
-            We provide the best shopping experience with premium services
+            Premium eyewear, trusted brands, and unmatched customer service.
           </p>
         </div>
 
@@ -150,7 +151,7 @@ const ShopByBrands = async () => {
           <div className="inline-flex items-center gap-4 px-8 py-4 bg-gradient-to-r from-shop_light_pink to-shop_light_bg rounded-2xl border border-shop_orange/20">
             <div className="w-2 h-2 bg-shop_orange rounded-full animate-pulse"></div>
             <span className="text-dark-text font-medium">
-              Trusted by thousands of customers worldwide
+              See Better. Look Better. Live Better.
             </span>
             <div className="w-2 h-2 bg-shop_orange rounded-full animate-pulse"></div>
           </div>

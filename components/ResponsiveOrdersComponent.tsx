@@ -20,9 +20,6 @@ const ResponsiveOrdersComponent = ({
   orders: MY_ORDERS_QUERYResult;
 }) => {
   const [payingOrderId] = useState<string | null>(null);
-  const [generatingInvoiceId, setGeneratingInvoiceId] = useState<string | null>(
-    null
-  );
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<
     MY_ORDERS_QUERYResult[0] | null
@@ -100,33 +97,11 @@ const ResponsiveOrdersComponent = ({
     setSelectedOrder(null);
   };
 
-  const handleGenerateInvoice = async (orderId: string) => {
-    if (!orderId) return;
+  const handleGenerateInvoice = (orderId: string) => {
+  if (!orderId) return;
 
-    setGeneratingInvoiceId(orderId);
-    try {
-      const response = await fetch(`/api/orders/${orderId}/generate-invoice`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        toast.success(data.message || "Invoice generated successfully!");
-        window.location.reload();
-      } else {
-        toast.error(data.error || "Failed to generate invoice");
-      }
-    } catch (error) {
-      console.error("Invoice generation error:", error);
-      toast.error("Failed to generate invoice");
-    } finally {
-      setGeneratingInvoiceId(null);
-    }
-  };
+  window.open(`/invoice/${orderId}`, "_blank");
+};
 
   const isOrderPayable = (order: MY_ORDERS_QUERYResult[number]) => {
     const isPaid = order.paymentStatus === PAYMENT_STATUSES.PAID;
@@ -170,20 +145,12 @@ const ResponsiveOrdersComponent = ({
     } else if (order?.paymentStatus === "paid") {
       return (
         <Button
-          size="sm"
-          variant="outline"
-          className="h-6 px-2 text-xs"
-          disabled={generatingInvoiceId === order._id}
-          onClick={() => handleGenerateInvoice(order._id)}
-        >
-          {generatingInvoiceId === order._id ? (
-            <>
-              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-600 mr-1"></div>
-              Gen...
-            </>
-          ) : (
-            "Generate"
-          )}
+  size="sm"
+  variant="outline"
+  className="h-6 px-2 text-xs"
+  onClick={() => handleGenerateInvoice(order._id)}
+>
+          View Invoice
         </Button>
       );
     } else {

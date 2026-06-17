@@ -116,6 +116,15 @@ const ContactPage = () => {
       href: `mailto:${contactConfig.emails.support}`,
     },
     {
+  icon: MessageCircle,
+  title: "WhatsApp Support",
+  details: "+91 123456789",
+  subDetails: "Quick assistance",
+  color: "text-green-600",
+  bgColor: "bg-green-100",
+  href: "https://wa.me/91123456789",
+},
+    {
       icon: Clock,
       title: "Business Hours",
       details: contactConfig.businessHours.weekday,
@@ -136,13 +145,13 @@ const ContactPage = () => {
             className="text-center"
           >
             <Badge className="mb-6 bg-white/20 text-white border-white/30 hover:bg-white/30">
-              We&apos;re Here to Help
+              VisionHub Support
             </Badge>
-            <h1 className="text-5xl lg:text-6xl font-bold mb-6">Contact Us</h1>
+            <h1 className="text-5xl lg:text-6xl font-bold mb-6">Contact VisionHub</h1>
             <p className="text-xl lg:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed">
-              Have questions about our products or need assistance? We&apos;d
-              love to hear from you. Our team is here to help with any inquiries
-              you may have.
+             Need help choosing the perfect eyewear? Have questions about
+sunglasses, eyeglasses, contact lenses, or your order? The VisionHub
+team is here to assist you with expert guidance and support.
             </p>
           </motion.div>
         </Container>
@@ -214,11 +223,11 @@ const ContactPage = () => {
                 <div className="flex items-center gap-2 mb-2">
                   <MessageCircle className="w-4 h-4 text-shop_dark_green" />
                   <h4 className="font-semibold text-shop_dark_green">
-                    Quick Response
+                    Customer Care
                   </h4>
                 </div>
                 <p className="text-sm text-dark-text">
-                  {contactConfig.responseTime.quick}
+                  Our support team aims to respond to all customer inquiries as quickly as possible during business hours.
                 </p>
               </div>
             </div>
@@ -373,23 +382,23 @@ const ContactPage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
-              {
-                q: "What are your shipping policies?",
-                a: "We offer free shipping on orders over $50 within the continental US. International shipping is available with additional charges.",
-              },
-              {
-                q: "How can I track my order?",
-                a: "Once your order ships, you'll receive a tracking number via email. You can also track orders in your account dashboard.",
-              },
-              {
-                q: "What is your return policy?",
-                a: "We accept returns within 30 days of purchase. Items must be unused and in original packaging for a full refund.",
-              },
-              {
-                q: "Do you offer customer support?",
-                a: "Yes! Our customer service team is available Monday-Friday 9AM-6PM EST via phone, email, or live chat.",
-              },
-            ].map((faq, index) => (
+  {
+    q: "How can I track my order?",
+    a: "Once your order is shipped, you will receive tracking details via email or SMS. You can also view order updates from your account dashboard.",
+  },
+  {
+    q: "Are your products authentic?",
+    a: "Yes. VisionHub is committed to providing genuine and quality eyewear products sourced from trusted suppliers and brands.",
+  },
+  {
+    q: "Do you offer prescription eyewear?",
+    a: "Selected products support prescription lenses. Please check the product details page for availability.",
+  },
+  {
+    q: "How can I contact customer support?",
+    a: "You can reach us through our contact form, email, or phone during business hours and our team will be happy to assist you.",
+  },
+].map((faq, index) => (
               <div
                 key={index}
                 className="bg-white p-6 rounded-lg shadow-sm border border-gray-100"
@@ -402,7 +411,49 @@ const ContactPage = () => {
             ))}
           </div>
         </motion.div>
+        {/* Trust Section */}
+<div className="mt-16">
+  <div className="text-center mb-8">
+    <h2 className="text-2xl lg:text-3xl font-bold text-shop_dark_green mb-4">
+      Why Shop With VisionHub?
+    </h2>
+  </div>
+
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 text-center">
+      <CheckCircle className="w-10 h-10 text-green-600 mx-auto mb-3" />
+      <h3 className="font-semibold text-shop_dark_green mb-2">
+        Secure Shopping
+      </h3>
+      <p className="text-sm text-gray-600">
+        Your personal information and transactions are protected with secure systems.
+      </p>
+    </div>
+
+    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 text-center">
+      <CheckCircle className="w-10 h-10 text-green-600 mx-auto mb-3" />
+      <h3 className="font-semibold text-shop_dark_green mb-2">
+        Quality Eyewear
+      </h3>
+      <p className="text-sm text-gray-600">
+        Carefully selected products designed for style, comfort, and durability.
+      </p>
+    </div>
+
+    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 text-center">
+      <CheckCircle className="w-10 h-10 text-green-600 mx-auto mb-3" />
+      <h3 className="font-semibold text-shop_dark_green mb-2">
+        Customer Support
+      </h3>
+      <p className="text-sm text-gray-600">
+        Friendly support available to help with product and order questions.
+      </p>
+    </div>
+  </div>
+</div>
       </Container>
+
+      
 
       {/* Success Modal */}
       <AnimatePresence>
@@ -441,7 +492,7 @@ const ContactPage = () => {
                 </h3>
                 <p className="text-dark-text mb-6">
                   Thank you for contacting us. We&apos;ve received your message
-                  and will get back to you within 24 hours.
+                  and we will review your message and respond as soon as possible.
                 </p>
                 <Button
                   onClick={() => setSuccess(false)}

@@ -148,7 +148,7 @@ export async function POST() {
         newsletter: true,
         emailNotifications: true,
         smsNotifications: false,
-        preferredCurrency: "USD",
+        preferredcurrency: "INR",
         preferredLanguage: "en",
       },
     });
@@ -157,7 +157,7 @@ export async function POST() {
     try {
       await fetch(
         `${
-          process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+          process.env.NEXT_PUBLIC_BASE_URL || "https://visionhub.vercel.app"
         }/api/analytics/track`,
         {
           method: "POST",

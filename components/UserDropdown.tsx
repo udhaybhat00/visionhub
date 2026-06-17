@@ -11,9 +11,7 @@ import {
   UserCircle,
   Logs,
   Shield,
-  Briefcase,
   Wallet,
-  Crown,
 } from "lucide-react";
 import { useUser, useClerk } from "@clerk/nextjs";
 import {
@@ -30,7 +28,6 @@ const UserDropdown = () => {
   const [open, setOpen] = useState(false);
   const {
     ordersCount,
-    isEmployee,
     walletBalance,
     isLoading: isLoadingOrders,
   } = useUserData();
@@ -52,35 +49,34 @@ const UserDropdown = () => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="flex items-center gap-2 py-1 px-2 rounded-lg hover:bg-shop_light_bg group border border-shop_dark_green/20 hover:border-shop_dark_green hoverEffect">
-          <div className="relative">
+       <button className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 hover:border-shop_orange hover:bg-gray-50 transition-all whitespace-nowrap flex-shrink-0">
+          <div className="relative flex-shrink-0">
             {user.imageUrl ? (
-              <img
-                src={user.imageUrl}
-                alt={user.fullName || "User"}
-                className="w-8 h-8 rounded-full object-cover border-2 border-shop_light_green/20 group-hover:border-shop_light_green/40 transition-colors"
-              />
+          <img
+  src={user.imageUrl}
+  alt={user.fullName || "User"}
+  className="w-9 h-9 rounded-full object-cover border border-gray-200"
+/>
             ) : (
               <UserCircle className="w-8 h-8 text-gray-500 group-hover:text-shop_light_green transition-colors" />
             )}
-            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
           </div>
-          <div className="hidden lg:flex flex-col items-start">
-            <span className="text-sm font-medium text-gray-800 group-hover:text-shop_light_green transition-colors">
-              {user.firstName || "User"}
-            </span>
+          <div className="hidden lg:flex items-center flex-shrink-0">
+            <span className="text-sm font-medium whitespace-nowrap flex-shrink-0 text-gray-800 group-hover:text-shop_light_green transition-colors">
+  Hi, {user.firstName || "User"}
+</span>
           </div>
         </button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-72 p-0" align="end" sideOffset={5}>
-        <div className="p-4 border-b border-gray-100">
+     <PopoverContent className="w-80 p-0 rounded-2xl shadow-xl border border-gray-100">
+        <div className="p-5 bg-gradient-to-r from-shop_light_bg to-white border-b border-gray-100">
           <div className="flex items-center gap-3">
             {user.imageUrl ? (
               <img
                 src={user.imageUrl}
                 alt={user.fullName || "User"}
-                className="w-12 h-12 rounded-full object-cover"
+                className="w-12 h-12 rounded-full object-cover border border-gray-200"
               />
             ) : (
               <UserCircle className="w-12 h-12 text-gray-500" />
@@ -107,7 +103,7 @@ const UserDropdown = () => {
                   </span>
                 </div>
                 <span className="text-lg font-bold text-shop_dark_green">
-                  ${walletBalance.toFixed(2)}
+                  ₹{walletBalance.toFixed(2)}
                 </span>
               </div>
             </div>
@@ -177,23 +173,6 @@ const UserDropdown = () => {
             <span className="text-gray-800 group-hover:text-shop_light_green transition-colors">
               Settings
             </span>
-          </Link>
-
-          <div className="my-1 border-t border-gray-100"></div>
-
-          {/* Employee Dashboard - Available for Everyone (Paid Feature) */}
-          <Link
-            href="/employee"
-            onClick={handleLinkClick}
-            className="flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg hover:bg-purple-50 transition-colors duration-200 group border border-purple-100"
-          >
-            <Briefcase className="w-4 h-4 text-purple-500 group-hover:text-purple-600 transition-colors" />
-            <div className="flex items-center justify-between w-full">
-              <span className="text-purple-600 group-hover:text-purple-700 transition-colors font-medium">
-                Employee Dashboard
-              </span>
-              <Crown className="w-4 h-4 text-purple-500" />
-            </div>
           </Link>
 
           <Link

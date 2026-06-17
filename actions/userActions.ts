@@ -79,7 +79,7 @@ export async function createOrUpdateUser(userData: CreateUserData) {
           newsletter: false,
           emailNotifications: true,
           smsNotifications: false,
-          preferredCurrency: "USD",
+          preferredcurrency: "INR",
           preferredLanguage: "en",
         },
         cart: [],

@@ -12,18 +12,16 @@ import { image } from "@/sanity/image";
 const ProductCard = memo(({ product }: { product: Product }) => {
   return (
     <div className="text-sm border rounded-md border-dark-blue/20 group bg-white">
-      <div className="relative group overflow-hidden bg-shop_light_bg">
+      <div className="relative group overflow-hidden bg-shop_light_bg aspect-square rounded-t-md">
         {product?.images && (
           <Link href={`/product/${product?.slug?.current}`}>
-            <img
-              src={image(product.images[0]).size(900, 880).url()}
-              className={`w-full h-64 object-contain overflow-hidden transition-transform bg-shop_light_bg duration-500 
-                ${
-                  product?.stock !== 0 ? "group-hover:scale-105" : "opacity-50"
-                }`}
-              alt="productImage"
-              loading="lazy"
-            />
+<img
+  src={image(product.images[0]).url()}
+  className={`w-full h-full object-contain object-center p-4 transition-transform duration-500
+  ${product?.stock !== 0 ? "group-hover:scale-105" : "opacity-50"}`}
+  alt={product?.name || "Product Image"}
+  loading="lazy"
+/>
             {/* <Image
               src={urlFor(product.images[0]).url()}
               alt="productImage"

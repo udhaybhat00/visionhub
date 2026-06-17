@@ -56,7 +56,7 @@ export function PaidFeatureMessage() {
                     <span className="font-semibold text-purple-600">
                       paid version
                     </span>{" "}
-                    of ShopCart. Upgrade to access powerful tools for managing
+                    of VisionHub. Upgrade to access powerful tools for managing
                     your team.
                   </p>
                 </div>

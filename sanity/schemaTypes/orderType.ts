@@ -164,21 +164,16 @@ export const orderType = defineType({
       title: "Order Status",
       type: "string",
       options: {
-        list: [
-          { title: "Pending", value: "pending" },
-          { title: "Address Confirmed", value: "address_confirmed" },
-          { title: "Order Confirmed", value: "order_confirmed" },
-          { title: "Packed", value: "packed" },
-          { title: "Ready for Delivery", value: "ready_for_delivery" },
-          { title: "Out for Delivery", value: "out_for_delivery" },
-          { title: "Delivered", value: "delivered" },
-          { title: "Completed", value: "completed" },
-          { title: "Cancelled", value: "cancelled" },
-          { title: "Rescheduled", value: "rescheduled" },
-          { title: "Failed Delivery", value: "failed_delivery" },
-        ],
-      },
-      initialValue: "pending",
+  list: [
+    { title: "Pending", value: "pending" },
+    { title: "Confirmed", value: "confirmed" },
+    { title: "Preparing Eyewear", value: "processing" },
+    { title: "Shipped", value: "shipped" },
+    { title: "Delivered", value: "delivered" },
+    { title: "Cancelled", value: "cancelled" },
+  ],
+},
+initialValue: "pending",
     }),
     defineField({
       name: "orderDate",
@@ -200,217 +195,17 @@ export const orderType = defineType({
       },
       initialValue: "pending",
     }),
-    defineField({
-      name: "paymentMethod",
-      title: "Payment Method",
-      type: "string",
-      options: {
-        list: [
-          { title: "Cash on Delivery", value: "cash_on_delivery" },
-          { title: "Stripe", value: "stripe" },
-          { title: "Clerk", value: "clerk" },
-          { title: "Card", value: "card" },
-        ],
-      },
-    }),
-    // Employee tracking fields
-    defineField({
-      name: "addressConfirmedBy",
-      title: "Address Confirmed By",
-      type: "string",
-      description: "Call center employee who confirmed the address",
-    }),
-    defineField({
-      name: "addressConfirmedAt",
-      title: "Address Confirmed At",
-      type: "datetime",
-    }),
-    defineField({
-      name: "orderConfirmedBy",
-      title: "Order Confirmed By",
-      type: "string",
-      description: "Call center employee who confirmed the order",
-    }),
-    defineField({
-      name: "orderConfirmedAt",
-      title: "Order Confirmed At",
-      type: "datetime",
-    }),
-    defineField({
-      name: "packedBy",
-      title: "Packed By",
-      type: "string",
-      description: "Packer employee who packed the order",
-    }),
-    defineField({
-      name: "packedAt",
-      title: "Packed At",
-      type: "datetime",
-    }),
-    defineField({
-      name: "packingNotes",
-      title: "Packing Notes",
-      type: "text",
-      description: "Notes added by packer during packing",
-    }),
-    defineField({
-      name: "assignedWarehouseBy",
-      title: "Assigned to Warehouse By",
-      type: "string",
-      description: "Employee who assigned order to warehouse",
-    }),
-    defineField({
-      name: "assignedWarehouseAt",
-      title: "Assigned to Warehouse At",
-      type: "datetime",
-    }),
-    defineField({
-      name: "dispatchedBy",
-      title: "Dispatched By",
-      type: "string",
-      description: "Warehouse employee who dispatched the order",
-    }),
-    defineField({
-      name: "dispatchedAt",
-      title: "Dispatched At",
-      type: "datetime",
-    }),
-    defineField({
-      name: "assignedDeliverymanId",
-      title: "Assigned Deliveryman ID",
-      type: "string",
-      description: "ID of the deliveryman assigned to this order",
-    }),
-    defineField({
-      name: "assignedDeliverymanName",
-      title: "Assigned Deliveryman Name",
-      type: "string",
-      description: "Name of the deliveryman assigned to this order",
-    }),
-    defineField({
-      name: "deliveredBy",
-      title: "Delivered By",
-      type: "string",
-      description: "Deliveryman who delivered the order",
-    }),
-    defineField({
-      name: "deliveredAt",
-      title: "Delivered At",
-      type: "datetime",
-    }),
-    defineField({
-      name: "deliveryNotes",
-      title: "Delivery Notes",
-      type: "text",
-      description: "Notes from deliveryman during delivery",
-    }),
-    defineField({
-      name: "deliveryAttempts",
-      title: "Delivery Attempts",
-      type: "number",
-      initialValue: 0,
-      description: "Number of delivery attempts made",
-    }),
-    defineField({
-      name: "rescheduledDate",
-      title: "Rescheduled Delivery Date",
-      type: "datetime",
-      description: "New delivery date if rescheduled",
-    }),
-    defineField({
-      name: "rescheduledReason",
-      title: "Rescheduled Reason",
-      type: "text",
-      description: "Reason for rescheduling delivery",
-    }),
-    defineField({
-      name: "cashCollected",
-      title: "Cash Collected",
-      type: "boolean",
-      initialValue: false,
-      description: "Whether cash was collected from customer",
-    }),
-    defineField({
-      name: "cashCollectedAmount",
-      title: "Cash Collected Amount",
-      type: "number",
-      description: "Amount of cash collected",
-    }),
-    defineField({
-      name: "cashCollectedAt",
-      title: "Cash Collected At",
-      type: "datetime",
-    }),
-    // Cash submission to accounts tracking
-    defineField({
-      name: "cashSubmittedToAccounts",
-      title: "Cash Submitted to Accounts",
-      type: "boolean",
-      initialValue: false,
-      description: "Whether deliveryman has submitted cash to accounts",
-    }),
-    defineField({
-      name: "cashSubmittedBy",
-      title: "Cash Submitted By",
-      type: "string",
-      description: "Deliveryman who submitted the cash",
-    }),
-    defineField({
-      name: "cashSubmittedAt",
-      title: "Cash Submitted At",
-      type: "datetime",
-      description: "When cash was submitted to accounts",
-    }),
-    defineField({
-      name: "cashSubmissionNotes",
-      title: "Cash Submission Notes",
-      type: "text",
-      description: "Notes from deliveryman during submission",
-    }),
-    defineField({
-      name: "assignedAccountsEmployeeId",
-      title: "Assigned Accounts Employee ID",
-      type: "string",
-      description: "ID of accounts employee assigned to receive cash",
-    }),
-    defineField({
-      name: "assignedAccountsEmployeeName",
-      title: "Assigned Accounts Employee Name",
-      type: "string",
-      description: "Name of accounts employee assigned to receive cash",
-    }),
-    defineField({
-      name: "cashSubmissionStatus",
-      title: "Cash Submission Status",
-      type: "string",
-      options: {
-        list: [
-          { title: "Not Submitted", value: "not_submitted" },
-          { title: "Pending Review", value: "pending" },
-          { title: "Confirmed", value: "confirmed" },
-          { title: "Rejected", value: "rejected" },
-        ],
-      },
-      initialValue: "not_submitted",
-      description: "Status of cash submission to accounts",
-    }),
-    defineField({
-      name: "cashSubmissionRejectionReason",
-      title: "Cash Submission Rejection Reason",
-      type: "text",
-      description: "Reason why accounts rejected the cash submission",
-    }),
-    defineField({
-      name: "paymentReceivedBy",
-      title: "Payment Received By",
-      type: "string",
-      description: "Accounts employee who received payment from deliveryman",
-    }),
-    defineField({
-      name: "paymentReceivedAt",
-      title: "Payment Received At",
-      type: "datetime",
-    }),
+   defineField({
+  name: "paymentMethod",
+  title: "Payment Method",
+  type: "string",
+  options: {
+    list: [
+      { title: "Razorpay", value: "razorpay" },
+    ],
+  },
+}),
+   
     // Cancellation tracking fields
     defineField({
       name: "cancellationRequested",
@@ -494,16 +289,10 @@ export const orderType = defineType({
               title: "Changed By Role",
               type: "string",
               options: {
-                list: [
-                  { title: "Admin", value: "admin" },
-                  { title: "Call Center", value: "callcenter" },
-                  { title: "Packer", value: "packer" },
-                  { title: "Warehouse", value: "warehouse" },
-                  { title: "Delivery Man", value: "deliveryman" },
-                  { title: "In-Charge", value: "incharge" },
-                  { title: "Accounts", value: "accounts" },
-                  { title: "System", value: "system" },
-                ],
+               list: [
+  { title: "Admin", value: "admin" },
+  { title: "System", value: "system" },
+]
               },
             }),
             defineField({
@@ -554,19 +343,14 @@ export const orderType = defineType({
       )}...${select.orderId.slice(-5)}`;
 
       // Format status for display
-      const statusMap: Record<string, string> = {
-        pending: "🔴 Pending",
-        address_confirmed: "🟡 Address Confirmed",
-        order_confirmed: "🟢 Order Confirmed",
-        packed: "📦 Packed",
-        ready_for_delivery: "🏭 Ready for Delivery",
-        out_for_delivery: "🚚 Out for Delivery",
-        delivered: "✅ Delivered",
-        completed: "✔️ Completed",
-        cancelled: "❌ Cancelled",
-        rescheduled: "🔄 Rescheduled",
-        failed_delivery: "⚠️ Failed Delivery",
-      };
+    const statusMap: Record<string, string> = {
+  pending: "🟡 Pending",
+  confirmed: "🟢 Confirmed",
+  processing: "👓 Processing",
+  shipped: "🚚 Shipped",
+  delivered: "✅ Delivered",
+  cancelled: "❌ Cancelled",
+};
 
       const statusDisplay = statusMap[select.status] || select.status;
       const paymentDisplay =

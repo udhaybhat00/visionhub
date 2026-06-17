@@ -101,13 +101,12 @@ interface OrderDetailsPageProps {
 
 const getStatusIcon = (status: string) => {
   switch (status) {
-    case ORDER_STATUSES.PAID:
+    
     case ORDER_STATUSES.DELIVERED:
       return <CheckCircle className="w-5 h-5 text-green-500" />;
     case ORDER_STATUSES.CANCELLED:
       return <XCircle className="w-5 h-5 text-red-500" />;
     case ORDER_STATUSES.SHIPPED:
-    case ORDER_STATUSES.OUT_FOR_DELIVERY:
       return <Truck className="w-5 h-5 text-blue-500" />;
     default:
       return <Clock className="w-5 h-5 text-yellow-500" />;
@@ -128,13 +127,12 @@ const getPaymentStatusIcon = (status: string) => {
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case ORDER_STATUSES.PAID:
+    
     case ORDER_STATUSES.DELIVERED:
       return "bg-green-100 text-green-800";
     case ORDER_STATUSES.CANCELLED:
       return "bg-red-100 text-red-800";
     case ORDER_STATUSES.SHIPPED:
-    case ORDER_STATUSES.OUT_FOR_DELIVERY:
       return "bg-blue-100 text-blue-800";
     case ORDER_STATUSES.PROCESSING:
       return "bg-yellow-100 text-yellow-800";
@@ -306,23 +304,15 @@ const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ order }) => {
             </Button>
           ) : currentOrder.paymentStatus === "paid" ||
             currentOrder.status === "paid" ? (
-            <Button
-              onClick={handleGenerateInvoice}
-              disabled={generatingInvoice}
-              variant="outline"
-            >
-              {generatingInvoice ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Download className="w-4 h-4 mr-2" />
-                  Generate Invoice
-                </>
-              )}
-            </Button>
+            <Button asChild variant="outline">
+  <Link
+    href={`/invoice/${currentOrder._id}`}
+    target="_blank"
+  >
+    <Download className="w-4 h-4 mr-2" />
+    View Invoice
+  </Link>
+</Button>
           ) : null}
           <Button
             onClick={handleReorder}

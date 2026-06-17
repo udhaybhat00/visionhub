@@ -422,7 +422,7 @@ export async function requestOrderCancellation(
       };
     }
 
-    if (order.status === "shipped" || order.status === "out_for_delivery") {
+    if (order.status === "shipped" || order.status === "shipped") {
       return {
         success: false,
         message:

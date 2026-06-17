@@ -263,7 +263,7 @@ async function updateOrderWithPaymentCompletion(
   };
 
   // Order status logic:
-  // 1. For COD orders paid later: Keep current delivery status (packed, out_for_delivery, etc.)
+  // 1. For COD orders paid later: Keep current delivery status (packed, shipped, etc.)
   // 2. For new checkout orders: Set status to "pending" to start the fulfillment workflow
   // 3. For orders already in processing: Keep current status
   if (existingOrder?.paymentMethod === "cash_on_delivery") {

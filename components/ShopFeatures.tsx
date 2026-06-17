@@ -60,12 +60,12 @@ const ShopFeatures = () => {
     {
       icon: Truck,
       title: "Free Delivery",
-      description: "Free shipping on orders over $50",
+      description: "Free shipping on orders over ₹999",
       color: "from-green-500 to-green-600",
       bgColor: "bg-green-50",
       iconColor: "text-green-600",
       details: [
-        "Enjoy free standard shipping on all orders over $50 to anywhere in the country",
+        "Enjoy free standard shipping on all orders over ₹999 to anywhere in the country",
         "Track your package in real-time with our advanced tracking system",
         "Partner with reliable carriers for timely and safe delivery",
         "Eco-friendly packaging materials to reduce environmental impact",
@@ -300,23 +300,23 @@ const ShopFeatures = () => {
         <div className="mt-12 pt-8 border-t border-shop_light_blue/20">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="text-center">
-              <div className="text-3xl font-bold bg-gradient-to-r from-shop_dark_blue to-shop_light_blue bg-clip-text text-transparent mb-2">
-                50K+
+              <div className="text-3xl font-bold text-shop_dark_green mb-2">
+                Premium
               </div>
               <div className="text-sm text-light-color font-medium">
-                Happy Customers
+                Stylish & Durable Designs
               </div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold bg-gradient-to-r from-shop_dark_blue to-shop_light_blue bg-clip-text text-transparent mb-2">
-                100K+
+              <div className="text-3xl font-bold text-shop_dark_green mb-2">
+                UV400
               </div>
               <div className="text-sm text-light-color font-medium">
-                Products Sold
+                Eye Protection
               </div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold bg-gradient-to-r from-shop_dark_blue to-shop_light_blue bg-clip-text text-transparent mb-2">
+              <div className="text-3xl font-bold text-shop_dark_green mb-2">
                 99%
               </div>
               <div className="text-sm text-light-color font-medium">
@@ -324,11 +324,11 @@ const ShopFeatures = () => {
               </div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold bg-gradient-to-r from-shop_dark_blue to-shop_light_blue bg-clip-text text-transparent mb-2">
-                24/7
+              <div className="text-3xl font-bold text-shop_dark_green mb-2">
+                Fast Delivery
               </div>
               <div className="text-sm text-light-color font-medium">
-                Customer Support
+                Across India
               </div>
             </div>
           </div>
@@ -339,7 +339,7 @@ const ShopFeatures = () => {
           <div className="inline-flex items-center gap-4 px-8 py-4 bg-gradient-to-r from-shop_light_pink to-shop_light_bg rounded-2xl border border-shop_light_blue/20 shadow-md">
             <ShieldCheck className="w-6 h-6 text-shop_dark_blue" />
             <span className="text-dark-text font-semibold">
-              Trusted by thousands of satisfied customers worldwide
+              Stylish Frames • Clear Vision • Trusted Quality
             </span>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (

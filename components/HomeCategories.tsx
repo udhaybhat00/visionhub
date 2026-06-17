@@ -17,18 +17,18 @@ const HomeCategories = ({ categories }: Props) => {
         <div className="inline-flex items-center gap-3 mb-4">
           <div className="h-1 w-12 bg-gradient-to-r from-shop_light_blue to-shop_dark_blue rounded-full"></div>
           <Title className="text-3xl lg:text-4xl font-bold text-dark-color">
-            Popular Categories
+            Eyewear Collections
           </Title>
           <div className="h-1 w-12 bg-gradient-to-l from-shop_light_blue to-shop_dark_blue rounded-full"></div>
         </div>
         <p className="text-light-color text-lg max-w-2xl mx-auto">
-          Explore our most popular product categories and find what you need
+          Explore premium eyewear collections designed for style, comfort, and vision.
         </p>
         <Link
           href={"/category"}
           className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-shop_light_pink text-shop_dark_green/80 font-semibold rounded-full hover:bg-shop_light_blue hover:text-shop_dark_green border-2 border-shop_light_blue hover:border-shop_dark_green hoverEffect"
         >
-          Browse All Categories
+          Explore Collections
           <svg
             className="w-4 h-4 hoverEffect group-hover:translate-x-1"
             fill="none"
@@ -97,9 +97,9 @@ const HomeCategories = ({ categories }: Props) => {
                   ></div>
                 </div>
 
-                {/* Shop Now Button */}
-                <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-gradient-to-r from-shop_light_pink to-shop_light_bg text-shop_dark_blue font-medium rounded-full group-hover:from-shop_light_blue group-hover:to-shop_dark_blue group-hover:text-white text-sm hoverEffect">
-                  Shop Now
+                {/* View Collection Button */}
+               <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-shop_orange/10 text-shop_dark_green font-medium rounded-full group-hover:bg-shop_orange group-hover:text-black text-sm transition-all duration-300">
+  View Collection
                   <svg
                     className="w-3 h-3 hoverEffect group-hover:translate-x-1"
                     fill="none"
@@ -121,20 +121,20 @@ const HomeCategories = ({ categories }: Props) => {
 
         {/* Categories Stats */}
         <div className="flex flex-wrap items-center justify-center gap-8 mt-12 pt-8 border-t border-shop_light_blue/20">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-shop_dark_blue">
-              {categories?.length}+
-            </div>
-            <div className="text-sm text-light-color">Categories</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-shop_dark_blue">1000+</div>
-            <div className="text-sm text-light-color">Products</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-shop_dark_blue">24/7</div>
-            <div className="text-sm text-light-color">Support</div>
-          </div>
+      <div className="text-center">
+  <div className="text-2xl font-bold text-shop_dark_blue">8+</div>
+  <div className="text-sm text-light-color">Collections</div>
+</div>
+
+<div className="text-center">
+  <div className="text-2xl font-bold text-shop_dark_blue">500+</div>
+  <div className="text-sm text-light-color">Eyewear Styles</div>
+</div>
+
+<div className="text-center">
+  <div className="text-2xl font-bold text-shop_dark_blue">24/7</div>
+  <div className="text-sm text-light-color">Support</div>
+</div>
         </div>
 
         {/* Bottom CTA */}
@@ -142,7 +142,7 @@ const HomeCategories = ({ categories }: Props) => {
           <div className="inline-flex items-center gap-4 px-8 py-4 bg-gradient-to-r from-shop_light_pink to-shop_light_bg rounded-2xl border border-shop_light_blue/20">
             <div className="w-2 h-2 bg-shop_light_blue rounded-full animate-pulse"></div>
             <span className="text-dark-text font-medium">
-              Discover amazing products in every category
+              Find the perfect pair for every look and lifestyle.
             </span>
             <div className="w-2 h-2 bg-shop_light_blue rounded-full animate-pulse"></div>
           </div>

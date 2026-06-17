@@ -29,7 +29,7 @@ const FAQPage = () => {
             <HelpCircle className="w-16 h-16 mx-auto mb-6 opacity-90" />
             <h1 className="text-4xl lg:text-5xl font-bold mb-4">FAQs</h1>
             <p className="text-xl text-white/90 max-w-3xl mx-auto mb-6">
-              Quick answers to the most commonly asked questions about ShopCart.
+              Quick answers to the most commonly asked questions about VisionHub.
             </p>
             <Badge className="bg-white/20 text-white border-white/30 hover:bg-white/30">
               Essential Information
@@ -111,7 +111,7 @@ const FAQPage = () => {
                     asChild
                     size="lg"
                     variant="outline"
-                    className="border-white text-white hover:bg-white/10"
+                   className="bg-white text-shop_dark_green hover:bg-white/90"
                   >
                     <Link href="/contact">
                       <MessageCircle className="w-4 h-4 mr-2" />

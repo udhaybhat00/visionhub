@@ -84,10 +84,10 @@ const ProductSpecs = ({ product }: ProductSpecsProps) => {
             Manufacturer Warranty
           </div>
           <div className="text-gray-600">
-            <span className="font-medium text-shop_dark_green">30 Days</span>{" "}
-            Return Policy
+            <span className="font-medium text-shop_dark_green">Secure Shopping</span>{" "}
+            Safe & Secure Payments
           </div>
-          <div className="text-gray-600">Free Tech Support</div>
+          <div className="text-gray-600">Dedicated Assistance Available</div>
         </CardContent>
       </Card>
 
