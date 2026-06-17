@@ -212,7 +212,7 @@ const params = {
           aria-label={`Open search (${isMac ? "Cmd" : "Ctrl"}+K)`}
         >
           {/* Search Icon */}
-          <Search className="w-4 h-4 text-gray-400 group-hover:text-shop_dark_green transition-colors duration-200 flex-shrink-0" />
+          <Search className="w-4 h-4 min-[430px]:w-5 min-[430px]:h-5 text-gray-400 group-hover:text-shop_dark_green transition-colors duration-200" />
 
           {/* Placeholder Text */}
           <span className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors duration-200 flex-1 text-left">
@@ -227,11 +227,19 @@ const params = {
         </button>
 
         {/* Mobile Version - Icon Only */}
-        <button
-          onClick={() => setShowSearch(true)}
-          className="group flex sm:hidden items-center justify-center p-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-shop_btn_dark_green rounded-lg hoverEffect"
-          aria-label="Open search"
-        >
+      <button
+  onClick={() => setShowSearch(true)}
+  className="
+    group flex sm:hidden
+    items-center justify-center
+    p-2 min-[430px]:p-2.5
+    bg-gray-50 hover:bg-gray-100
+    border border-gray-200
+    hover:border-shop_btn_dark_green
+    rounded-lg
+    hoverEffect
+  "
+>
           <Search className="w-4 h-4 text-gray-400 group-hover:text-shop_dark_green transition-colors duration-200" />
         </button>
       </div>

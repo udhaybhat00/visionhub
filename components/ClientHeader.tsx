@@ -13,6 +13,7 @@ import FavoriteButton from "./FavoriteButton";
 import NotificationBell from "./NotificationBell";
 import UserDropdown from "./UserDropdown";
 import { useRouter, useSearchParams } from "next/navigation";
+import { User } from "lucide-react";
 
 const ClientHeader = () => {
   const { user, isSignedIn } = useUser();
@@ -68,23 +69,32 @@ const ClientHeader = () => {
           </div>
 
           {/* Right Section: Search + Actions */}
-          <div className="flex items-center gap-4 sm:gap-3 lg:gap-4 ml-auto">
+          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 ml-auto">
                   
 {/* Mobile Profile */}
-<div className="md:hidden flex items-center mr-3">
+<div className="md:hidden flex items-center">
   <ClerkLoaded>
     <SignedIn>
       <UserDropdown />
     </SignedIn>
 
     <SignedOut>
-      <Link
-        href={getSignInUrl()}
-        className="text-xs font-semibold text-shop_dark_green whitespace-nowrap"
-      >
-        Sign In
-      </Link>
-    </SignedOut>
+  <Link
+    href={getSignInUrl()}
+className="
+  flex items-center justify-center
+  w-8 h-8 min-[430px]:w-10
+  h-8 min-[430px]:h-10
+  rounded-full
+  border border-gray-200
+  text-shop_dark_green
+  hover:bg-gray-50
+  transition-all
+"
+  >
+    <User className="w-4 h-4 min-[430px]:w-5 min-[430px]:h-5" />
+  </Link>
+</SignedOut>
   </ClerkLoaded>
 </div>
             {/* Search Bar */}
