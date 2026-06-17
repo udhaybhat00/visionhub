@@ -22,11 +22,14 @@ import {
   RefreshCw,
 } from "lucide-react";
 import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import useCartStore from "@/store";
 import { FaRegQuestionCircle } from "react-icons/fa";
 import { FiShare2 } from "react-icons/fi";
 import { TbTruckDelivery } from "react-icons/tb";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   ProductAnimationWrapper,
   ProductImageWrapper,
@@ -48,7 +51,15 @@ const ProductContent = ({
   relatedProducts,
   brand,
 }: ProductContentProps) => {
-  // Get actual review data from product
+
+  const router = useRouter();
+  const { addItem } = useCartStore();
+
+  const handleBuyNow = () => {
+    addItem(product);
+    router.push("/cart");
+  };
+
   const averageRating = product?.averageRating || 0;
   const totalReviews = product?.totalReviews || 0;
 
@@ -61,6 +72,7 @@ const ProductContent = ({
       });
     }
   }, [product]);
+  
 
   const handleShare = async () => {
   try {
@@ -193,12 +205,29 @@ const ProductContent = ({
             </div>
 
             {/* Action Buttons */}
-            <ProductActionWrapper delay={0.3}>
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 lg:gap-5">
-                <AddToCartButton product={product} />
-                <FavoriteButton showProduct={true} product={product} />
-              </div>
-            </ProductActionWrapper>
+         <ProductActionWrapper delay={0.3}>
+  <div className="space-y-3">
+    
+    <AddToCartButton product={product} />
+
+    <div className="flex gap-3">
+<Button
+  className="flex-1 h-14 rounded-xl bg-shop_orange hover:bg-shop_orange/90 text-base font-bold"
+  onClick={handleBuyNow}
+>
+  ⚡ Buy Now
+</Button>
+
+      <div className="w-14 h-14 flex items-center justify-center border border-shop_orange/30 rounded-xl bg-white">
+        <FavoriteButton
+          showProduct={true}
+          product={product}
+        />
+      </div>
+    </div>
+
+  </div>
+</ProductActionWrapper>
 
             {/* Product Characteristics */}
             <ProductActionWrapper delay={0.4}>

@@ -80,18 +80,18 @@ export default function MobileBottomNav() {
                   }`}
                 />
 
-                {item.label === "Cart" && items?.length > 0 && (
-                  <span className="absolute -top-2 -right-2 text-white text-[10px] min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center font-semibold">
-                    {items.length}
-                  </span>
-                )}
+               {item.label === "Cart" && items?.length > 0 && (
+  <span className="absolute -top-2 -right-2 bg-shop_orange text-white text-[10px] min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center font-bold shadow-lg ring-2 ring-white">
+    {items.length}
+  </span>
+)}
 
-                {item.label === "Wishlist" &&
-                  favoriteProduct?.length > 0 && (
-                    <span className="absolute -top-2 -right-2 text-white text-[10px] min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center font-semibold">
-                      {favoriteProduct.length}
-                    </span>
-                  )}
+              {item.label === "Wishlist" &&
+  favoriteProduct?.length > 0 && (
+    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center font-bold shadow-lg ring-2 ring-white">
+      {favoriteProduct.length}
+    </span>
+)}
               </div>
 
               <span
