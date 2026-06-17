@@ -9,26 +9,28 @@ interface Props {
 }
 
 const PriceView = ({ price, discount, className }: Props) => {
-  // Current/payable price is the actual price (discounted price)
   const currentPrice = price || 0;
 
-  // Gross price = current price + discount amount
   const discountAmount =
     discount && currentPrice ? (discount * currentPrice) / 100 : 0;
+
   const grossPrice = currentPrice + discountAmount;
 
   return (
-    <div className="flex items-center justify-between gap-5">
-      <div className="flex items-center gap-2">
-        {/* Current/Payable Price (discounted price) */}
+    <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center gap-1">
+        {/* Current Price */}
         <PriceFormatter
           amount={currentPrice}
-          className={cn("text-shop_dark_green font-semibold", className)}
+          className={cn(
+            "text-shop_dark_green font-semibold",
+            className
+          )}
         />
 
-        {/* Gross Price (original price before discount) - only show if there's a discount */}
+        {/* Original Price + Discount */}
         {discount && discountAmount > 0 && (
-          <div className="flex items-center gap-1">
+          <>
             <PriceFormatter
               amount={grossPrice}
               className={twMerge(
@@ -36,10 +38,25 @@ const PriceView = ({ price, discount, className }: Props) => {
                 className
               )}
             />
-            <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-medium">
+
+            <span
+              className="
+                text-[10px]
+                sm:text-xs
+                bg-red-100
+                text-red-600
+                px-1
+                sm:px-1.5
+                py-0.5
+                rounded
+                font-medium
+                whitespace-nowrap
+                shrink-0
+              "
+            >
               -{discount}%
             </span>
-          </div>
+          </>
         )}
       </div>
     </div>
