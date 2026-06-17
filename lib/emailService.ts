@@ -1,17 +1,4 @@
-import nodemailer, { Transporter, SentMessageInfo } from "nodemailer";
-import SMTPTransport from "nodemailer/lib/smtp-transport";
-
-const transporter: Transporter<SMTPTransport.SentMessageInfo> =
-  nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      type: "OAuth2",
-      user: process.env.SENDER_EMAIL_ADDRESS || "reactjsbd@gmail.com",
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
-    },
-  });
+import { resend } from "@/lib/resend";
 
 // Type definitions
 interface OrderItem {
@@ -58,7 +45,7 @@ interface SendMailParams {
 }
 
 const generateOrderConfirmationHTML = (data: OrderConfirmationData): string => {
-  const formatCurrency = (amount: number) => `$${amount.toFixed(2)}`;
+  const formatCurrency = (amount: number) => `₹${amount.toFixed(2)}`;
 
   return `
 <!DOCTYPE html>
@@ -469,7 +456,7 @@ const generateOrderConfirmationHTML = (data: OrderConfirmationData): string => {
         <!-- Header -->
         <div class="header">
             <h1>Order Confirmed!</h1>
-            <p>Thank you for shopping with ShopCart</p>
+            <p>Thank you for shopping with VisionHub</p>
         </div>
         
         <!-- Main Content -->
@@ -592,11 +579,11 @@ const generateOrderConfirmationHTML = (data: OrderConfirmationData): string => {
                 <div class="contact-info">
                     <div class="contact-item">
                         <strong>Email</strong>
-                        <span>support@shopcart.com</span>
+                        <span>shivam@gmail.com</span>
                     </div>
                     <div class="contact-item">
                         <strong>Phone</strong>
-                        <span>+1 (555) 123-4567</span>
+                        <span>+91 123456789</span>
                     </div>
                     <div class="contact-item">
                         <strong>Hours</strong>
@@ -608,16 +595,16 @@ const generateOrderConfirmationHTML = (data: OrderConfirmationData): string => {
         
         <!-- Footer -->
         <div class="footer">
-            <p><strong>ShopCart</strong></p>
+            <p><strong>VisionHub</strong></p>
             <p>123 Shopping Street, Commerce District<br>
-               New York, NY 10001, USA</p>
-            <p>Thank you for choosing ShopCart!</p>
+               123 Shopping Street, Jammu, India</p>
+            <p>Thank you for choosing VisionHub!</p>
             
             <div class="social-links">
-                <a href="https://www.youtube.com/@reactjsBD">Facebook</a> |
-                <a href="https://www.youtube.com/@reactjsBD">Twitter</a> |
-                <a href="https://www.youtube.com/@reactjsBD">Instagram</a> |
-                <a href="https://www.youtube.com/@reactjsBD">Support</a>
+                <a href="https://www.youtube.com/@shivam">Facebook</a> |
+                <a href="https://www.youtube.com/@shivam">Twitter</a> |
+                <a href="https://www.youtube.com/@shivam">Instagram</a> |
+                <a href="https://www.youtube.com/@shivam">Support</a>
             </div>
         </div>
     </div>
@@ -632,8 +619,8 @@ const sendOrderConfirmationEmail = async (
     const htmlContent = generateOrderConfirmationHTML(data);
 
     const mailOptions = {
-      from: `"ShopCart Ecommerce" <${
-        process.env.SENDER_EMAIL_ADDRESS || "reactjsbd@gmail.com"
+      from: `"VisionHub Ecommerce" <${
+        process.env.SENDER_EMAIL_ADDRESS || "shivam@gmail.com"
       }>`,
       to: data.customerEmail,
       subject: `Order Confirmation - ${data.orderId} | Thank you for your purchase!`,
@@ -670,15 +657,23 @@ ${data.estimatedDelivery ? `Estimated Delivery: ${data.estimatedDelivery}` : ""}
 
 We'll send you another email with tracking information once your order ships.
 
-If you have any questions, please contact us at support@shopcart.com or +1 (555) 123-4567.
+If you have any questions, please contact us at shivam@gmail.com or +91 123456789.
 
-Thank you for choosing ShopCart!
+Thank you for choosing VisionHub!
       `,
     };
 
-    const result = await transporter.sendMail(mailOptions);
+    const result = await resend.emails.send({
+  from: "VisionHub <onboarding@resend.dev>",
+  to: data.customerEmail,
+  subject: `Order Confirmation - ${data.orderId} | Thank you for your purchase!`,
+  html: htmlContent,
+});
 
-    return { success: true, messageId: result.messageId };
+    return {
+  success: true,
+  messageId: result.data?.id,
+};
   } catch (error) {
     console.error("Failed to send order confirmation email:", error);
     return {
@@ -697,8 +692,8 @@ const sendMail = async ({
 }: SendMailParams): Promise<EmailResponse> => {
   try {
     const mailOptions = {
-      from: `"ShopCart Ecommerce" <${
-        process.env.SENDER_EMAIL_ADDRESS || "reactjsbd@gmail.com"
+      from: `"VisionHub Ecommerce" <${
+        process.env.SENDER_EMAIL_ADDRESS || "shivam@gmail.com"
       }>`,
       to: email,
       subject,
@@ -706,8 +701,16 @@ const sendMail = async ({
       ...(html && { html }),
     };
 
-    const result = await transporter.sendMail(mailOptions);
-    return { success: true, messageId: result.messageId };
+    const result = await resend.emails.send({
+  from: "VisionHub <onboarding@resend.dev>",
+  to: email,
+  subject,
+  html: html || text,
+});
+    return {
+  success: true,
+  messageId: result.data?.id,
+};
   } catch (error) {
     console.error("Failed to send email:", error);
     return {

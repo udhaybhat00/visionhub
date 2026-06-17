@@ -172,7 +172,7 @@ export function ServerCartContent({
           <div key={item.product._id} className="border rounded-lg p-4">
             <div className="flex gap-4">
               {/* Product Image */}
-              <div className="relative w-24 h-24 flex-shrink-0">
+              <div className="relative w-28 h-28 flex-shrink-0 bg-shop_light_bg rounded-md">
                 <Image
                   src={
                     item.product.images?.[0]
@@ -181,7 +181,7 @@ export function ServerCartContent({
                   }
                   alt={item.product.name || "Product"}
                   fill
-                  className="object-cover rounded-md"
+                  className="object-contain rounded-md p-2 bg-shop_light_bg"
                 />
               </div>
 

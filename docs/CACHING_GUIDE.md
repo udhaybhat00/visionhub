@@ -2,7 +2,7 @@
 
 ## 📖 Overview
 
-This guide documents the comprehensive caching strategy implemented across the ShopCart e-commerce application using **Next.js 16's Caching Revolution** features. Our caching implementation leverages `unstable_cache` and `revalidatePath` for optimal performance while ensuring data consistency.
+This guide documents the comprehensive caching strategy implemented across the VisionHub e-commerce application using **Next.js 16's Caching Revolution** features. Our caching implementation leverages `unstable_cache` and `revalidatePath` for optimal performance while ensuring data consistency.
 
 ## 🎯 Caching Philosophy
 
@@ -477,7 +477,7 @@ const getAddresses = async () => {
 ### 1. Verify Cache Headers
 
 ```bash
-curl -I https://shopcartpro.reactbd.org/
+curl -I https://VisionHubpro.reactbd.org/
 
 # Look for:
 # Cache-Control: s-maxage=600, stale-while-revalidate
@@ -587,7 +587,7 @@ async function warmCache() {
   const popularProducts = await getPopularProducts();
 
   for (const product of popularProducts) {
-    await fetch(`https://shopcartpro.reactbd.org/product/${product.slug}`);
+    await fetch(`https://VisionHubpro.reactbd.org/product/${product.slug}`);
   }
 }
 ```

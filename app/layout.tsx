@@ -3,11 +3,9 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import localFont from "next/font/local";
 import { Toaster } from "sonner";
-import Script from "next/script";
-import Head from "next/head";
 import { UserDataProvider } from "@/contexts/UserDataContext";
-import PremiumFloatingButton from "@/components/PremiumFloatingButton";
 import "./globals.css";
+import Script from "next/script";
 
 const poppins = localFont({
   src: "./fonts/Poppins.woff2",
@@ -28,28 +26,29 @@ const opensans = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://shopcartpro.reactbd.org"),
+  metadataBase: new URL("https://visionhub.vercel.app"),
   title: {
-    template: "%s | ShopCart - Premium Online Shopping",
-    default: "ShopCart - Your Trusted Online Shopping Destination",
+    template: "%s | VisionHub - Premium Eyewear",
+default: "VisionHub - Premium Eyewear & Sunglasses Store",
   },
   description:
-    "Discover amazing products at ShopCart, your trusted online shopping destination for quality items and exceptional customer service. Shop electronics, fashion, home goods and more with fast delivery.",
+    "Discover premium sunglasses, eyeglasses, contact lenses and eyewear accessories at VisionHub. Stylish frames, UV protection, prescription glasses and fast delivery across India.",
   keywords: [
-    "online shopping",
-    "e-commerce",
-    "buy online",
-    "shop online",
-    "electronics",
-    "fashion",
-    "home goods",
-    "deals",
-    "discounts",
-    "ShopCart",
-  ],
-  authors: [{ name: "ShopCart" }],
-  creator: "ShopCart",
-  publisher: "ShopCart",
+  "eyewear",
+  "sunglasses",
+  "eyeglasses",
+  "power glasses",
+  "prescription glasses",
+  "computer glasses",
+  "contact lenses",
+  "UV protection",
+  "VisionHub",
+  "eyewear india",
+  "premium eyewear",
+],
+  authors: [{ name: "VisionHub" }],
+  creator: "VisionHub",
+  publisher: "VisionHub",
   formatDetection: {
     email: false,
     address: false,
@@ -58,27 +57,27 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://shopcartpro.reactbd.org",
-    siteName: "ShopCart",
-    title: "ShopCart - Your Trusted Online Shopping Destination",
+    url: "https://visionhub.vercel.app",
+    siteName: "VisionHub",
+    title: "VisionHub - Premium Eyewear & Sunglasses Store",
     description:
-      "Discover amazing products at ShopCart, your trusted online shopping destination for quality items and exceptional customer service.",
+      "Discover premium sunglasses, eyeglasses, prescription eyewear, contact lenses, and accessories at VisionHub. Stylish designs, UV protection, and quality vision solutions.",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "ShopCart Online Store",
+        alt: "VisionHub Eyewear Store",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ShopCart - Your Trusted Online Shopping Destination",
+    title: "VisionHub - Premium Eyewear & Sunglasses Store",
     description:
-      "Discover amazing products at ShopCart, your trusted online shopping destination for quality items and exceptional customer service.",
+      "Discover premium sunglasses, eyeglasses, prescription eyewear, contact lenses, and accessories at VisionHub. Stylish designs, UV protection, and quality vision solutions.",
     images: ["/og-image.jpg"],
-    creator: "@shopcart",
+    creator: "@VisionHub",
   },
   robots: {
     index: true,
@@ -96,23 +95,17 @@ export const metadata: Metadata = {
     // Add other verification codes as needed
   },
   alternates: {
-    canonical: "https://shopcartpro.reactbd.org",
-  },
+canonical: "https://visionhub.vercel.app"  },
 };
 
 const RootLayout = async ({ children }: { children: ReactNode }) => {
-  const GADSENSE_CLIENT_ID = "ca-pub-6542623777003381"; // Define it once
   return (
     <ClerkProvider>
       <html lang="en">
-        <Head>
-          <meta name="google-adsense-account" content={GADSENSE_CLIENT_ID} />
-        </Head>
         <body
           className={`${poppins.variable} ${raleway.variable} ${opensans.variable} antialiased`}
         >
           <UserDataProvider>{children}</UserDataProvider>
-          <PremiumFloatingButton />
           <Toaster
             position="bottom-right"
             richColors
@@ -129,11 +122,8 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
             }}
           />
 
-          <Script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${GADSENSE_CLIENT_ID}`}
-            strategy="beforeInteractive"
-          />
+          <Script src="https://checkout.razorpay.com/v1/checkout.js" />
+
         </body>
       </html>
     </ClerkProvider>

@@ -135,7 +135,10 @@ export default function ProfileEditSidebar({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-full sm:max-w-lg">
+      <SheetContent
+  side="right"
+  className="w-full sm:max-w-lg flex flex-col p-0"
+>
         <SheetHeader>
           <SheetTitle className="flex items-center space-x-2">
             <User className="h-5 w-5" />
@@ -146,7 +149,8 @@ export default function ProfileEditSidebar({
           </SheetDescription>
         </SheetHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 mt-6">
+          <div className="flex-1 overflow-y-auto px-6">
+  <form onSubmit={handleSubmit} className="space-y-6 mt-6">
           {/* Clerk Data (Read-only) */}
           <div className="space-y-4">
             <div className="border rounded-lg p-4 bg-gray-50">
@@ -275,7 +279,7 @@ export default function ProfileEditSidebar({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex space-x-3 pt-6 border-t">
+          <div className="sticky bottom-0 bg-white border-t pt-4 pb-4 flex space-x-3">
             <Button type="submit" className="flex-1" disabled={loading}>
               {loading ? (
                 <div className="flex items-center space-x-2">
@@ -300,7 +304,8 @@ export default function ProfileEditSidebar({
               Cancel
             </Button>
           </div>
-        </form>
+          </form>
+</div>
       </SheetContent>
     </Sheet>
   );

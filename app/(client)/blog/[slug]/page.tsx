@@ -290,7 +290,7 @@ const SingleBlogPage = async ({
                             ),
                             link: ({ value, children }) => (
                               <Link
-                                href={value.href}
+                                href={value?.href || "#"}
                                 className="font-medium text-shop_light_green hover:text-shop_dark_green underline decoration-shop_light_green underline-offset-4 hover:decoration-shop_dark_green transition-colors"
                               >
                                 {children}

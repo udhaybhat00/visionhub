@@ -57,7 +57,6 @@ export async function POST(
 
     // Check if order is already paid
     if (
-      order.status === ORDER_STATUSES.PAID ||
       order.paymentStatus === PAYMENT_STATUSES.PAID
     ) {
       return NextResponse.json(

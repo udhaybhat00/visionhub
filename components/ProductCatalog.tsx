@@ -282,7 +282,7 @@ const ProductCatalog = ({ initialProducts, categories, brands }: Props) => {
             })}
             {(priceRange[0] > 0 || priceRange[1] < maxPrice) && (
               <Badge variant="secondary" className="gap-1">
-                ${priceRange[0]} - ${priceRange[1]}
+                ₹{priceRange[0]} - ₹{priceRange[1]}
                 <X
                   className="w-3 h-3 cursor-pointer"
                   onClick={() => setPriceRange([0, maxPrice])}

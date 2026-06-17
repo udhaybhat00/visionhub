@@ -142,7 +142,7 @@ const getOrderStatusMessage = (
         message: `Exciting news! Your order #${orderNumber} has been shipped and is on its way to you. You can track your package using the tracking information.`,
         priority: "high",
       };
-    case "out_for_delivery":
+    case "shipped":
       return {
         title: "Out for Delivery �",
         message: `Your order #${orderNumber} is out for delivery! It should arrive at your doorstep today. Please be available to receive it.`,
@@ -204,7 +204,7 @@ export const sendOrderStatusNotification = async (
     );
 
     // Get base URL from environment or fallback to localhost
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://visionhub.vercel.app";
     const actionUrl = `${baseUrl}/user/orders/${orderId}`;
 
     const result = await createNotification({
@@ -214,7 +214,7 @@ export const sendOrderStatusNotification = async (
       type: "order",
       priority,
       actionUrl,
-      sentBy: "ShopCart System",
+      sentBy: "VisionHub System",
     });
 
     return result;

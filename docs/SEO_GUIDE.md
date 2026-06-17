@@ -1,8 +1,8 @@
-# SEO Implementation Guide - ShopCart
+# SEO Implementation Guide - VisionHub
 
 ## Overview
 
-This document outlines the comprehensive SEO implementation for ShopCart e-commerce platform at **https://shopcartpro.reactbd.org**. The implementation follows modern SEO best practices and is optimized for Next.js 16.
+This document outlines the comprehensive SEO implementation for VisionHub e-commerce platform at **https://VisionHubpro.reactbd.org**. The implementation follows modern SEO best practices and is optimized for Next.js 16.
 
 ## Table of Contents
 
@@ -55,8 +55,8 @@ This document outlines the comprehensive SEO implementation for ShopCart e-comme
 
 **Implementation:**
 
-- metadataBase: `https://shopcartpro.reactbd.org`
-- Title template: `%s | ShopCart - Premium Online Shopping`
+- metadataBase: `https://VisionHubpro.reactbd.org`
+- Title template: `%s | VisionHub - Premium Online Shopping`
 - Default title & description
 - Open Graph configuration
 - Twitter Card setup
@@ -67,10 +67,10 @@ This document outlines the comprehensive SEO implementation for ShopCart e-comme
 
 ```typescript
 export const metadata: Metadata = {
-  metadataBase: new URL("https://shopcartpro.reactbd.org"),
+  metadataBase: new URL("https://VisionHubpro.reactbd.org"),
   title: {
-    template: "%s | ShopCart - Premium Online Shopping",
-    default: "ShopCart - Your Trusted Online Shopping Destination",
+    template: "%s | VisionHub - Premium Online Shopping",
+    default: "VisionHub - Your Trusted Online Shopping Destination",
   },
   // ... rest of configuration
 };
@@ -113,8 +113,8 @@ export const metadata: Metadata = {
 {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "ShopCart",
-  "url": "https://shopcartpro.reactbd.org",
+  "name": "VisionHub",
+  "url": "https://VisionHubpro.reactbd.org",
   // ...
 }
 </script>
@@ -141,7 +141,7 @@ export const metadata: Metadata = {
 2. **Breadcrumb Schema** - Navigation path:
    - Home → Shop → Product Name
 
-**Example URL:** `https://shopcartpro.reactbd.org/product/iphone-15-pro`
+**Example URL:** `https://VisionHubpro.reactbd.org/product/iphone-15-pro`
 
 ### Category Pages
 
@@ -160,7 +160,7 @@ export const metadata: Metadata = {
    - Home → Categories → Category Name
 2. **ItemList Schema** - All products in category
 
-**Example URL:** `https://shopcartpro.reactbd.org/category/electronics`
+**Example URL:** `https://VisionHubpro.reactbd.org/category/electronics`
 
 ---
 
@@ -195,7 +195,7 @@ Structured data helps search engines understand your content better, enabling:
   },
   "offers": {
     "@type": "Offer",
-    "url": "https://shopcartpro.reactbd.org/product/iphone-15-pro",
+    "url": "https://VisionHubpro.reactbd.org/product/iphone-15-pro",
     "priceCurrency": "USD",
     "price": 999,
     "availability": "https://schema.org/InStock",
@@ -220,13 +220,13 @@ Structured data helps search engines understand your content better, enabling:
       "@type": "ListItem",
       "position": 1,
       "name": "Home",
-      "item": "https://shopcartpro.reactbd.org"
+      "item": "https://VisionHubpro.reactbd.org"
     },
     {
       "@type": "ListItem",
       "position": 2,
       "name": "Shop",
-      "item": "https://shopcartpro.reactbd.org/shop"
+      "item": "https://VisionHubpro.reactbd.org/shop"
     }
   ]
 }
@@ -238,15 +238,15 @@ Structured data helps search engines understand your content better, enabling:
 {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "ShopCart",
-  "url": "https://shopcartpro.reactbd.org",
-  "logo": "https://shopcartpro.reactbd.org/logo.png",
+  "name": "VisionHub",
+  "url": "https://VisionHubpro.reactbd.org",
+  "logo": "https://VisionHubpro.reactbd.org/logo.png",
   "contactPoint": {
     "@type": "ContactPoint",
     "telephone": "+1-555-123-4567",
     "contactType": "customer service"
   },
-  "sameAs": ["https://facebook.com/shopcart", "https://twitter.com/shopcart"]
+  "sameAs": ["https://facebook.com/VisionHub", "https://twitter.com/VisionHub"]
 }
 ```
 
@@ -256,13 +256,13 @@ Structured data helps search engines understand your content better, enabling:
 {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "name": "ShopCart",
-  "url": "https://shopcartpro.reactbd.org",
+  "name": "VisionHub",
+  "url": "https://VisionHubpro.reactbd.org",
   "potentialAction": {
     "@type": "SearchAction",
     "target": {
       "@type": "EntryPoint",
-      "urlTemplate": "https://shopcartpro.reactbd.org/shop?search={search_term_string}"
+      "urlTemplate": "https://VisionHubpro.reactbd.org/shop?search={search_term_string}"
     },
     "query-input": "required name=search_term_string"
   }
@@ -291,7 +291,7 @@ Structured data helps search engines understand your content better, enabling:
 3. All category pages
 4. All brand pages
 
-**URL:** `https://shopcartpro.reactbd.org/sitemap.xml`
+**URL:** `https://VisionHubpro.reactbd.org/sitemap.xml`
 
 **Priorities:**
 
@@ -321,10 +321,10 @@ Disallow: /studio/
 Disallow: /_next/
 Disallow: /checkout/
 
-Sitemap: https://shopcartpro.reactbd.org/sitemap.xml
+Sitemap: https://VisionHubpro.reactbd.org/sitemap.xml
 ```
 
-**URL:** `https://shopcartpro.reactbd.org/robots.txt`
+**URL:** `https://VisionHubpro.reactbd.org/robots.txt`
 
 ---
 
@@ -578,15 +578,15 @@ Update these in `.env`:
 
 ```env
 # Base URL for SEO
-NEXT_PUBLIC_BASE_URL=https://shopcartpro.reactbd.org
+NEXT_PUBLIC_BASE_URL=https://VisionHubpro.reactbd.org
 
 # Google Search Console verification
 GOOGLE_SITE_VERIFICATION=your-verification-code
 
 # Company Information (used in schemas)
-NEXT_PUBLIC_COMPANY_NAME=ShopCart
-NEXT_PUBLIC_COMPANY_EMAIL=support@shopcart.com
-NEXT_PUBLIC_COMPANY_PHONE=+1 (555) 123-4567
+NEXT_PUBLIC_COMPANY_NAME=VisionHub
+NEXT_PUBLIC_COMPANY_EMAIL=shivam@gmail.com
+NEXT_PUBLIC_COMPANY_PHONE=+91 123456789
 NEXT_PUBLIC_COMPANY_ADDRESS=123 Shopping Street, Commerce District
 ```
 

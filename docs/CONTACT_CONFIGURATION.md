@@ -9,11 +9,11 @@ All contact-related configuration is stored in the `.env` file. Here are the ava
 ### Company Information
 
 ```bash
-NEXT_PUBLIC_COMPANY_NAME=ShopCart                          # Your company name
-NEXT_PUBLIC_COMPANY_EMAIL=support@shopcart.com             # Main company email
-NEXT_PUBLIC_COMPANY_PHONE=+1 (555) 123-4567              # Main phone number
+NEXT_PUBLIC_COMPANY_NAME=VisionHub                          # Your company name
+NEXT_PUBLIC_COMPANY_EMAIL=shivam@gmail.com             # Main company email
+NEXT_PUBLIC_COMPANY_PHONE=+91 123456789              # Main phone number
 NEXT_PUBLIC_COMPANY_ADDRESS=123 Shopping Street, Commerce District  # Street address
-NEXT_PUBLIC_COMPANY_CITY=New York, NY 10001, USA          # City, state, country
+NEXT_PUBLIC_COMPANY_CITY=123 Shopping Street, Jammu, India          # City, state, country
 NEXT_PUBLIC_COMPANY_DESCRIPTION=Your company description   # Company description for footer
 ```
 
@@ -27,8 +27,8 @@ NEXT_PUBLIC_COMPANY_BUSINESS_HOURS_WEEKEND=Saturday - Sunday: 10AM - 4PM EST
 ### Contact Emails
 
 ```bash
-NEXT_PUBLIC_SUPPORT_EMAIL=support@shopcart.com             # Customer support email
-NEXT_PUBLIC_SALES_EMAIL=sales@shopcart.com                 # Sales team email
+NEXT_PUBLIC_SUPPORT_EMAIL=shivam@gmail.com             # Customer support email
+NEXT_PUBLIC_SALES_EMAIL=sales@VisionHub.com                 # Sales team email
 ```
 
 ### Response Times
@@ -41,16 +41,16 @@ NEXT_PUBLIC_QUICK_RESPONSE_TIME=2-4 hours during business hours
 ### Social Media (Optional)
 
 ```bash
-NEXT_PUBLIC_FACEBOOK_URL=https://facebook.com/shopcart
-NEXT_PUBLIC_TWITTER_URL=https://twitter.com/shopcart
-NEXT_PUBLIC_INSTAGRAM_URL=https://instagram.com/shopcart
-NEXT_PUBLIC_LINKEDIN_URL=https://linkedin.com/company/shopcart
+NEXT_PUBLIC_FACEBOOK_URL=https://facebook.com/VisionHub
+NEXT_PUBLIC_TWITTER_URL=https://twitter.com/VisionHub
+NEXT_PUBLIC_INSTAGRAM_URL=https://instagram.com/VisionHub
+NEXT_PUBLIC_LINKEDIN_URL=https://linkedin.com/company/VisionHub
 ```
 
 ### Legal Pages
 
 ```bash
-NEXT_PUBLIC_COPYRIGHT_TEXT=© 2024 ShopCart. All rights reserved.
+NEXT_PUBLIC_COPYRIGHT_TEXT=© 2024 VisionHub. All rights reserved.
 NEXT_PUBLIC_PRIVACY_POLICY_URL=/privacy
 NEXT_PUBLIC_TERMS_URL=/terms
 ```
@@ -116,7 +116,7 @@ If you get a "Failed to send message" error:
 
    ```bash
    # Visit /api/test-sanity in your browser to test the connection
-   curl http://localhost:3000/api/test-sanity
+   curl https://visionhub.vercel.app/api/test-sanity
    ```
 
 4. **Common Issues:**

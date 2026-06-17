@@ -58,12 +58,13 @@ const AddToCartButton = memo(({ product, className }: Props) => {
       <div className="w-full h-12 flex items-center">
         <Button
           disabled
-          className={cn(
-            "w-full bg-gray-200 text-gray-500 shadow-none border border-gray-300",
-            className
-          )}
+className={cn(
+  "w-full font-semibold tracking-wide transition-all duration-300",
+  className
+)}
         >
-          <ShoppingBag /> Loading...
+          <ShoppingBag className="w-4 h-4 mr-2" />
+Loading...
         </Button>
       </div>
     );
@@ -85,15 +86,15 @@ const AddToCartButton = memo(({ product, className }: Props) => {
           </div>
         </div>
       ) : (
-        <Button
-          onClick={handleAddToCart}
-          disabled={isOutOfStock}
-          className={cn(
-            "w-full bg-shop_dark_green/80 text-light-bg shadow-none border border-shop_dark_green/80 font-semibold tracking-wide hover:text-white hover:bg-shop_dark_green hover:border-shop_dark_green hoverEffect",
-            className
-          )}
-        >
-          <ShoppingBag /> {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+      <Button
+  onClick={handleAddToCart}
+  disabled={isOutOfStock}
+  className={cn(
+    "w-full font-semibold tracking-wide transition-all duration-300",
+    className
+  )}
+>
+          <ShoppingBag className="w-4 h-4 mr-2" /> {isOutOfStock ? "Out of Stock" : "Add to Cart"}
         </Button>
       )}
     </div>

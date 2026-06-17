@@ -20,6 +20,7 @@ interface Props {
 const Shop = ({ categories, brands }: Props) => {
   const searchParams = useSearchParams();
   const brandParams = searchParams?.get("brand");
+  const typeParams = searchParams?.get("type");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -45,6 +46,7 @@ const Shop = ({ categories, brands }: Props) => {
       *[_type == 'product' 
         && (!defined($selectedCategory) || references(*[_type == "category" && slug.current == $selectedCategory]._id))
         && (!defined($selectedBrand) || references(*[_type == "brand" && slug.current == $selectedBrand]._id))
+        && (!defined($selectedType) || variant == $selectedType)
         && price >= $minPrice && price <= $maxPrice
       ] 
       | order(name asc) {
@@ -57,6 +59,7 @@ const Shop = ({ categories, brands }: Props) => {
         {
           selectedCategory,
           selectedBrand,
+          selectedType: typeParams,
           minPrice,
           maxPrice,
         },
@@ -68,10 +71,10 @@ const Shop = ({ categories, brands }: Props) => {
     } finally {
       setLoading(false);
     }
-  }, [selectedCategory, selectedBrand, selectedPrice]);
+  }, [selectedCategory, selectedBrand, selectedPrice, typeParams]);
   useEffect(() => {
     fetchProducts();
-  }, [selectedCategory, selectedBrand, selectedPrice]);
+  }, [selectedCategory, selectedBrand, selectedPrice, typeParams]);
 
   return (
     <div className="bg-gray-50 min-h-screen">

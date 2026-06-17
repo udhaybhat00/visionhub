@@ -63,7 +63,7 @@ interface OrderCheckoutContentProps {
 
 export function OrderCheckoutContent({ order }: OrderCheckoutContentProps) {
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
-    useState<PaymentMethod>(PAYMENT_METHODS.STRIPE);
+    useState<PaymentMethod>(PAYMENT_METHODS.RAZORPAY);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handlePayNow = async () => {
@@ -183,7 +183,7 @@ export function OrderCheckoutContent({ order }: OrderCheckoutContentProps) {
             >
               <div className="flex items-start space-x-3 p-3 border rounded-lg">
                 <RadioGroupItem
-                  value={PAYMENT_METHODS.STRIPE}
+                  value={PAYMENT_METHODS.RAZORPAY}
                   id="stripe"
                   className="mt-1"
                 />
@@ -202,7 +202,7 @@ export function OrderCheckoutContent({ order }: OrderCheckoutContentProps) {
 
               <div className="flex items-start space-x-3 p-3 border rounded-lg">
                 <RadioGroupItem
-                  value={PAYMENT_METHODS.CASH_ON_DELIVERY}
+                  value={PAYMENT_METHODS.RAZORPAY}
                   id="cod"
                   className="mt-1"
                 />
@@ -298,7 +298,7 @@ export function OrderCheckoutContent({ order }: OrderCheckoutContentProps) {
 
         <Button
           onClick={
-            selectedPaymentMethod === PAYMENT_METHODS.STRIPE
+            selectedPaymentMethod === PAYMENT_METHODS.RAZORPAY
               ? handlePayNow
               : handleCODPayment
           }
@@ -313,7 +313,7 @@ export function OrderCheckoutContent({ order }: OrderCheckoutContentProps) {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              {selectedPaymentMethod === PAYMENT_METHODS.STRIPE ? (
+              {selectedPaymentMethod === PAYMENT_METHODS.RAZORPAY ? (
                 <>
                   <CreditCard className="w-5 h-5" />
                   Pay <PriceFormatter amount={order.totalPrice} />
@@ -336,7 +336,7 @@ export function OrderCheckoutContent({ order }: OrderCheckoutContentProps) {
         </Button>
 
         <div className="text-center text-xs text-muted-foreground">
-          {selectedPaymentMethod === PAYMENT_METHODS.STRIPE ? (
+          {selectedPaymentMethod === PAYMENT_METHODS.RAZORPAY ? (
             <>
               <p>🔒 Secure payment powered by Stripe</p>
               <p>Your payment information is encrypted and secure</p>

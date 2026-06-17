@@ -31,29 +31,40 @@ export function AddAddressSidebar({
   isFirstAddress = false,
 }: AddAddressSidebarProps) {
   const [isPending, startTransition] = useTransition();
-  const [formData, setFormData] = useState({
-    name: "",
-    address: "",
-    city: "",
-    state: "",
-    zip: "",
-    phone: "",
-    isDefault: isFirstAddress, // First address is default by default
-  });
+ const [formData, setFormData] = useState({
+  name: "",
+  address: "",
+  landmark: "",
+  city: "",
+  state: "",
+  zip: "",
+  phone: "",
+  isDefault: isFirstAddress,
+});
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (
-      !formData.name ||
-      !formData.address ||
-      !formData.city ||
-      !formData.state ||
-      !formData.zip
-    ) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
+if (
+  !formData.name ||
+  !formData.address ||
+  !formData.city ||
+  !formData.state ||
+  !formData.zip
+) {
+  toast.error("Please fill in all required fields");
+  return;
+}
+
+if (!/^[6-9]\d{9}$/.test(formData.phone)) {
+  toast.error("Enter a valid 10-digit mobile number");
+  return;
+}
+
+if (!/^\d{6}$/.test(formData.zip)) {
+  toast.error("Enter a valid 6-digit PIN code");
+  return;
+}
 
     startTransition(async () => {
       try {
@@ -63,25 +74,35 @@ export function AddAddressSidebar({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({
+  ...formData,
+  default: formData.isDefault,
+}),
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to create address");
-        }
+  const errorData = await response.json();
+  console.log("API ERROR:", errorData);
+
+  throw new Error(
+    errorData.details ||
+    errorData.error ||
+    JSON.stringify(errorData)
+  );
+}
 
         await response.json();
         toast.success("Address saved successfully!");
-        setFormData({
-          name: "",
-          address: "",
-          city: "",
-          state: "",
-          zip: "",
-          phone: "",
-          isDefault: false,
-        });
+    setFormData({
+  name: "",
+  address: "",
+  landmark: "",
+  city: "",
+  state: "",
+  zip: "",
+  phone: "",
+  isDefault: false,
+});
         onClose();
 
         // Call the callback to refresh addresses if provided
@@ -119,8 +140,8 @@ export function AddAddressSidebar({
             {isFirstAddress ? "Add Your First Address" : "Add New Address"}
           </SheetTitle>
           <SheetDescription>
-            Add a shipping address to {userEmail}
-          </SheetDescription>
+  Add your delivery address for faster and secure checkout.
+</SheetDescription>
         </SheetHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col h-full px-3">
@@ -131,7 +152,7 @@ export function AddAddressSidebar({
               </Label>
               <Input
                 id="name"
-                placeholder="e.g., Home, Work, Office"
+                placeholder="Home, Office, Other"
                 value={formData.name}
                 onChange={(e) => handleInputChange("name", e.target.value)}
                 disabled={isPending}
@@ -146,7 +167,7 @@ export function AddAddressSidebar({
               <Input
                 id="phone"
                 type="tel"
-                placeholder="(555) 123-4567"
+                placeholder="+91 9876543210"
                 value={formData.phone}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
                 disabled={isPending}
@@ -160,13 +181,27 @@ export function AddAddressSidebar({
               </Label>
               <Input
                 id="address"
-                placeholder="123 Main Street, Apt 4B"
+                placeholder="House No, Street, Area, Landmark"
                 value={formData.address}
                 onChange={(e) => handleInputChange("address", e.target.value)}
                 disabled={isPending}
                 className="w-full"
               />
             </div>
+
+            <div className="space-y-2">
+  <Label htmlFor="landmark" className="text-sm font-medium">
+    Landmark
+  </Label>
+  <Input
+    id="landmark"
+    placeholder="Near Bus Stand, Mall, School"
+    value={formData.landmark}
+    onChange={(e) => handleInputChange("landmark", e.target.value)}
+    disabled={isPending}
+    className="w-full"
+  />
+</div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -175,7 +210,7 @@ export function AddAddressSidebar({
                 </Label>
                 <Input
                   id="city"
-                  placeholder="New York"
+                  placeholder="Karol Bagh"
                   value={formData.city}
                   onChange={(e) => handleInputChange("city", e.target.value)}
                   disabled={isPending}
@@ -188,8 +223,7 @@ export function AddAddressSidebar({
                 </Label>
                 <Input
                   id="state"
-                  placeholder="NY"
-                  maxLength={2}
+                  placeholder="New Delhi"
                   value={formData.state}
                   onChange={(e) =>
                     handleInputChange("state", e.target.value.toUpperCase())
@@ -202,11 +236,11 @@ export function AddAddressSidebar({
 
             <div className="space-y-2">
               <Label htmlFor="zip" className="text-sm font-medium">
-                ZIP Code *
+                PIN Code *
               </Label>
               <Input
                 id="zip"
-                placeholder="12345"
+                placeholder="110005"
                 value={formData.zip}
                 onChange={(e) => handleInputChange("zip", e.target.value)}
                 disabled={isPending}

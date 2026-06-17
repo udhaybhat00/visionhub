@@ -40,13 +40,26 @@ const ProductGrid = () => {
     useState<ALL_PRODUCTS_QUERYResult>([]);
   const [loading, setLoading] = useState(false);
   const [selectedTab, setSelectedTab] = useState(productType[0]?.title || "");
-  const [viewMode, setViewMode] = useState<ViewMode>("grid-5");
+  const [viewMode, setViewMode] =
+  useState<ViewMode>("grid-4");
   const [sortBy, setSortBy] = useState<SortOption>("name-asc");
   const [showFilters, setShowFilters] = useState(false);
   const [productsPerPage] = useState(20);
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [stockStatus, setStockStatus] = useState<string>("all");
-  const [rating, setRating] = useState<string>("all");
+  const [gender, setGender] = useState<string>("all");
+ const maxPrice = Math.max(
+  ...products.map((p) => {
+    const price = p.price || 0;
+
+    return Math.floor(
+      p.discount
+        ? price - price * (p.discount / 100)
+        : price
+    );
+  }),
+  1000
+);
 
   const query = `*[_type == "product" && variant == $variant] | order(${getSortQuery(
     sortBy
@@ -77,8 +90,23 @@ const ProductGrid = () => {
       setLoading(true);
       try {
         const response = await client.fetch(query, params);
+
         setProducts(await response);
         setFilteredProducts(await response);
+  const highestPrice = Math.max(
+  ...response.map((p: any) => {
+    const price = p.price || 0;
+
+    return Math.floor(
+      p.discount
+        ? price - price * (p.discount / 100)
+        : price
+    );
+  }),
+  1000
+);
+
+setPriceRange([0, highestPrice]);
       } catch (error) {
         console.log("Product fetching Error", error);
       } finally {
@@ -93,12 +121,14 @@ const ProductGrid = () => {
     let filtered = [...products];
 
     // Filter by price range
-    if (priceRange[0] > 0 || priceRange[1] < 1000) {
+    if (priceRange[0] > 0 || priceRange[1] < maxPrice) {
       filtered = filtered.filter((product) => {
         const price = product.price || 0;
-        const finalPrice = product.discount
-          ? price - price * (product.discount / 100)
-          : price;
+     const finalPrice = Math.floor(
+  product.discount
+    ? price - price * (product.discount / 100)
+    : price
+);
         return finalPrice >= priceRange[0] && finalPrice <= priceRange[1];
       });
     }
@@ -115,42 +145,37 @@ const ProductGrid = () => {
       });
     }
 
-    // Filter by status (using status as a proxy for "rating/quality")
-    if (rating !== "all") {
-      filtered = filtered.filter((product) => {
-        if (rating === "5") {
-          return product.status === "hot"; // Hot products = 5 stars
-        } else if (rating === "4") {
-          return product.status === "hot" || product.status === "new"; // Hot or New = 4+ stars
-        } else if (rating === "3") {
-          return (
-            product.status === "hot" ||
-            product.status === "new" ||
-            product.status === "sale"
-          ); // All products = 3+ stars
-        }
-        return true;
-      });
-    }
+    // Filter by gender
+if (gender !== "all") {
+  filtered = filtered.filter(
+    (product) =>
+      product.gender?.toLowerCase() === gender.toLowerCase()
+  );
+}
 
     setFilteredProducts(filtered);
   };
 
   // Auto-apply filters when filter values change
-  useEffect(() => {
-    applyFilters();
-  }, [products, priceRange, stockStatus, rating]);
+ useEffect(() => {
+  applyFilters();
+}, [
+  products,
+  priceRange,
+  stockStatus,
+  gender,
+]);
 
   const getGridClasses = () => {
     switch (viewMode) {
       case "grid-2":
-        return "grid-cols-1 sm:grid-cols-2 gap-6";
+  return "grid-cols-2 gap-3 sm:grid-cols-2";
       case "grid-3":
         return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5";
       case "grid-4":
         return "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4";
       case "grid-5":
-        return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3";
+  return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2";
       case "list":
         return "grid-cols-1 gap-4";
       default:
@@ -183,62 +208,54 @@ const ProductGrid = () => {
   );
 
   return (
-    <Container className="flex flex-col lg:px-0 mt-16 lg:mt-24">
+    <Container className="flex flex-col mt-4 px-3 sm:px-4 lg:px-0">
       {/* Header Section */}
-      <div className="text-center mb-8">
+      <div className="text-center mb-4">
         <div className="inline-flex items-center gap-3 mb-4">
           <div className="h-1 w-12 bg-gradient-to-r from-shop_light_green to-shop_dark_green rounded-full"></div>
-          <h2 className="text-3xl lg:text-4xl font-bold text-dark-color">
+          <h2 className="text-xl sm:text-2xl lg:text-4xl font-bold text-dark-color">
             Featured Products
           </h2>
           <div className="h-1 w-12 bg-gradient-to-l from-shop_light_green to-shop_dark_green rounded-full"></div>
         </div>
-        <p className="text-light-color text-lg max-w-2xl mx-auto">
-          Discover our carefully curated selection of premium products
+        <p className="text-light-color text-sm sm:text-lg max-w-2xl mx-auto">
+         Showing {filteredProducts.length} premium products
         </p>
       </div>
 
       {/* Enhanced Controls Section */}
-      <div className="bg-white rounded-2xl shadow-lg border border-shop_light_green/10 p-6 mb-8">
+      <div className="bg-white rounded-2xl shadow-lg border border-shop_light_green/10 p-3 md:p-6 mb-8">
         {/* Tab Bar */}
         <HomeTabbar selectedTab={selectedTab} onTabSelect={setSelectedTab} />
 
         {/* Advanced Controls */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mt-6 pt-6 border-t border-gray-100">
           {/* Left Side - View Options */}
-          <div className="flex items-center gap-4">
+          <div className="flex w-full sm:w-auto items-center gap-2">
             {/* View Mode Selector */}
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-dark-color hidden sm:block">
                 View:
               </span>
-              <div className="flex items-center gap-1">
-                <ViewModeButton
-                  mode="grid-2"
-                  icon={<Grid3X3 size={16} />}
-                  label="2 Columns"
-                />
-                <ViewModeButton
-                  mode="grid-3"
-                  icon={<LayoutGrid size={16} />}
-                  label="3 Columns"
-                />
-                <ViewModeButton
-                  mode="grid-4"
-                  icon={<LayoutGrid size={16} />}
-                  label="4 Columns"
-                />
-                <ViewModeButton
-                  mode="grid-5"
-                  icon={<LayoutGrid size={16} />}
-                  label="5 Columns"
-                />
-                <ViewModeButton
-                  mode="list"
-                  icon={<List size={16} />}
-                  label="List View"
-                />
-              </div>
+             <div className="hidden md:flex items-center gap-1">
+  <ViewModeButton
+    mode="grid-2"
+    icon={<Grid3X3 size={16} />}
+    label="2 Columns"
+  />
+
+  <ViewModeButton
+    mode="grid-4"
+    icon={<LayoutGrid size={16} />}
+    label="4 Columns"
+  />
+
+  <ViewModeButton
+    mode="list"
+    icon={<List size={16} />}
+    label="List View"
+  />
+</div>
             </div>
 
             {/* Filter Toggle */}
@@ -246,19 +263,21 @@ const ProductGrid = () => {
               variant={showFilters ? "default" : "outline"}
               size="sm"
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 hoverEffect ${
+              className={`flex-1 sm:flex-none flex items-center gap-2 hoverEffect ${
                 showFilters
                   ? "bg-shop_light_green hover:bg-shop_dark_green border-shop_light_green"
                   : "hover:border-shop_light_green hover:text-shop_light_green"
               }`}
             >
               <Filter size={16} />
-              <span className="hidden sm:inline">Filters</span>
+              <span>
+  Filters
+</span>
             </Button>
           </div>
 
           {/* Right Side - Sort and Info */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             {/* Sort Selector */}
             <div className="flex items-center gap-2">
               <SortAsc size={16} className="text-light-color" />
@@ -266,7 +285,7 @@ const ProductGrid = () => {
                 value={sortBy}
                 onValueChange={(value) => setSortBy(value as SortOption)}
               >
-                <SelectTrigger className="w-48 border-gray-200 focus:border-shop_light_green">
+                <SelectTrigger className="w-full sm:w-48 border-gray-200 focus:border-shop_light_green">
                   <SelectValue placeholder="Sort by..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -282,7 +301,7 @@ const ProductGrid = () => {
             </div>
 
             {/* Products Count */}
-            <div className="flex items-center gap-2 text-sm text-light-color">
+            <div className="hidden md:flex items-center gap-2 text-sm text-light-color">
               <Eye size={16} />
               <Badge
                 variant="secondary"
@@ -309,15 +328,14 @@ const ProductGrid = () => {
                 <CardContent className="p-6">
                   <div className="mb-6">
                     <h3 className="text-lg font-bold text-dark-color flex items-center gap-2 mb-2">
-                      🎯 Advanced Filters
+                      Filter & Sort Products
                     </h3>
                     <p className="text-sm text-light-color">
-                      Fine-tune your search to find exactly what you&apos;re
-                      looking for
+                      Find the perfect eyewear for your style
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {/* Price Range Filter */}
                     <div className="space-y-4 p-4 bg-white rounded-xl border border-shop_light_green/10 shadow-sm">
                       <Label className="text-sm font-bold text-dark-color flex items-center gap-2">
@@ -326,11 +344,11 @@ const ProductGrid = () => {
                       <div className="space-y-4">
                         <div className="px-2">
                           <Slider
-                            value={priceRange}
-                            onValueChange={setPriceRange}
-                            max={1000}
+                    value={priceRange}
+                   onValueChange={setPriceRange}
+                     max={maxPrice}
                             min={0}
-                            step={10}
+                            step={100}
                             className="w-full"
                           />
                         </div>
@@ -340,15 +358,16 @@ const ProductGrid = () => {
                               Min Price
                             </Label>
                             <Input
-                              type="number"
+  type="number"
+  min={0}
                               placeholder="0"
                               value={priceRange[0]}
-                              onChange={(e) =>
-                                setPriceRange([
-                                  parseInt(e.target.value) || 0,
-                                  priceRange[1],
-                                ])
-                              }
+                            onChange={(e) =>
+  setPriceRange([
+    Math.max(0, parseInt(e.target.value) || 0),
+    priceRange[1],
+  ])
+}
                               className="h-9 border-gray-200 focus:border-shop_light_green"
                             />
                           </div>
@@ -366,7 +385,10 @@ const ProductGrid = () => {
                               onChange={(e) =>
                                 setPriceRange([
                                   priceRange[0],
-                                  parseInt(e.target.value) || 1000,
+                                  Math.max(
+  priceRange[0],
+  parseInt(e.target.value) || maxPrice
+),
                                 ])
                               }
                               className="h-9 border-gray-200 focus:border-shop_light_green"
@@ -375,7 +397,7 @@ const ProductGrid = () => {
                         </div>
                         <div className="text-center">
                           <Badge className="bg-shop_light_green/20 text-shop_dark_green border-shop_light_green/30">
-                            ${priceRange[0]} - ${priceRange[1]}
+                            ₹{Math.floor(priceRange[0])} - ₹{Math.floor(priceRange[1])}
                           </Badge>
                         </div>
                       </div>
@@ -429,52 +451,49 @@ const ProductGrid = () => {
                     </div>
 
                     {/* Quality Filter */}
-                    <div className="space-y-4 p-4 bg-white rounded-xl border border-shop_light_green/10 shadow-sm">
-                      <Label className="text-sm font-bold text-dark-color flex items-center gap-2">
-                        🏆 Product Quality
-                      </Label>
-                      <Select value={rating} onValueChange={setRating}>
-                        <SelectTrigger className="border-gray-200 focus:border-shop_light_green h-10">
-                          <SelectValue placeholder="Select quality..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">
-                            <span className="flex items-center gap-2">
-                              🛍️ All Products
-                            </span>
-                          </SelectItem>
-                          <SelectItem value="5">
-                            <span className="flex items-center gap-2">
-                              🔥 Hot Products (Premium)
-                            </span>
-                          </SelectItem>
-                          <SelectItem value="4">
-                            <span className="flex items-center gap-2">
-                              ✨ New & Hot (High Quality)
-                            </span>
-                          </SelectItem>
-                          <SelectItem value="3">
-                            <span className="flex items-center gap-2">
-                              🛍️ All Available (Standard+)
-                            </span>
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {rating && rating !== "all" && (
-                        <div className="text-center">
-                          <Badge
-                            variant="outline"
-                            className="w-fit border-shop_orange/30 text-shop_orange"
-                          >
-                            {rating === "5"
-                              ? "🔥 Premium Only"
-                              : rating === "4"
-                              ? "✨ High Quality+"
-                              : "🛍️ Standard+"}
-                          </Badge>
-                        </div>
-                      )}
-                    </div>
+                  <div className="space-y-4 p-4 bg-white rounded-xl border border-shop_light_green/10 shadow-sm">
+  <Label className="text-sm font-bold text-dark-color flex items-center gap-2">
+    👤 Gender
+  </Label>
+
+  <Select
+    value={gender}
+    onValueChange={setGender}
+  >
+    <SelectTrigger className="border-gray-200 focus:border-shop_light_green h-10">
+      <SelectValue placeholder="Select gender..." />
+    </SelectTrigger>
+
+    <SelectContent>
+      <SelectItem value="all">
+        All Products
+      </SelectItem>
+
+      <SelectItem value="Men">
+        Men's
+      </SelectItem>
+
+      <SelectItem value="Women">
+        Women's
+      </SelectItem>
+
+      <SelectItem value="Unisex">
+        Unisex
+      </SelectItem>
+    </SelectContent>
+  </Select>
+
+  {gender !== "all" && (
+    <div className="text-center">
+      <Badge
+        variant="outline"
+        className="border-shop_light_green/30"
+      >
+        👤 {gender}
+      </Badge>
+    </div>
+  )}
+</div>
 
                     {/* Action Buttons */}
                     <div className="flex flex-col gap-3 justify-end p-4 bg-gradient-to-br from-shop_light_pink/20 to-shop_light_bg/30 rounded-xl border border-shop_light_green/10">
@@ -483,21 +502,20 @@ const ProductGrid = () => {
                           Quick Actions
                         </Label>
                       </div>
-                      <Button
-                        className="w-full bg-gradient-to-r from-shop_light_green to-shop_dark_green hover:from-shop_dark_green hover:to-shop_light_green text-white font-semibold shadow-lg hover:shadow-xl hoverEffect transform hover:-translate-y-0.5"
-                        onClick={() => {
-                          applyFilters();
-                        }}
-                      >
-                        ✨ Apply Filters ({filteredProducts.length})
-                      </Button>
+                  <Button
+  disabled
+  className="w-full"
+>
+  {filteredProducts.length} Products Found
+</Button>
                       <Button
                         variant="outline"
                         className="w-full border-shop_light_green/30 hover:border-shop_light_green hover:bg-shop_light_green/10 text-shop_dark_green hoverEffect"
                         onClick={() => {
-                          setPriceRange([0, 1000]);
-                          setStockStatus("all");
-                          setRating("all");
+                          setPriceRange([0, maxPrice]);
+setStockStatus("all");
+setGender("all");
+
                         }}
                       >
                         🗑️ Clear Filters
@@ -507,20 +525,20 @@ const ProductGrid = () => {
 
                   {/* Active Filters Display */}
                   {(priceRange[0] > 0 ||
-                    priceRange[1] < 1000 ||
-                    (stockStatus && stockStatus !== "all") ||
-                    (rating && rating !== "all")) && (
+  priceRange[1] < maxPrice ||
+  (stockStatus && stockStatus !== "all") ||
+  gender !== "all") && (
                     <div className="mt-6 pt-4 border-t border-gray-100">
-                      <div className="flex items-center gap-2 flex-wrap">
+                      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                         <span className="text-sm font-medium text-dark-color">
                           Active Filters:
                         </span>
-                        {(priceRange[0] > 0 || priceRange[1] < 1000) && (
+                        {(priceRange[0] > 0 || priceRange[1] < maxPrice) && (
                           <Badge
                             variant="secondary"
                             className="bg-shop_light_pink text-shop_dark_green"
                           >
-                            Price: ${priceRange[0]} - ${priceRange[1]}
+                            ₹{Math.floor(priceRange[0])} - ₹{Math.floor(priceRange[1])}
                           </Badge>
                         )}
                         {stockStatus && stockStatus !== "all" && (
@@ -534,19 +552,14 @@ const ProductGrid = () => {
                               : "Out of Stock"}
                           </Badge>
                         )}
-                        {rating && rating !== "all" && (
-                          <Badge
-                            variant="secondary"
-                            className="bg-shop_light_pink text-shop_dark_green"
-                          >
-                            Quality:{" "}
-                            {rating === "5"
-                              ? "🔥 Premium"
-                              : rating === "4"
-                              ? "✨ High Quality"
-                              : "🛍️ Standard+"}
-                          </Badge>
-                        )}
+                        {gender !== "all" && (
+  <Badge
+    variant="secondary"
+    className="bg-shop_light_pink text-shop_dark_green"
+  >
+    Gender: {gender}
+  </Badge>
+)}
                       </div>
                     </div>
                   )}

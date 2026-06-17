@@ -2,28 +2,28 @@
 
 export const contactConfig = {
   company: {
-    name: process.env.NEXT_PUBLIC_COMPANY_NAME || "ShopCart",
-    email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || "support@shopcart.com",
-    phone: process.env.NEXT_PUBLIC_COMPANY_PHONE || "+1 (555) 123-4567",
+    name: process.env.NEXT_PUBLIC_COMPANY_NAME || "VisionHub",
+    email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || "shivam@gmail.com",
+    phone: process.env.NEXT_PUBLIC_COMPANY_PHONE || "+91 123456789",
     address:
       process.env.NEXT_PUBLIC_COMPANY_ADDRESS ||
-      "123 Shopping Street, Commerce District",
-    city: process.env.NEXT_PUBLIC_COMPANY_CITY || "New York, NY 10001, USA",
+      "VisionHub Eyewear",
+    city: process.env.NEXT_PUBLIC_COMPANY_CITY || "123 Shopping Street, Jammu, India",
     description:
       process.env.NEXT_PUBLIC_COMPANY_DESCRIPTION ||
-      "Discover amazing products at ShopCart, your trusted online shopping destination for quality items and exceptional customer service.",
+      "Your destination for premium eyewear, stylish sunglasses, prescription glasses, contact lenses, and accessories. We combine quality, comfort, and modern design to help you see and look your best every day.",
   },
   businessHours: {
     weekday:
       process.env.NEXT_PUBLIC_COMPANY_BUSINESS_HOURS_WEEKDAY ||
-      "Monday - Friday: 9AM - 6PM EST",
+      "Monday - Friday: 9AM - 6PM IST",
     weekend:
       process.env.NEXT_PUBLIC_COMPANY_BUSINESS_HOURS_WEEKEND ||
-      "Saturday - Sunday: 10AM - 4PM EST",
+      "Saturday - Sunday: 10AM - 4PM IST",
   },
   emails: {
-    support: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@shopcart.com",
-    sales: process.env.NEXT_PUBLIC_SALES_EMAIL || "sales@shopcart.com",
+    support: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "shivam@gmail.com",
+    sales: process.env.NEXT_PUBLIC_SALES_EMAIL || "sales@VisionHub.com",
   },
   responseTime: {
     standard:
@@ -42,7 +42,7 @@ export const contactConfig = {
   legal: {
     copyright:
       process.env.NEXT_PUBLIC_COPYRIGHT_TEXT ||
-      "© 2024 ShopCart. All rights reserved.",
+      "© 2024 VisionHub. All rights reserved.",
     privacyPolicy: process.env.NEXT_PUBLIC_PRIVACY_POLICY_URL || "/privacy",
     terms: process.env.NEXT_PUBLIC_TERMS_URL || "/terms",
   },

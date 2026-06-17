@@ -114,14 +114,14 @@ export default function ProfileClient({ userData }: ProfileClientProps) {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-2 sm:px-4 py-3 lg:py-8">
       {/* Profile Header */}
       <div className="mb-8">
         <Card className="shadow-lg border-0">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
+          <CardHeader className="pb-3 lg:pb-4">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 sm:items-center sm:justify-between">
               <div className="flex items-center space-x-4">
-                <Avatar className="h-16 w-16">
+                <Avatar className="h-12 w-12 lg:h-16 lg:w-16">
                   <AvatarImage
                     src={clerk.imageUrl || sanity?.profileImage?.asset?.url}
                     alt={displayName}
@@ -131,7 +131,7 @@ export default function ProfileClient({ userData }: ProfileClientProps) {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
+                  <h1 className="text-xl lg:text-2xl font-bold text-gray-900">
                     {displayName}
                   </h1>
                   <p className="text-gray-600 flex items-center mt-1">
@@ -146,10 +146,10 @@ export default function ProfileClient({ userData }: ProfileClientProps) {
                   )}
                 </div>
               </div>
-              <Button
-                onClick={handleEditProfile}
-                className="flex items-center space-x-2"
-              >
+            <Button
+  onClick={handleEditProfile}
+  className="w-full sm:w-auto flex items-center space-x-2"
+>
                 <Edit className="h-4 w-4" />
                 <span>Edit Profile</span>
               </Button>
@@ -169,32 +169,6 @@ export default function ProfileClient({ userData }: ProfileClientProps) {
                 </div>
               </div>
 
-              {sanity?.rewardPoints !== undefined && (
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <Shield className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Reward Points</p>
-                    <p className="font-medium">{sanity.rewardPoints}</p>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <CheckCircle className="h-5 w-5 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Account Status</p>
-                  <Badge
-                    variant="outline"
-                    className="text-green-600 border-green-200"
-                  >
-                    Active
-                  </Badge>
-                </div>
-              </div>
             </div>
           </CardContent>
         </Card>
@@ -282,54 +256,12 @@ export default function ProfileClient({ userData }: ProfileClientProps) {
           </CardContent>
         </Card>
 
-        {/* Account Stats */}
-        <Card className="shadow-lg border-0">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Shield className="h-5 w-5" />
-              <span>Account Overview</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                <span className="text-gray-700">Reward Points</span>
-                <span className="font-bold text-blue-600">
-                  {sanity?.rewardPoints || 0}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                <span className="text-gray-700">Total Spent</span>
-                <span className="font-bold text-green-600">
-                  ${sanity?.totalSpent || 0}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                <span className="text-gray-700">Loyalty Points</span>
-                <span className="font-bold text-purple-600">
-                  {sanity?.loyaltyPoints || 0}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span className="text-gray-700">Last Login</span>
-                <span className="font-medium text-gray-600">
-                  {sanity?.lastLogin
-                    ? new Date(sanity.lastLogin).toLocaleDateString()
-                    : "Today"}
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Shipping Addresses */}
       <Card className="shadow-lg border-0">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 sm:items-center sm:justify-between">
             <CardTitle className="flex items-center space-x-2">
               <MapPin className="h-5 w-5" />
               <span>Shipping Addresses</span>
@@ -351,7 +283,7 @@ export default function ProfileClient({ userData }: ProfileClientProps) {
                   key={address._id}
                   className="border rounded-lg p-4 space-y-3 hover:shadow-md transition-shadow"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 sm:items-center sm:justify-between">
                     <div className="flex items-center space-x-2">
                       <Home className="h-4 w-4 text-gray-500" />
                       <span className="font-medium">{address.name}</span>

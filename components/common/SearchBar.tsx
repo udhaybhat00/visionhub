@@ -125,7 +125,7 @@ const SearchBar = () => {
 
           {/* Placeholder Text */}
           <span className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors duration-200 flex-1 text-left">
-            Search products...
+            Search for Eyeglasses, Sunglasses
           </span>
 
           {/* Keyboard Shortcut Badge */}
@@ -195,7 +195,7 @@ const SearchBar = () => {
                 <div className="relative">
                   <Input
                     ref={inputRef}
-                    placeholder="Search your favorite products..."
+                    placeholder="Search for Eyeglasses, Sunglasses and more..."
                     className="w-full pl-12 pr-16 py-4 text-lg bg-white/10 border-white/20 placeholder:text-white/70 text-white focus:bg-white/20 focus:border-white/40 rounded-xl"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -219,9 +219,13 @@ const SearchBar = () => {
                 </div>
               </form>
             </div>
-
+<div className="px-4 py-3 bg-gray-50 border-b">
+  <p className="text-sm text-gray-600">
+    {products.length} product{products.length > 1 ? "s" : ""} found
+  </p>
+</div>
             {/* Content */}
-            <div className="max-h-[60vh] min-h-[50vh] overflow-y-auto">
+            <div className="max-h-[70vh] min-h-[55vh] overflow-y-auto">
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-16 text-shop_dark_green">
                   <Loader2 className="w-8 h-8 animate-spin mb-3" />
@@ -239,7 +243,7 @@ const SearchBar = () => {
                         <Link
                           href={`/product/${product?.slug?.current}`}
                           onClick={() => setShowSearch(false)}
-                          className="relative h-16 w-16 sm:h-20 sm:w-20 flex-shrink-0 overflow-hidden rounded-xl border border-gray-200 group-hover:border-shop_light_green transition-colors duration-200"
+                          className="relative h-24 w-24 sm:h-28 sm:w-28 flex-shrink-0 overflow-hidden rounded-xl bg-gray-50 border border-gray-100"
                         >
                           {product?.images && (
                             <Image
@@ -247,7 +251,7 @@ const SearchBar = () => {
                               height={80}
                               src={urlFor(product?.images[0]).url()}
                               alt={product.name || "Product"}
-                              className={`object-cover w-full h-full group-hover:scale-105 transition-transform duration-300 ${
+                              className={`object-contain w-full h-full p-2 group-hover:scale-105 transition-transform duration-300 ${
                                 product?.stock === 0
                                   ? "opacity-50 grayscale"
                                   : ""
@@ -280,16 +284,15 @@ const SearchBar = () => {
                             />
 
                             <div className="flex items-center gap-2">
-                              {product?.stock === 0 ? (
-                                <span className="text-red-500 text-sm font-medium">
-                                  Out of Stock
-                                </span>
-                              ) : (
-                                <AddToCartButton
-                                  product={product}
-                                  className="px-3 py-1.5 text-sm"
-                                />
-                              )}
+                    <span
+  className={`text-sm font-medium ${
+    product?.stock === 0
+      ? "text-red-500"
+      : "text-green-600"
+  }`}
+>
+  {product?.stock === 0 ? "Out of Stock" : "In Stock"}
+</span>
                             </div>
                           </div>
 

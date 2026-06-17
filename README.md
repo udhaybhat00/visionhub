@@ -1,4 +1,4 @@
-# 🛒 ShopCart Pro - Complete E-Commerce Solution
+# 🛒 VisionHub Pro - Complete E-Commerce Solution
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.0.1-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.1.1-blue)](https://react.dev/)
@@ -8,7 +8,7 @@
 
 A modern, feature-rich e-commerce application built with Next.js 16, TypeScript, Sanity CMS, Clerk Authentication, and Stripe/Clerk Payments. This free version includes core e-commerce features with premium features available in the paid version.
 
-![ShopCart Pro Preview](./public/preview.png)
+![VisionHub Pro Preview](./public/preview.png)
 
 ## ✨ Features
 
@@ -58,8 +58,8 @@ Before you begin, ensure you have the following installed:
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/noorjsdivs/shopcartpro-yt
-cd shopcartpro
+git clone https://github.com/noorjsdivs/VisionHubpro-yt
+cd VisionHubpro
 ```
 
 ### 2️⃣ Install Dependencies
@@ -83,7 +83,7 @@ Create a `.env` file in the root directory and add the following variables:
 
 ```bash
 # Base URL
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_BASE_URL=https://visionhub.vercel.app
 
 # Sanity CMS Configuration
 NEXT_PUBLIC_SANITY_PROJECT_ID=your_sanity_project_id
@@ -121,11 +121,11 @@ NEXT_PUBLIC_ADMIN_EMAIL=admin@yourdomain.com
 NEXT_PUBLIC_PAID_VERION=https://www.buymeacoffee.com/reactbd
 
 # Company Information (Optional)
-NEXT_PUBLIC_COMPANY_NAME=ShopCart
-NEXT_PUBLIC_COMPANY_EMAIL=support@shopcart.com
-NEXT_PUBLIC_COMPANY_PHONE=+1 (555) 123-4567
+NEXT_PUBLIC_COMPANY_NAME=VisionHub
+NEXT_PUBLIC_COMPANY_EMAIL=shivam@gmail.com
+NEXT_PUBLIC_COMPANY_PHONE=+91 123456789
 NEXT_PUBLIC_COMPANY_ADDRESS=123 Business Street
-NEXT_PUBLIC_COMPANY_CITY=New York, NY 10001, USA
+NEXT_PUBLIC_COMPANY_CITY=123 Shopping Street, Jammu, India
 ```
 
 ---
@@ -138,7 +138,7 @@ NEXT_PUBLIC_COMPANY_CITY=New York, NY 10001, USA
 2. Create a free account or sign in
 3. Create a new project:
    ```bash
-   npm create sanity@latest -- --env=.env --create-project "ShopCart Pro" --dataset production
+   npm create sanity@latest -- --env=.env --create-project "VisionHub Pro" --dataset production
    ```
 4. Get your credentials:
    - Go to [Sanity Management](https://www.sanity.io/manage)
@@ -190,7 +190,7 @@ NEXT_PUBLIC_COMPANY_CITY=New York, NY 10001, USA
 
    - Go to **Developers** → **Webhooks**
    - Click **Add endpoint**
-   - Endpoint URL: `http://localhost:3000/api/webhooks/stripe` (for local testing)
+   - Endpoint URL: `https://visionhub.vercel.app/api/webhooks/stripe` (for local testing)
    - Select events: `checkout.session.completed`, `payment_intent.succeeded`
    - Get **Webhook Secret** → `STRIPE_WEBHOOK_SECRET`
 
@@ -264,8 +264,8 @@ pnpm dev
 
 The application will be available at:
 
-- **Frontend**: [http://localhost:3000](http://localhost:3000)
-- **Sanity Studio**: [http://localhost:3000/studio](http://localhost:3000/studio)
+- **Frontend**: [https://visionhub.vercel.app](https://visionhub.vercel.app)
+- **Sanity Studio**: [https://visionhub.vercel.app/studio](https://visionhub.vercel.app/studio)
 
 ### Production Build
 
@@ -282,7 +282,7 @@ npm start
 ## 📁 Project Structure
 
 ```
-shopcartpro/
+VisionHubpro/
 ├── app/                           # Next.js 16 App Router
 │   ├── (admin)/                  # Admin Panel Routes
 │   │   └── admin/
@@ -507,23 +507,23 @@ shopcartpro/
 
 ### 🏠 Customer Frontend
 
-- URL: [http://localhost:3000](http://localhost:3000)
+- URL: [https://visionhub.vercel.app](https://visionhub.vercel.app)
 - Features: Browse products, add to cart, checkout, order tracking
 
 ### 👨‍💼 Admin Panel
 
-- URL: [http://localhost:3000/admin](http://localhost:3000/admin)
+- URL: [https://visionhub.vercel.app/admin](https://visionhub.vercel.app/admin)
 - **Default Access**: Set your email in `NEXT_PUBLIC_ADMIN_EMAIL`
 - Features: Manage products, orders, users, notifications
 
 ### 🎨 Sanity Studio (CMS)
 
-- URL: [http://localhost:3000/studio](http://localhost:3000/studio)
+- URL: [https://visionhub.vercel.app/studio](https://visionhub.vercel.app/studio)
 - Features: Content management, product creation, image uploads
 
 ### 👔 Employee Portal (Premium)
 
-- URL: [http://localhost:3000/employee](http://localhost:3000/employee)
+- URL: [https://visionhub.vercel.app/employee](https://visionhub.vercel.app/employee)
 - **Note**: Shows upgrade message in free version
 
 ---
@@ -568,7 +568,7 @@ Update the company information in `.env`:
 ```bash
 NEXT_PUBLIC_COMPANY_NAME=Your Company Name
 NEXT_PUBLIC_COMPANY_EMAIL=support@yourcompany.com
-NEXT_PUBLIC_COMPANY_PHONE=+1 (555) 123-4567
+NEXT_PUBLIC_COMPANY_PHONE=+91 123456789
 NEXT_PUBLIC_COMPANY_ADDRESS=Your Business Address
 NEXT_PUBLIC_COMPANY_CITY=Your City, State ZIP
 ```

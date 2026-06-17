@@ -10,6 +10,8 @@ import DynamicBreadcrumb from "@/components/DynamicBreadcrumb";
 import ProductSpecs from "@/components/ProductSpecs";
 import ProductReviews from "@/components/ProductReviews";
 import { trackProductView } from "@/lib/analytics";
+import { ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
 import { Product } from "@/sanity.types";
 import {
@@ -22,7 +24,6 @@ import {
 import React, { useEffect } from "react";
 import { FaRegQuestionCircle } from "react-icons/fa";
 import { FiShare2 } from "react-icons/fi";
-import { RxBorderSplit } from "react-icons/rx";
 import { TbTruckDelivery } from "react-icons/tb";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -61,6 +62,25 @@ const ProductContent = ({
     }
   }, [product]);
 
+  const handleShare = async () => {
+  try {
+    const shareData = {
+      title: product?.name || "VisionHub",
+      text: product?.description || "",
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else {
+      await navigator.clipboard.writeText(window.location.href);
+      alert("Product link copied to clipboard!");
+    }
+  } catch (error) {
+    console.error("Share failed:", error);
+  }
+};
+
   return (
     <ProductAnimationWrapper>
       <Container>
@@ -72,7 +92,7 @@ const ProductContent = ({
           }}
         />
 
-        <div className="flex flex-col md:flex-row gap-10 pb-6">
+        <div className="flex flex-col md:flex-row gap-5 md:gap-10 pb-6">
           {/* Product Images */}
           {product?.images && (
             <ProductImageWrapper>
@@ -93,10 +113,10 @@ const ProductContent = ({
                   )}
                 </Badge>
               )}
-              <h1 className="text-3xl lg:text-4xl font-bold text-shop_dark_green leading-tight">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-shop_dark_green leading-tight">
                 {product?.name}
               </h1>
-              <p className="text-lg text-dark-text leading-relaxed">
+              <p className="text-sm md:text-base lg:text-lg text-dark-text leading-relaxed">
                 {product?.description}
               </p>
 
@@ -174,7 +194,7 @@ const ProductContent = ({
 
             {/* Action Buttons */}
             <ProductActionWrapper delay={0.3}>
-              <div className="flex items-center gap-2.5 lg:gap-5">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 lg:gap-5">
                 <AddToCartButton product={product} />
                 <FavoriteButton showProduct={true} product={product} />
               </div>
@@ -185,24 +205,47 @@ const ProductContent = ({
               <ProductCharacteristics product={product} brand={brand} />
             </ProductActionWrapper>
 
+            {/* Product Highlights */}
+{product?.highlights && product.highlights.length > 0 && (
+  <div className="bg-shop_light_green/5 border border-shop_light_green/20 rounded-xl p-5">
+    <h3 className="text-lg font-bold text-shop_dark_green mb-3">
+      Product Highlights
+    </h3>
+
+    <ul className="space-y-2">
+      {product.highlights.map((item, index) => (
+        <li
+          key={index}
+          className="flex items-center gap-2 text-gray-700"
+        >
+          <span className="text-shop_light_green">✓</span>
+          {item}
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+
             {/* Action Links */}
             <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-b-gray-200 py-5 -mt-2">
-              <button className="flex items-center gap-2 text-sm text-black hover:text-shop_light_green hoverEffect transition-colors">
-                <RxBorderSplit className="text-lg" />
-                <span>Compare color</span>
-              </button>
-              <button className="flex items-center gap-2 text-sm text-black hover:text-shop_light_green hoverEffect transition-colors">
-                <FaRegQuestionCircle className="text-lg" />
-                <span>Ask a question</span>
-              </button>
-              <button className="flex items-center gap-2 text-sm text-black hover:text-shop_light_green hoverEffect transition-colors">
+
+    <Link
+  href="/faq"
+  className="flex items-center gap-2 text-sm text-black hover:text-shop_light_green hoverEffect transition-colors"
+>
+  <FaRegQuestionCircle className="text-lg" />
+  <span>Ask a Question</span>
+</Link>        <button className="flex items-center gap-2 text-sm text-black hover:text-shop_light_green hoverEffect transition-colors">
                 <TbTruckDelivery className="text-lg" />
-                <span>Delivery & Return</span>
+                <span>Fast Delivery</span>
               </button>
-              <button className="flex items-center gap-2 text-sm text-black hover:text-shop_light_green hoverEffect transition-colors">
-                <FiShare2 className="text-lg" />
-                <span>Share</span>
-              </button>
+             <button
+  onClick={handleShare}
+  className="flex items-center gap-2 text-sm text-black hover:text-shop_light_green hoverEffect transition-colors"
+>
+  <FiShare2 className="text-lg" />
+  <span>Share</span>
+</button>
             </div>
 
             {/* Delivery Information */}
@@ -212,29 +255,23 @@ const ProductContent = ({
                   <Truck size={32} className="text-shop_orange" />
                   <div>
                     <p className="text-lg font-semibold text-black">
-                      Free Delivery
+                          Pan India Delivery
                     </p>
                     <p className="text-sm text-gray-500">
-                      Enter your Postal code for Delivery Availability.{" "}
-                      <button className="underline underline-offset-2 hover:text-shop_light_green transition-colors">
-                        Check now
-                      </button>
+                      Fast and reliable shipping available across India.
                     </p>
                   </div>
                 </div>
                 <div className="border border-light-color/25 p-4 flex items-center gap-3 bg-white/70 rounded-b-lg">
-                  <CornerDownLeft size={32} className="text-shop_orange" />
-                  <div>
-                    <p className="text-lg font-semibold text-black">
-                      Return Delivery
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Free 30 days Delivery Returns.{" "}
-                      <button className="underline underline-offset-2 hover:text-shop_light_green transition-colors">
-                        Details
-                      </button>
-                    </p>
-                  </div>
+                  <ShieldCheck size={32} className="text-shop_orange" />
+                 <div>
+  <p className="text-lg font-semibold text-black">
+    Secure Shopping
+  </p>
+  <p className="text-sm text-gray-500">
+    Safe payments, order tracking, and dedicated customer support.
+  </p>
+</div>
                 </div>
               </div>
             </ProductActionWrapper>
@@ -243,12 +280,12 @@ const ProductContent = ({
 
         {/* Product Details Section */}
         <ProductSectionWrapper delay={0.6}>
-          <ProductsDetails />
-        </ProductSectionWrapper>
+  <ProductsDetails product={product} />
+</ProductSectionWrapper>
 
         {/* Trust Indicators & Guarantees */}
         <ProductSectionWrapper delay={0.7}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 py-8">
             <Card className="border-2 border-gray-100 text-center p-4">
               <Shield className="h-8 w-8 text-shop_orange mx-auto mb-2" />
               <h3 className="font-semibold text-shop_dark_green mb-1">
@@ -265,19 +302,20 @@ const ProductContent = ({
                 Fast Delivery
               </h3>
               <p className="text-sm text-gray-600">
-                Free shipping on orders over $50
+                Free shipping on orders over ₹999
+
               </p>
             </Card>
 
-            <Card className="border-2 border-gray-100 text-center p-4">
-              <RefreshCw className="h-8 w-8 text-shop_orange mx-auto mb-2" />
-              <h3 className="font-semibold text-shop_dark_green mb-1">
-                Easy Returns
-              </h3>
-              <p className="text-sm text-gray-600">
-                30-day hassle-free returns
-              </p>
-            </Card>
+<Card className="border-2 border-gray-100 text-center p-4">
+  <ShieldCheck className="h-8 w-8 text-shop_orange mx-auto mb-2" />
+  <h3 className="font-semibold text-shop_dark_green mb-1">
+    100% Authentic
+  </h3>
+  <p className="text-sm text-gray-600">
+    Genuine branded eyewear guaranteed
+  </p>
+</Card>
           </div>
         </ProductSectionWrapper>
 

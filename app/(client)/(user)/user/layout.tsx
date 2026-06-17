@@ -95,8 +95,8 @@ export default function UserLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen py-5 bg-gradient-to-br from-shop_light_bg via-white to-shop_light_pink/20">
-      <Container className="py-6">
+    <div className="min-h-screen py-2 lg:py-5 bg-gradient-to-brfrom-shop_light_bg via-white to-shop_light_pink/20">
+      <Container className="py-3 lg:py-6">
         <div className="flex flex-col gap-6">
           {/* Mobile Header */}
           <div className="lg:hidden">
@@ -225,9 +225,9 @@ export default function UserLayout({
                     );
                   })}
 
-                  {/* Admin Section - Show for dev.reactbd@gmail.com */}
+                  {/* Admin Section - Show for shivam@gmail.com */}
                   {user?.emailAddresses?.[0]?.emailAddress ===
-                    "dev.reactbd@gmail.com" && (
+                    "shivam@gmail.com" && (
                     <>
                       <div className="w-full border-t border-gray-200 my-3"></div>
                       <div className="w-full text-xs text-gray-500 mb-2 px-2">
@@ -442,7 +442,7 @@ export default function UserLayout({
           {/* Main Content */}
           <div className="w-full">
             <div className="bg-white rounded-2xl shadow-xl border border-shop_light_green/10 overflow-hidden">
-              <div className="p-6 lg:p-8">{children}</div>
+              <div className="p-3 sm:p-4 lg:p-8">{children}</div>
             </div>
           </div>
         </div>

@@ -48,13 +48,13 @@ const RelatedProducts = memo(({ relatedProducts }: RelatedProductsProps) => {
             >
               <CardContent className="p-4">
                 {/* Product Image */}
-                <div className="relative aspect-square mb-4 overflow-hidden rounded-lg bg-gray-100">
+                <div className="relative h-56 mb-4 overflow-hidden rounded-lg bg-gray-100">
                   {imageUrl ? (
                     <Image
                       src={imageUrl}
                       alt={"productImage"}
                       fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                     />
                   ) : (
@@ -119,12 +119,12 @@ const RelatedProducts = memo(({ relatedProducts }: RelatedProductsProps) => {
                   {/* Price */}
                   <div className="flex items-center gap-2">
                     <span className="text-lg font-bold text-shop_dark_green">
-                      ${product?.price}
-                    </span>
+  ₹{product?.price?.toLocaleString("en-IN")}
+</span>
                     {originalPrice && (
-                      <span className="text-sm text-gray-500 line-through">
-                        ${originalPrice}
-                      </span>
+                    <span className="text-sm text-gray-500 line-through">
+  ₹{Number(originalPrice).toLocaleString("en-IN")}
+</span>
                     )}
                   </div>
 

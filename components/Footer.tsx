@@ -76,9 +76,9 @@ const Footer = () => {
           <p>
             © {new Date().getFullYear()}{" "}
             <span className="text-dark-color font-black tracking-wider uppercase hover:text-shop_dark_green hoverEffect group font-sans">
-              Shpopcar
+              VISION
               <span className="text-shop_dark_green group-hover:text-dark-color hoverEffect">
-                t
+                HUB
               </span>
             </span>
             . All rights reserved.

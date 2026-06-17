@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
               emailNotifications: true,
               smsNotifications: false,
               newsletter: false,
-              preferredCurrency: "USD",
+              preferredcurrency: "INR",
               preferredLanguage: "en",
             },
             loyaltyPoints: 0,

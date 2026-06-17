@@ -41,7 +41,7 @@ async function checkOrders() {
           "order_confirmed": count(*[_type == "order" && status == "order_confirmed"]),
           "packed": count(*[_type == "order" && status == "packed"]),
           "ready_for_delivery": count(*[_type == "order" && status == "ready_for_delivery"]),
-          "out_for_delivery": count(*[_type == "order" && status == "out_for_delivery"]),
+          "shipped": count(*[_type == "order" && status == "shipped"]),
           "delivered": count(*[_type == "order" && status == "delivered"]),
           "completed": count(*[_type == "order" && status == "completed"]),
           "cancelled": count(*[_type == "order" && status == "cancelled"]),

@@ -84,18 +84,6 @@ const HelpPage = () => {
       ],
     },
     {
-      title: "Returns & Exchanges",
-      icon: RotateCcw,
-      description: "Return policy, exchanges, and refunds",
-      color: "from-dark-red to-light-orange",
-      links: [
-        { title: "Return Policy", href: "/faq#returns-1" },
-        { title: "How to Return Items", href: "/faq#returns-2" },
-        { title: "Refund Timeline", href: "/faq#returns-3" },
-        { title: "Exchanges", href: "/faq#returns-4" },
-      ],
-    },
-    {
       title: "Account & Security",
       icon: Shield,
       description: "Account management and security features",
@@ -125,14 +113,6 @@ const HelpPage = () => {
       action: "Contact Us",
       href: "/contact",
       color: "bg-shop_orange",
-    },
-    {
-      title: "Return an Item",
-      description: "Start a return or exchange process",
-      icon: RotateCcw,
-      action: "Start Return",
-      href: "/orders",
-      color: "bg-dark-blue",
     },
   ];
 
@@ -165,7 +145,7 @@ const HelpPage = () => {
       response: "Immediate",
       action: "Call Now",
       color: "border-dark-blue text-dark-blue hover:bg-dark-blue",
-      phone: "+1 (555) 123-4567",
+      phone: "+91 123456789",
     },
   ];
 
@@ -408,19 +388,21 @@ const HelpPage = () => {
                 <Link href="/contact">
                   <Button
                     variant="outline"
-                    className="w-full border-white text-white hover:bg-white/10"
+                    className="w-full bg-white text-shop_dark_green hover:bg-gray-100"
                   >
                     <Mail className="w-4 h-4 mr-2" />
                     Contact Us
                   </Button>
                 </Link>
+                <Link href="/contact"> 
                 <Button
                   variant="outline"
-                  className="w-full border-white text-white hover:bg-white/10"
+                  className="w-full bg-white text-shop_dark_green hover:bg-gray-100"
                 >
                   <Video className="w-4 h-4 mr-2" />
                   Video Guides
                 </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>

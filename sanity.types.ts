@@ -287,6 +287,7 @@ export type User = {
   activatedAt?: string;
   activatedBy?: string;
   isEmployee?: boolean;
+  isAdmin?: boolean;
   employeeRole?: "callcenter" | "packer" | "warehouse" | "deliveryman" | "incharge" | "accounts";
   employeeStatus?: "active" | "inactive" | "suspended";
   employeeAssignedBy?: string;
@@ -321,6 +322,22 @@ export type User = {
   }>;
 };
 
+export type SanityImageCrop = {
+  _type: "sanity.imageCrop";
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+};
+
+export type SanityImageHotspot = {
+  _type: "sanity.imageHotspot";
+  x?: number;
+  y?: number;
+  height?: number;
+  width?: number;
+};
+
 export type Blogcategory = {
   _id: string;
   _type: "blogcategory";
@@ -330,6 +347,12 @@ export type Blogcategory = {
   title?: string;
   slug?: Slug;
   description?: string;
+};
+
+export type Slug = {
+  _type: "slug";
+  current?: string;
+  source?: string;
 };
 
 export type Blog = {
@@ -367,38 +390,40 @@ export type Blog = {
   }>;
   publishedAt?: string;
   isLatest?: boolean;
-  body?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "blockquote";
-    listItem?: "bullet";
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  } | {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: "image";
+  body?: BlockContent;
+};
+
+export type BlockContent = Array<{
+  children?: Array<{
+    marks?: Array<string>;
+    text?: string;
+    _type: "span";
     _key: string;
   }>;
-};
+  style?: "normal" | "h1" | "h2" | "h3" | "h4" | "blockquote";
+  listItem?: "bullet";
+  markDefs?: Array<{
+    href?: string;
+    _type: "link";
+    _key: string;
+  }>;
+  level?: number;
+  _type: "block";
+  _key: string;
+} | {
+  asset?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+  };
+  media?: unknown;
+  hotspot?: SanityImageHotspot;
+  crop?: SanityImageCrop;
+  alt?: string;
+  _type: "image";
+  _key: string;
+}>;
 
 export type Author = {
   _id: string;
@@ -479,6 +504,8 @@ export type Order = {
   stripeCheckoutSessionId?: string;
   stripeCustomerId?: string;
   clerkUserId?: string;
+  clerkPaymentId?: string;
+  clerkPaymentStatus?: string;
   customerName?: string;
   email?: string;
   stripePaymentIntentId?: string;
@@ -505,56 +532,48 @@ export type Order = {
     address?: string;
     name?: string;
   };
-  status?: "pending" | "address_confirmed" | "order_confirmed" | "packed" | "ready_for_delivery" | "out_for_delivery" | "delivered" | "completed" | "cancelled" | "rescheduled" | "failed_delivery";
-  orderDate?: string;
-  paymentStatus?: "pending" | "paid" | "failed" | "cancelled";
-  paymentMethod?: "cash_on_delivery" | "stripe" | "card";
-  addressConfirmedBy?: string;
-  addressConfirmedAt?: string;
-  orderConfirmedBy?: string;
-  orderConfirmedAt?: string;
-  packedBy?: string;
-  packedAt?: string;
-  packingNotes?: string;
-  assignedWarehouseBy?: string;
-  assignedWarehouseAt?: string;
-  dispatchedBy?: string;
-  dispatchedAt?: string;
-  assignedDeliverymanId?: string;
-  assignedDeliverymanName?: string;
-  deliveredBy?: string;
-  deliveredAt?: string;
-  deliveryNotes?: string;
-  deliveryAttempts?: number;
-  rescheduledDate?: string;
-  rescheduledReason?: string;
-  cashCollected?: boolean;
-  cashCollectedAmount?: number;
-  cashCollectedAt?: string;
-  cashSubmittedToAccounts?: boolean;
-  cashSubmittedBy?: string;
-  cashSubmittedAt?: string;
-  cashSubmissionNotes?: string;
-  assignedAccountsEmployeeId?: string;
-  assignedAccountsEmployeeName?: string;
-  cashSubmissionStatus?: "not_submitted" | "pending" | "confirmed" | "rejected";
-  cashSubmissionRejectionReason?: string;
-  paymentReceivedBy?: string;
-  paymentReceivedAt?: string;
-  cancelledAt?: string;
-  cancelledBy?: string;
-  cancellationReason?: string;
-  amountPaid?: number;
-  refundedToWallet?: boolean;
-  refundAmount?: number;
-  statusHistory?: Array<{
-    status?: string;
-    changedBy?: string;
-    changedByRole?: "admin" | "callcenter" | "packer" | "warehouse" | "deliveryman" | "incharge" | "accounts" | "system";
-    changedAt?: string;
-    notes?: string;
-    _key: string;
-  }>;
+ status?:
+  | "pending"
+  | "confirmed"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
+
+orderDate?: string;
+
+paymentStatus?:
+  | "pending"
+  | "paid"
+  | "failed"
+  | "cancelled";
+
+paymentMethod?:
+  | "cash_on_delivery"
+  | "razorpay"
+  | "card"
+  | "upi";
+
+orderConfirmedBy?: string;
+orderConfirmedAt?: string;
+
+deliveredBy?: string;
+deliveredAt?: string;
+deliveryNotes?: string;
+
+cancelledAt?: string;
+cancelledBy?: string;
+cancellationReason?: string;
+
+amountPaid?: number;
+
+statusHistory?: Array<{
+  status?: string;
+  changedBy?: string;
+  changedAt?: string;
+  notes?: string;
+  _key: string;
+}>;
 };
 
 export type Product = {
@@ -579,8 +598,21 @@ export type Product = {
     _key: string;
   }>;
   description?: string;
+  highlights?: Array<string>;
   price?: number;
   discount?: number;
+  frameMaterial?: string;
+  lensType?: string;
+  gender?: string;
+  frameShape?: string;
+  uvProtection?: string;
+  warranty?: string;
+  frameSize?: string;
+  lensWidth?: string;
+  bridgeWidth?: string;
+  templeLength?: string;
+  lensColor?: string;
+  prescriptionAvailable?: boolean;
   categories?: Array<{
     _ref: string;
     _type: "reference";
@@ -596,7 +628,7 @@ export type Product = {
     [internalGroqTypeReferenceTo]?: "brand";
   };
   status?: "new" | "hot" | "sale";
-  variant?: "gadget" | "appliances" | "refrigerators" | "others";
+  variant?: "sunglasses" | "eyeglasses" | "contact-lenses" | "accessories";
   isFeatured?: boolean;
   averageRating?: number;
   totalReviews?: number;
@@ -657,38 +689,6 @@ export type Category = {
   };
 };
 
-export type BlockContent = Array<{
-  children?: Array<{
-    marks?: Array<string>;
-    text?: string;
-    _type: "span";
-    _key: string;
-  }>;
-  style?: "normal" | "h1" | "h2" | "h3" | "h4" | "blockquote";
-  listItem?: "bullet";
-  markDefs?: Array<{
-    href?: string;
-    _type: "link";
-    _key: string;
-  }>;
-  level?: number;
-  _type: "block";
-  _key: string;
-} | {
-  asset?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-  };
-  media?: unknown;
-  hotspot?: SanityImageHotspot;
-  crop?: SanityImageCrop;
-  alt?: string;
-  _type: "image";
-  _key: string;
-}>;
-
 export type SanityImagePaletteSwatch = {
   _type: "sanity.imagePaletteSwatch";
   background?: string;
@@ -715,20 +715,15 @@ export type SanityImageDimensions = {
   aspectRatio?: number;
 };
 
-export type SanityImageHotspot = {
-  _type: "sanity.imageHotspot";
-  x?: number;
-  y?: number;
-  height?: number;
-  width?: number;
-};
-
-export type SanityImageCrop = {
-  _type: "sanity.imageCrop";
-  top?: number;
-  bottom?: number;
-  left?: number;
-  right?: number;
+export type SanityImageMetadata = {
+  _type: "sanity.imageMetadata";
+  location?: Geopoint;
+  dimensions?: SanityImageDimensions;
+  palette?: SanityImagePalette;
+  lqip?: string;
+  blurHash?: string;
+  hasAlpha?: boolean;
+  isOpaque?: boolean;
 };
 
 export type SanityFileAsset = {
@@ -751,6 +746,13 @@ export type SanityFileAsset = {
   path?: string;
   url?: string;
   source?: SanityAssetSourceData;
+};
+
+export type SanityAssetSourceData = {
+  _type: "sanity.assetSourceData";
+  name?: string;
+  id?: string;
+  url?: string;
 };
 
 export type SanityImageAsset = {
@@ -776,17 +778,6 @@ export type SanityImageAsset = {
   source?: SanityAssetSourceData;
 };
 
-export type SanityImageMetadata = {
-  _type: "sanity.imageMetadata";
-  location?: Geopoint;
-  dimensions?: SanityImageDimensions;
-  palette?: SanityImagePalette;
-  lqip?: string;
-  blurHash?: string;
-  hasAlpha?: boolean;
-  isOpaque?: boolean;
-};
-
 export type Geopoint = {
   _type: "geopoint";
   lat?: number;
@@ -794,20 +785,7 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type Slug = {
-  _type: "slug";
-  current?: string;
-  source?: string;
-};
-
-export type SanityAssetSourceData = {
-  _type: "sanity.assetSourceData";
-  name?: string;
-  id?: string;
-  url?: string;
-};
-
-export type AllSanitySchemaTypes = Subscription | Review | UserAccessRequest | SentNotification | Contact | Address | User | Blogcategory | Blog | Author | Banner | Order | Product | Brand | Category | BlockContent | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
+export type AllSanitySchemaTypes = Subscription | Review | UserAccessRequest | SentNotification | Contact | Address | User | SanityImageCrop | SanityImageHotspot | Blogcategory | Slug | Blog | BlockContent | Author | Banner | Order | Product | Brand | Category | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./app/(client)/(user)/success/page.tsx
 // Variable: query
@@ -827,6 +805,8 @@ export type QueryResult = Array<{
   stripeCheckoutSessionId?: string;
   stripeCustomerId?: string;
   clerkUserId?: string;
+  clerkPaymentId?: string;
+  clerkPaymentStatus?: string;
   customerName?: string;
   email?: string;
   stripePaymentIntentId?: string;
@@ -853,8 +833,21 @@ export type QueryResult = Array<{
         _key: string;
       }>;
       description?: string;
+      highlights?: Array<string>;
       price?: number;
       discount?: number;
+      frameMaterial?: string;
+      lensType?: string;
+      gender?: string;
+      frameShape?: string;
+      uvProtection?: string;
+      warranty?: string;
+      frameSize?: string;
+      lensWidth?: string;
+      bridgeWidth?: string;
+      templeLength?: string;
+      lensColor?: string;
+      prescriptionAvailable?: boolean;
       categories?: Array<{
         _ref: string;
         _type: "reference";
@@ -870,7 +863,7 @@ export type QueryResult = Array<{
         [internalGroqTypeReferenceTo]?: "brand";
       };
       status?: "hot" | "new" | "sale";
-      variant?: "appliances" | "gadget" | "others" | "refrigerators";
+      variant?: "accessories" | "contact-lenses" | "eyeglasses" | "sunglasses";
       isFeatured?: boolean;
       averageRating?: number;
       totalReviews?: number;
@@ -898,10 +891,14 @@ export type QueryResult = Array<{
     address?: string;
     name?: string;
   };
-  status?: "address_confirmed" | "cancelled" | "completed" | "delivered" | "failed_delivery" | "order_confirmed" | "out_for_delivery" | "packed" | "pending" | "ready_for_delivery" | "rescheduled";
+  status?: "address_confirmed" | "cancelled" | "completed" | "delivered" | "failed_delivery" | "order_confirmed" | "shipped" | "packed" | "pending" | "ready_for_delivery" | "rescheduled";
   orderDate?: string;
   paymentStatus?: "cancelled" | "failed" | "paid" | "pending";
-  paymentMethod?: "card" | "cash_on_delivery" | "stripe";
+  paymentMethod?:
+  | "cash_on_delivery"
+  | "razorpay"
+  | "upi"
+  | "card";
   addressConfirmedBy?: string;
   addressConfirmedAt?: string;
   orderConfirmedBy?: string;
@@ -934,6 +931,9 @@ export type QueryResult = Array<{
   cashSubmissionRejectionReason?: string;
   paymentReceivedBy?: string;
   paymentReceivedAt?: string;
+  cancellationRequested?: boolean;
+  cancellationRequestedAt?: string;
+  cancellationRequestReason?: string;
   cancelledAt?: string;
   cancelledBy?: string;
   cancellationReason?: string;
@@ -975,8 +975,21 @@ export type PRODUCT_BY_CATEGORY_QUERYResult = Array<{
     _key: string;
   }>;
   description?: string;
+  highlights?: Array<string>;
   price?: number;
   discount?: number;
+  frameMaterial?: string;
+  lensType?: string;
+  gender?: string;
+  frameShape?: string;
+  uvProtection?: string;
+  warranty?: string;
+  frameSize?: string;
+  lensWidth?: string;
+  bridgeWidth?: string;
+  templeLength?: string;
+  lensColor?: string;
+  prescriptionAvailable?: boolean;
   categories?: Array<{
     _ref: string;
     _type: "reference";
@@ -992,7 +1005,7 @@ export type PRODUCT_BY_CATEGORY_QUERYResult = Array<{
     [internalGroqTypeReferenceTo]?: "brand";
   };
   status?: "hot" | "new" | "sale";
-  variant?: "appliances" | "gadget" | "others" | "refrigerators";
+  variant?: "accessories" | "contact-lenses" | "eyeglasses" | "sunglasses";
   isFeatured?: boolean;
   averageRating?: number;
   totalReviews?: number;
@@ -1024,6 +1037,8 @@ export type MY_ORDERS_QUERYResult = Array<{
   stripeCheckoutSessionId?: string;
   stripeCustomerId?: string;
   clerkUserId?: string;
+  clerkPaymentId?: string;
+  clerkPaymentStatus?: string;
   customerName?: string;
   email?: string;
   stripePaymentIntentId?: string;
@@ -1065,10 +1080,10 @@ export type MY_ORDERS_QUERYResult = Array<{
     address?: string;
     name?: string;
   };
-  status?: "address_confirmed" | "cancelled" | "completed" | "delivered" | "failed_delivery" | "order_confirmed" | "out_for_delivery" | "packed" | "pending" | "ready_for_delivery" | "rescheduled";
+  status?: "address_confirmed" | "cancelled" | "completed" | "delivered" | "failed_delivery" | "order_confirmed" | "shipped" | "packed" | "pending" | "ready_for_delivery" | "rescheduled";
   orderDate?: string;
   paymentStatus: "cancelled" | "failed" | "paid" | "pending" | null;
-  paymentMethod: "card" | "cash_on_delivery" | "stripe" | null;
+  paymentMethod: "card" | "cash_on_delivery" | "clerk" | "stripe" | null;
   addressConfirmedBy?: string;
   addressConfirmedAt?: string;
   orderConfirmedBy?: string;
@@ -1101,6 +1116,9 @@ export type MY_ORDERS_QUERYResult = Array<{
   cashSubmissionRejectionReason?: string;
   paymentReceivedBy?: string;
   paymentReceivedAt?: string;
+  cancellationRequested?: boolean;
+  cancellationRequestedAt?: string;
+  cancellationRequestReason?: string;
   cancelledAt?: string;
   cancelledBy?: string;
   cancellationReason?: string;
@@ -1158,7 +1176,7 @@ export type FEATURED_CATEGORY_QUERYResult = Array<{
   slug?: Slug;
   description?: string;
   range?: number;
-  featured?: boolean;
+  featured: true;
   image?: {
     asset?: {
       _ref: string;
@@ -1196,8 +1214,21 @@ export type ALL_PRODUCTS_QUERYResult = Array<{
     _key: string;
   }>;
   description?: string;
+  highlights?: Array<string>;
   price?: number;
   discount?: number;
+  frameMaterial?: string;
+  lensType?: string;
+  gender?: string;
+  frameShape?: string;
+  uvProtection?: string;
+  warranty?: string;
+  frameSize?: string;
+  lensWidth?: string;
+  bridgeWidth?: string;
+  templeLength?: string;
+  lensColor?: string;
+  prescriptionAvailable?: boolean;
   categories?: Array<{
     _ref: string;
     _type: "reference";
@@ -1213,7 +1244,7 @@ export type ALL_PRODUCTS_QUERYResult = Array<{
     [internalGroqTypeReferenceTo]?: "brand";
   };
   status?: "hot" | "new" | "sale";
-  variant?: "appliances" | "gadget" | "others" | "refrigerators";
+  variant?: "accessories" | "contact-lenses" | "eyeglasses" | "sunglasses";
   isFeatured?: boolean;
   averageRating?: number;
   totalReviews?: number;
@@ -1249,8 +1280,21 @@ export type DEAL_PRODUCTSResult = Array<{
     _key: string;
   }>;
   description?: string;
+  highlights?: Array<string>;
   price?: number;
   discount?: number;
+  frameMaterial?: string;
+  lensType?: string;
+  gender?: string;
+  frameShape?: string;
+  uvProtection?: string;
+  warranty?: string;
+  frameSize?: string;
+  lensWidth?: string;
+  bridgeWidth?: string;
+  templeLength?: string;
+  lensColor?: string;
+  prescriptionAvailable?: boolean;
   categories: Array<string | null> | null;
   stock?: number;
   brand?: {
@@ -1259,8 +1303,8 @@ export type DEAL_PRODUCTSResult = Array<{
     _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "brand";
   };
-  status?: "hot" | "new" | "sale";
-  variant?: "appliances" | "gadget" | "others" | "refrigerators";
+  status: "hot";
+  variant?: "accessories" | "contact-lenses" | "eyeglasses" | "sunglasses";
   isFeatured?: boolean;
   averageRating?: number;
   totalReviews?: number;
@@ -1296,8 +1340,21 @@ export type FEATURE_PRODUCTSResult = Array<{
     _key: string;
   }>;
   description?: string;
+  highlights?: Array<string>;
   price?: number;
   discount?: number;
+  frameMaterial?: string;
+  lensType?: string;
+  gender?: string;
+  frameShape?: string;
+  uvProtection?: string;
+  warranty?: string;
+  frameSize?: string;
+  lensWidth?: string;
+  bridgeWidth?: string;
+  templeLength?: string;
+  lensColor?: string;
+  prescriptionAvailable?: boolean;
   categories: Array<string | null> | null;
   stock?: number;
   brand?: {
@@ -1307,8 +1364,8 @@ export type FEATURE_PRODUCTSResult = Array<{
     [internalGroqTypeReferenceTo]?: "brand";
   };
   status?: "hot" | "new" | "sale";
-  variant?: "appliances" | "gadget" | "others" | "refrigerators";
-  isFeatured?: boolean;
+  variant?: "accessories" | "contact-lenses" | "eyeglasses" | "sunglasses";
+  isFeatured: true;
   averageRating?: number;
   totalReviews?: number;
   ratingDistribution?: {
@@ -1375,38 +1432,8 @@ export type LATEST_BLOG_QUERYResult = Array<{
     title: string | null;
   }> | null;
   publishedAt?: string;
-  isLatest?: boolean;
-  body?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "normal";
-    listItem?: "bullet";
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  } | {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: "image";
-    _key: string;
-  }>;
+  isLatest: true;
+  body?: BlockContent;
 }>;
 // Variable: GET_ALL_BLOG
 // Query: *[_type == 'blog'] | order(publishedAt desc)[0...$quantity]{  ...,       blogcategories[]->{    title}    }
@@ -1441,37 +1468,7 @@ export type GET_ALL_BLOGResult = Array<{
   }> | null;
   publishedAt?: string;
   isLatest?: boolean;
-  body?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "normal";
-    listItem?: "bullet";
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  } | {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: "image";
-    _key: string;
-  }>;
+  body?: BlockContent;
 }>;
 // Variable: SINGLE_BLOG_QUERY
 // Query: *[_type == "blog" && slug.current == $slug][0]{  ...,     author->{    name,    image,  },  blogcategories[]->{    title,    "slug": slug.current,  },}
@@ -1516,37 +1513,7 @@ export type SINGLE_BLOG_QUERYResult = {
   }> | null;
   publishedAt?: string;
   isLatest?: boolean;
-  body?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "normal";
-    listItem?: "bullet";
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  } | {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: "image";
-    _key: string;
-  }>;
+  body?: BlockContent;
 } | null;
 // Variable: BLOG_CATEGORIES
 // Query: *[_type == "blog"]{     blogcategories[]->{    ...    }  }
@@ -1684,8 +1651,21 @@ export type PRODUCT_BY_SLUG_QUERYResult = {
     _key: string;
   }>;
   description?: string;
+  highlights?: Array<string>;
   price?: number;
   discount?: number;
+  frameMaterial?: string;
+  lensType?: string;
+  gender?: string;
+  frameShape?: string;
+  uvProtection?: string;
+  warranty?: string;
+  frameSize?: string;
+  lensWidth?: string;
+  bridgeWidth?: string;
+  templeLength?: string;
+  lensColor?: string;
+  prescriptionAvailable?: boolean;
   categories?: Array<{
     _ref: string;
     _type: "reference";
@@ -1701,7 +1681,7 @@ export type PRODUCT_BY_SLUG_QUERYResult = {
     [internalGroqTypeReferenceTo]?: "brand";
   };
   status?: "hot" | "new" | "sale";
-  variant?: "appliances" | "gadget" | "others" | "refrigerators";
+  variant?: "accessories" | "contact-lenses" | "eyeglasses" | "sunglasses";
   isFeatured?: boolean;
   averageRating: number | null;
   totalReviews: number;

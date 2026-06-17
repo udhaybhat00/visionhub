@@ -59,7 +59,7 @@ const BlogPage = async () => {
 
       {/* Hero Section */}
       <Container className="py-8 sm:py-12">
-        <Card className="bg-gradient-to-r from-shop_dark_green to-shop_light_green text-white border-0 shadow-xl overflow-hidden">
+        <Card className="bg-gradient-to-r from-slate-950 via-slate-900 to-yellow-600 text-white border-0 shadow-xl overflow-hidden">
           <CardContent className="p-6 sm:p-8 lg:p-12 text-center">
             <div className="max-w-3xl mx-auto">
               <div className="flex items-center justify-center gap-2 mb-4">
@@ -68,17 +68,15 @@ const BlogPage = async () => {
                   variant="secondary"
                   className="bg-white/20 text-white hover:bg-white/30"
                 >
-                  Our Blog
+                  Eyewear & Vision Blog
                 </Badge>
               </div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-                Stories, Tips & Insights
-              </h1>
-              <p className="text-sm sm:text-base md:text-lg text-white/90 mb-6 max-w-2xl mx-auto">
-                Discover the latest trends, expert advice, and behind-the-scenes
-                stories from our team. Stay informed with our curated collection
-                of articles.
-              </p>
+  The VisionHub Journal
+</h1>
+           <p className="text-sm sm:text-base md:text-lg text-white/90 mb-6 max-w-2xl mx-auto">
+  Expert insights on eyewear, eye care, vision solutions, and the latest fashion trends. Discover guides, reviews, and tips to help you choose the perfect eyewear.
+</p>
 
               {/* Blog Stats */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-md mx-auto">
@@ -97,15 +95,15 @@ const BlogPage = async () => {
                     <Eye className="w-4 h-4" />
                     <span className="text-xs sm:text-sm">Readers</span>
                   </div>
-                  <p className="text-xl sm:text-2xl font-bold">15K+</p>
+                  <p className="text-xl sm:text-2xl font-bold">1K+</p>
                 </div>
 
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 sm:p-4 col-span-2 sm:col-span-1">
                   <div className="flex items-center gap-2 text-white/80 mb-1">
                     <User className="w-4 h-4" />
-                    <span className="text-xs sm:text-sm">Authors</span>
+                    <span className="text-xs sm:text-sm">Guides</span>
                   </div>
-                  <p className="text-xl sm:text-2xl font-bold">5+</p>
+                  <p className="text-xl sm:text-2xl font-bold">20+</p>
                 </div>
               </div>
             </div>
@@ -122,7 +120,7 @@ const BlogPage = async () => {
                 Latest Articles
               </h2>
               <p className="text-gray-600">
-                Stay updated with our latest posts and insights
+                Expert advice, buying guides, and eye care tips from VisionHub.
               </p>
             </div>
           </div>
@@ -243,10 +241,10 @@ const BlogPage = async () => {
             <div className="max-w-2xl mx-auto">
               <BookOpen className="w-12 h-12 text-shop_dark_green mx-auto mb-4" />
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-shop_dark_green mb-4">
-                Stay Updated
+                Get Eye Care & Style Tips
               </h2>
               <p className="text-sm sm:text-base text-gray-600 mb-6">
-                Subscribe to our newsletter and never miss an update. Get the
+                Receive eyewear trends, eye care guides, product launches, and exclusive offers directly in your inbox. Get the
                 latest articles, tips, and insights delivered straight to your
                 inbox.
               </p>

@@ -35,6 +35,12 @@ export const productType = defineType({
       type: "string",
     }),
     defineField({
+  name: "highlights",
+  title: "Product Highlights",
+  type: "array",
+  of: [{ type: "string" }],
+}),
+    defineField({
       name: "price",
       title: "Price",
       type: "number",
@@ -46,6 +52,77 @@ export const productType = defineType({
       type: "number",
       validation: (Rule) => Rule.required().min(0),
     }),
+    defineField({
+  name: "frameMaterial",
+  title: "Frame Material",
+  type: "string",
+}),
+
+defineField({
+  name: "lensType",
+  title: "Lens Type",
+  type: "string",
+}),
+
+defineField({
+  name: "gender",
+  title: "Gender",
+  type: "string",
+}),
+
+defineField({
+  name: "frameShape",
+  title: "Frame Shape",
+  type: "string",
+}),
+
+defineField({
+  name: "uvProtection",
+  title: "UV Protection",
+  type: "string",
+}),
+
+defineField({
+  name: "warranty",
+  title: "Warranty",
+  type: "string",
+}),
+defineField({
+  name: "frameSize",
+  title: "Frame Size",
+  type: "string",
+}),
+
+defineField({
+  name: "lensWidth",
+  title: "Lens Width",
+  type: "string",
+}),
+
+defineField({
+  name: "bridgeWidth",
+  title: "Bridge Width",
+  type: "string",
+}),
+
+defineField({
+  name: "templeLength",
+  title: "Temple Length",
+  type: "string",
+}),
+
+defineField({
+  name: "lensColor",
+  title: "Lens Color",
+  type: "string",
+}),
+
+defineField({
+  name: "prescriptionAvailable",
+  title: "Prescription Available",
+  type: "boolean",
+  initialValue: false,
+}),
     defineField({
       name: "categories",
       title: "Categories",
@@ -83,10 +160,10 @@ export const productType = defineType({
       type: "string",
       options: {
         list: [
-          { title: "Gadget", value: "gadget" },
-          { title: "Appliances", value: "appliances" },
-          { title: "Refrigerators", value: "refrigerators" },
-          { title: "Others", value: "others" },
+          { title: "Sunglasses", value: "sunglasses" },
+{ title: "Eyeglasses", value: "eyeglasses" },
+{ title: "Contact Lenses", value: "contact-lenses" },
+{ title: "Accessories", value: "accessories" },
         ],
       },
     }),
@@ -164,7 +241,7 @@ export const productType = defineType({
       const image = media && media[0];
       return {
         title: title,
-        subtitle: `$${subtitle}`,
+        subtitle: `₹${subtitle}`,
         media: image,
       };
     },

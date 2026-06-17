@@ -277,7 +277,7 @@ Potential features to add:
 
 ```bash
 # Test API endpoint directly
-curl -X POST http://localhost:3000/api/newsletter/subscribe \
+curl -X POST https://visionhub.vercel.app/api/newsletter/subscribe \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com"}'
 ```

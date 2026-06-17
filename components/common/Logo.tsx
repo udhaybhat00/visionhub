@@ -30,11 +30,11 @@ const Logo = ({ className, variant = "default" }: Props) => {
           {/* Text Logo (smaller) */}
           <div className="flex items-center">
             <h1 className="text-sm font-black tracking-wider uppercase font-sans">
-              <span className="text-shop_dark_green group-hover:text-shop_light_green hoverEffect">
-                Shop
-              </span>
+             <span className="text-inherit group-hover:text-shop_light_green hoverEffect">
+  Vision
+</span>
               <span className="bg-gradient-to-r from-shop_light_green to-shop_orange bg-clip-text text-transparent group-hover:from-shop_dark_green group-hover:to-shop_light_green hoverEffect">
-                cart
+                Hub
               </span>
             </h1>
 
@@ -59,19 +59,20 @@ const Logo = ({ className, variant = "default" }: Props) => {
         <div className="relative">
           <div className="absolute -top-1 -right-1 w-3 h-3 bg-shop_orange rounded-full animate-pulse group-hover:bg-shop_light_green hoverEffect"></div>
           <ShoppingCart
-            className="w-8 h-8 text-shop_dark_green group-hover:text-shop_light_green hoverEffect transform group-hover:scale-110"
+            className="w-8 h-8 text-current group-hover:text-shop_light_green hoverEffect transform group-hover:scale-110"
+
             strokeWidth={2.5}
           />
         </div>
 
         {/* Text Logo */}
         <div className="flex items-center">
-          <h1 className="text-2xl font-black tracking-wider uppercase font-sans">
-            <span className="text-shop_dark_green group-hover:text-shop_light_green hoverEffect">
-              Shop
+          <h1 className="text-3xl font-extrabold tracking-wide uppercase font-sans">
+            <span className="text-current group-hover:text-shop_light_green hoverEffect">
+              Vision
             </span>
             <span className="bg-gradient-to-r from-shop_light_green to-shop_orange bg-clip-text text-transparent group-hover:from-shop_dark_green group-hover:to-shop_light_green hoverEffect">
-              cart
+              Hub
             </span>
           </h1>
 

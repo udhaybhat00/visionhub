@@ -26,7 +26,7 @@ For server-side analytics tracking, add:
 
 ```bash
 NEXT_PUBLIC_BASE_URL=https://yourdomain.com
-# For development: http://localhost:3000
+# For development: https://visionhub.vercel.app
 ```
 
 ## Tracked Events

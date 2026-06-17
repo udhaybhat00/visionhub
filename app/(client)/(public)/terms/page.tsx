@@ -30,7 +30,7 @@ const TermsPage = () => {
   const quickLinks = [
     { icon: ShoppingCart, title: "Orders & Purchases", href: "#orders" },
     { icon: CreditCard, title: "Payment Terms", href: "#payment" },
-    { icon: Truck, title: "Shipping & Returns", href: "#shipping" },
+    { icon: Truck, title: "Shipping Policy", href: "#shipping" },
     { icon: Shield, title: "Privacy & Data", href: "#privacy" },
     { icon: Scale, title: "Legal & Disputes", href: "#legal" },
   ];
@@ -41,8 +41,8 @@ const TermsPage = () => {
       title: "Acceptance of Terms",
       icon: CheckCircle2,
       content: [
-        "By accessing and using ShopCart&apos;s website and services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.",
-        "These terms constitute a legally binding agreement between you and ShopCart. If you do not agree with any part of these terms, you must not use our services.",
+        "By accessing and using VisionHub&apos;s website and services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.",
+        "These terms constitute a legally binding agreement between you and VisionHub. If you do not agree with any part of these terms, you must not use our services.",
         "We may update these terms from time to time. Continued use of our services after changes indicates your acceptance of the modified terms.",
         "These terms apply to all users, including browsers, vendors, customers, merchants, and contributors of content.",
       ],
@@ -70,60 +70,65 @@ const TermsPage = () => {
       ],
     },
     {
-      id: "shipping",
-      title: "Shipping & Returns",
-      icon: Truck,
-      content: [
-        "We offer various shipping options with different delivery timeframes. Shipping costs and times vary by location and service selected.",
-        "Risk of loss and title for items pass to you upon delivery to the shipping carrier. We are not responsible for lost or damaged packages once shipped.",
-        "Returns are accepted within 30 days of purchase for unused items in original packaging. Customer is responsible for return shipping costs unless the item was defective.",
-        "Refunds will be processed within 5-10 business days after we receive and inspect returned items.",
-      ],
-    },
-    {
-      id: "privacy",
-      title: "Privacy & Data Protection",
-      icon: Shield,
-      content: [
-        "Your privacy is important to us. Please review our Privacy Policy to understand how we collect, use, and protect your personal information.",
-        "We implement industry-standard security measures to protect your data, but cannot guarantee absolute security of information transmitted over the internet.",
-        "You have the right to access, update, or delete your personal information. Contact our support team for assistance with data requests.",
-        "We may use cookies and similar technologies to improve your shopping experience and analyze website usage patterns.",
-      ],
-    },
-    {
-      id: "conduct",
-      title: "User Conduct & Responsibilities",
-      icon: AlertCircle,
-      content: [
-        "You agree to use our services only for lawful purposes and in accordance with these terms and applicable laws.",
-        "You must not attempt to interfere with, disrupt, or gain unauthorized access to our systems or networks.",
-        "Providing false information during registration or checkout is prohibited and may result in account suspension or termination.",
-        "You are responsible for maintaining the confidentiality of your account credentials and for all activities under your account.",
-      ],
-    },
-    {
-      id: "intellectual",
-      title: "Intellectual Property Rights",
-      icon: FileText,
-      content: [
-        "All content, trademarks, logos, and intellectual property on our website are owned by ShopCart or our licensors and are protected by copyright and trademark laws.",
-        "You may not reproduce, distribute, modify, or create derivative works from our content without explicit written permission.",
-        "Product images, descriptions, and reviews are provided for informational purposes and may be subject to third-party intellectual property rights.",
-        "If you believe your intellectual property rights have been infringed, please contact us with detailed information about the alleged infringement.",
-      ],
-    },
-    {
-      id: "legal",
-      title: "Legal & Liability",
-      icon: Scale,
-      content: [
-        "These terms are governed by and construed in accordance with applicable laws. Any disputes will be resolved through binding arbitration where permitted by law.",
-        "Our liability is limited to the maximum extent permitted by law. We are not liable for indirect, consequential, or punitive damages.",
-        "In no event shall our total liability exceed the amount you paid for the specific product or service that is the subject of the claim.",
-        "We disclaim all warranties except as expressly stated in these terms or as required by law.",
-      ],
-    },
+id: "shipping",
+title: "Shipping Policy",
+icon: Truck,
+content: [
+"VisionHub delivers eyewear, sunglasses, contact lenses, and accessories through trusted delivery partners to eligible service locations.",
+"Delivery timelines may vary depending on product availability, customer location, courier operations, and unforeseen circumstances.",
+"Customers will receive order confirmation and shipment updates whenever tracking information is available.",
+"VisionHub is not responsible for delays caused by natural disasters, transportation disruptions, strikes, government restrictions, or events beyond our reasonable control.",
+"At present, VisionHub does not offer returns or exchanges unless required by applicable law or if a product is received damaged due to shipping."
+],
+},
+{
+id: "privacy",
+title: "Privacy & Data Protection",
+icon: Shield,
+content: [
+"VisionHub values your privacy and is committed to protecting your personal information.",
+"Customer information is collected only for order processing, customer support, communication, and improving our services.",
+"We implement industry-standard security measures to safeguard customer data and payment-related information.",
+"VisionHub does not sell, rent, or share customer personal information with third parties for marketing purposes.",
+"We may use cookies and similar technologies to improve website functionality, user experience, and performance analytics."
+],
+},
+{
+id: "conduct",
+title: "User Conduct & Responsibilities",
+icon: AlertCircle,
+content: [
+"Users agree to use VisionHub only for lawful purposes and in compliance with applicable laws and regulations.",
+"Any attempt to disrupt, damage, interfere with, or gain unauthorized access to VisionHub systems is strictly prohibited.",
+"Customers must provide accurate and up-to-date information during account registration and checkout.",
+"Users are responsible for maintaining the confidentiality of their account credentials and activities performed through their account.",
+"Fraudulent transactions, misuse of promotions, or abusive behavior may result in account suspension or order cancellation."
+],
+},
+{
+id: "intellectual",
+title: "Intellectual Property Rights",
+icon: FileText,
+content: [
+"All content available on VisionHub, including logos, product images, graphics, text, designs, and branding materials, is protected by applicable intellectual property laws.",
+"No content from VisionHub may be copied, reproduced, distributed, modified, or used commercially without prior written permission.",
+"Product names, trademarks, and brand assets displayed on VisionHub remain the property of their respective owners.",
+"If you believe any content on VisionHub infringes your intellectual property rights, please contact us with supporting information for review."
+],
+},
+{
+id: "legal",
+title: "Legal & Liability",
+icon: Scale,
+content: [
+"These Terms & Conditions shall be governed by applicable laws and regulations.",
+"VisionHub strives to provide accurate product information, descriptions, and pricing; however, occasional errors may occur and may be corrected without prior notice.",
+"VisionHub shall not be liable for indirect, incidental, special, or consequential damages arising from the use of our website, products, or services.",
+"Our maximum liability, where permitted by law, shall not exceed the amount paid by the customer for the specific product involved in the claim.",
+"By using VisionHub, customers acknowledge and accept these terms and agree to resolve disputes through the appropriate legal channels where applicable."
+],
+},
+
   ];
 
   return (
@@ -138,11 +143,11 @@ const TermsPage = () => {
           >
             <FileText className="w-16 h-16 mx-auto mb-6 opacity-90" />
             <h1 className="text-4xl lg:text-5xl font-bold mb-4">
-              Terms of Service
+              Terms & Conditions
             </h1>
             <p className="text-xl text-white/90 max-w-3xl mx-auto">
-              Please read these terms carefully before using our services. They
-              outline your rights and responsibilities as a ShopCart user.
+              These Terms & Conditions govern your use of VisionHub and the purchase of eyewear, sunglasses, contact lenses, accessories, and related products through our platform. They
+              outline your rights and responsibilities as a VisionHub user.
             </p>
             <Badge className="mt-6 bg-white/20 text-white border-white/30">
               Last updated: January 2024
@@ -254,7 +259,7 @@ const TermsPage = () => {
               <CardContent className="p-8">
                 <Mail className="w-12 h-12 mx-auto mb-4 text-shop_light_green" />
                 <h3 className="text-2xl font-bold text-shop_dark_green mb-4">
-                  Questions About Our Terms?
+                  Need Assistance?
                 </h3>
                 <p className="text-dark-text mb-6 max-w-2xl mx-auto">
                   If you have any questions about these Terms of Service or need
@@ -265,7 +270,7 @@ const TermsPage = () => {
                     asChild
                     className="bg-shop_dark_green hover:bg-shop_btn_dark_green"
                   >
-                    <Link href="/contact">Contact Legal Team</Link>
+                    <Link href="/contact">Contact Support</Link>
                   </Button>
                   <Button
                     asChild
@@ -278,10 +283,10 @@ const TermsPage = () => {
                 <p className="text-sm text-light-text mt-6">
                   For immediate assistance, email us at{" "}
                   <a
-                    href="mailto:legal@shopcart.com"
+                    href="mailto:shivam@gmail.com"
                     className="text-shop_light_green hover:underline"
                   >
-                    legal@shopcart.com
+                    shivam@gmail.com
                   </a>
                 </p>
               </CardContent>
@@ -297,13 +302,11 @@ const TermsPage = () => {
             <div className="flex items-center justify-center gap-2 mb-4">
               <Calendar className="w-4 h-4 text-shop_light_green" />
               <p className="text-sm text-light-text">
-                These terms were last updated on January 15, 2024
+                These Terms & Conditions were last updated on June 1, 2026.
               </p>
             </div>
             <p className="text-xs text-light-text">
-              By continuing to use ShopCart, you agree to the most current
-              version of these terms.
-            </p>
+                VisionHub is dedicated to providing authentic eyewear, secure transactions, transparent policies, and exceptional customer service.            </p>
           </div>
         </Container>
       </section>

@@ -63,7 +63,7 @@ export const POST = async (request: NextRequest) => {
         return {
           quantity: item.quantity || 1,
           price_data: {
-            currency: "usd",
+            currency: "INR",
             unit_amount: unitAmount,
             product_data: {
               name: item.product.name || "Product",

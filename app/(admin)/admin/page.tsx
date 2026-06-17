@@ -4,7 +4,7 @@ const AdminPage = () => {
   return (
     <AdminPremiumFeature
       featureName="Admin Dashboard"
-      description="Unlock powerful analytics, insights, and management tools with the premium version of ShopCart Pro."
+      description="Unlock powerful analytics, insights, and management tools with the premium version of VisionHub Pro."
     />
   );
 };

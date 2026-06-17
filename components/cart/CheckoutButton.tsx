@@ -115,7 +115,7 @@ export function CheckoutButton({ cart, selectedAddress }: CheckoutButtonProps) {
 
     const result = await placeOrder(
       selectedAddress,
-      PAYMENT_METHODS.CASH_ON_DELIVERY,
+      PAYMENT_METHODS.RAZORPAY,
       grossSubtotal, // Pass gross subtotal
       shipping,
       tax,
@@ -190,34 +190,10 @@ export function CheckoutButton({ cart, selectedAddress }: CheckoutButtonProps) {
             )}
           </Button>
 
-          <Button
-            onClick={handlePlaceOrder}
-            disabled={
-              isPlacingOrder ||
-              hasOutOfStockItems ||
-              !selectedAddress ||
-              cart.length === 0
-            }
-            variant="outline"
-            className="w-full h-12 text-lg font-semibold"
-            size="lg"
-          >
-            {isPlacingOrder && actionType === "order" ? (
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin" />
-                Placing Order...
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Package className="w-5 h-5" />
-                Place Order (Pay Later)
-              </div>
-            )}
-          </Button>
         </div>
 
         <div className="text-center text-xs text-muted-foreground">
-          <p>🔒 Secure checkout powered by Stripe</p>
+          <p>🔒 Secure checkout powered by Razorpay</p>
           <p>Your payment information is encrypted and secure</p>
         </div>
       </div>

@@ -15,7 +15,7 @@ npx sanity deploy
 
 Visit your Sanity Studio at:
 
-- Development: `http://localhost:3000/studio`
+- Development: `https://visionhub.vercel.app/studio`
 - Production: `https://yourdomain.com/studio`
 
 ### 3. Verify Contact Schema

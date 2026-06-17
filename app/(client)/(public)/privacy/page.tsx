@@ -33,25 +33,25 @@ const PrivacyPage = () => {
     {
       icon: Shield,
       title: "Data Protection",
-      description: "Your information is encrypted and securely stored",
+      description: "Your information is securely protected using industry-standard practices",
       color: "text-shop_dark_green",
     },
     {
       icon: Eye,
       title: "Transparency",
-      description: "Clear visibility into how your data is used",
+      description: "We clearly explain how and why your information is used",
       color: "text-shop_light_green",
     },
     {
       icon: UserCheck,
       title: "Your Control",
-      description: "Manage your privacy settings and preferences",
+      description: "Access, update, or request changes to your personal information",
       color: "text-shop_orange",
     },
     {
       icon: Lock,
       title: "Secure Processing",
-      description: "Industry-standard security for all transactions",
+      description: "Secure handling of orders, payments, and customer information",
       color: "text-shop_dark_green",
     },
   ];
@@ -73,7 +73,7 @@ const PrivacyPage = () => {
         "Order history",
         "Payment information",
         "Shipping addresses",
-        "Product reviews",
+        "Order-related communications",
       ],
       icon: Database,
     },
@@ -93,7 +93,7 @@ const PrivacyPage = () => {
         "Browser and device type",
         "IP address",
         "Operating system",
-        "Cookies and tracking",
+        "Cookies and website preferences",
       ],
       icon: Settings,
     },
@@ -143,11 +143,12 @@ const PrivacyPage = () => {
               Privacy Policy
             </h1>
             <p className="text-xl text-white/90 max-w-3xl mx-auto">
-              Your privacy is fundamental to how we operate. Learn how we
-              collect, use, and protect your personal information.
+              At VisionHub, protecting your personal information is a priority.
+This Privacy Policy explains how we collect, use, store, and safeguard
+your data when you browse our website or purchase eyewear products.
             </p>
             <Badge className="mt-6 bg-white/20 text-white border-white/30">
-              Last updated: January 2024
+              Last updated: June 2026
             </Badge>
           </motion.div>
         </Container>
@@ -291,18 +292,16 @@ const PrivacyPage = () => {
                     </p>
                     <ul className="space-y-2 pl-4">
                       <li>
-                        • Information you provide when creating an account or
-                        making purchases
+                        • Information provided during account registration and checkout
                       </li>
                       <li>
-                        • Automatic information collected through cookies and
-                        similar technologies
+                        • Shipping, billing, and contact details required to process orders
                       </li>
                       <li>
-                        • Communication data when you contact our support team
+                        • Communications sent through customer support forms or email
                       </li>
                       <li>
-                        • Usage analytics to improve our website and services
+                        • Website usage information collected to improve performance and customer experience
                       </li>
                     </ul>
                   </div>
@@ -330,18 +329,16 @@ const PrivacyPage = () => {
                     </p>
                     <ul className="space-y-2 pl-4">
                       <li>
-                        • With service providers who assist in our operations
-                        (payment processing, shipping)
+                        • Trusted payment providers to securely process transactions
                       </li>
                       <li>
-                        • When required by law or to protect our rights and
-                        safety
+                        • Delivery partners responsible for order fulfillment
                       </li>
                       <li>
-                        • With your explicit consent for specific purposes
+                        • Service providers assisting with website operations
                       </li>
                       <li>
-                        • In connection with a business transfer or merger
+                        • Legal authorities when required by law
                       </li>
                     </ul>
                   </div>
@@ -405,7 +402,7 @@ const PrivacyPage = () => {
                       <li>• Essential cookies for website functionality</li>
                       <li>• Analytics cookies to understand usage patterns</li>
                       <li>
-                        • Marketing cookies for personalized advertising (with
+                        • Optional analytics cookies used to improve website performance (with
                         consent)
                       </li>
                       <li>• Preference cookies to remember your settings</li>
@@ -494,18 +491,18 @@ const PrivacyPage = () => {
               <CardContent className="p-8">
                 <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-shop_orange" />
                 <h3 className="text-2xl font-bold text-shop_dark_green mb-4">
-                  Privacy Questions or Concerns?
+                  Questions About Your Privacy?
                 </h3>
                 <p className="text-dark-text mb-6 max-w-2xl mx-auto">
-                  Our privacy team is here to help you understand your rights
-                  and assist with any data-related requests or concerns.
+                  If you have questions about how your information is collected,
+stored, or used, our support team will be happy to assist you.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button
                     asChild
                     className="bg-shop_dark_green hover:bg-shop_btn_dark_green"
                   >
-                    <Link href="/contact">Contact Privacy Team</Link>
+                    <Link href="/contact">Contact Support</Link>
                   </Button>
                   <Button
                     asChild
@@ -518,10 +515,10 @@ const PrivacyPage = () => {
                 <p className="text-sm text-light-text mt-6">
                   Email us directly at{" "}
                   <a
-                    href="mailto:privacy@shopcart.com"
+                    href="mailto:shivam@gmail.com"
                     className="text-shop_light_green hover:underline"
                   >
-                    privacy@shopcart.com
+                    shivam@gmail.com
                   </a>
                 </p>
               </CardContent>
@@ -537,12 +534,11 @@ const PrivacyPage = () => {
             <div className="flex items-center justify-center gap-2 mb-4">
               <Clock className="w-4 h-4 text-shop_light_green" />
               <p className="text-sm text-light-text">
-                This privacy policy was last updated on January 15, 2024
+                This Privacy Policy was last updated on June 1, 2026
               </p>
             </div>
             <p className="text-xs text-light-text">
-              We may update this policy periodically. We&apos;ll notify you of
-              significant changes via email or website notice.
+              VisionHub may update this Privacy Policy periodically to reflect changes in our services, legal requirements, or security practices.
             </p>
           </div>
         </Container>

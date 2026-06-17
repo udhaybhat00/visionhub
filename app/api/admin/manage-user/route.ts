@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
           newsletter: true,
           emailNotifications: true,
           smsNotifications: false,
-          preferredCurrency: "USD",
+          preferredcurrency: "INR",
           preferredLanguage: "en",
         },
       });

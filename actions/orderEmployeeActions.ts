@@ -629,7 +629,7 @@ export async function startDelivery(
     await backendClient
       .patch(orderId)
       .set({
-        status: "out_for_delivery",
+        status: "shipped",
         deliveryAttempts: (order.deliveryAttempts || 0) + 1,
       })
       .commit();
@@ -648,7 +648,7 @@ export async function startDelivery(
         clerkUserId: order.clerkUserId,
         orderNumber: order.orderNumber,
         orderId: order._id,
-        status: "out_for_delivery",
+        status: "shipped",
       });
     } catch (notificationError) {
       console.error(
@@ -1110,7 +1110,7 @@ export async function getOrdersForEmployee() {
         break;
       case "deliveryman":
         // Show orders assigned to this deliveryman
-        filter = `*[_type == "order" && assignedDeliverymanId == $employeeId && status in ["ready_for_delivery", "out_for_delivery", "delivered", "rescheduled", "failed_delivery"]] | order(dispatchedAt desc)`;
+        filter = `*[_type == "order" && assignedDeliverymanId == $employeeId && status in ["ready_for_delivery", "shipped", "delivered", "rescheduled", "failed_delivery"]] | order(dispatchedAt desc)`;
         break;
       case "incharge":
       case "accounts":

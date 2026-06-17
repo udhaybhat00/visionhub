@@ -18,11 +18,11 @@ The deliveryman dashboard provides a comprehensive interface for delivery person
 
 - Shows orders with status `ready_for_delivery`
 - Orders that are assigned but not yet picked up
-- Action: "Start Delivery" button to change status to `out_for_delivery`
+- Action: "Start Delivery" button to change status to `shipped`
 
 #### **Delivering Tab**
 
-- Shows orders with status `out_for_delivery`
+- Shows orders with status `shipped`
 - Currently being delivered
 - Actions:
   - Mark as Delivered (requires cash collection for COD orders)
@@ -88,7 +88,7 @@ Orders are considered COD if:
 startDelivery(orderId, notes?)
 ```
 
-- Changes status to `out_for_delivery`
+- Changes status to `shipped`
 - Increments `deliveryAttempts`
 - Optional delivery notes
 
@@ -209,7 +209,7 @@ Based on order status:
 2. **Start Delivery**: Deliveryman clicks "Start Delivery"
 
    - Order moves to "Delivering" tab
-   - Status changes to `out_for_delivery`
+   - Status changes to `shipped`
 
 3. **At Customer Location**: Open order details
 

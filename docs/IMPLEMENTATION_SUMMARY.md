@@ -2,7 +2,7 @@
 
 ## 🎯 Overview
 
-Successfully implemented a comprehensive user profile system with address management and sophisticated reward/loyalty points system for the ShopCart application.
+Successfully implemented a comprehensive user profile system with address management and sophisticated reward/loyalty points system for the VisionHub application.
 
 ## ✅ Completed Features
 
