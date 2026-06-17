@@ -24,25 +24,25 @@ const socialLink = [
   {
     title: "YouTube",
     href: "https://youtube.com/@shivam",
-    color: "hover:bg-red-600 hover:border-red-600",
+     color: "text-red-500 border-red-500 hover:bg-red-600 hover:text-white",
     icon: <Youtube className="w-5 h-5" />,
   },
   {
     title: "Gmail",
     href: "mailto:shivam@gmail.com",
-    color: "hover:bg-red-500 hover:border-red-500",
+    color: "text-green-500 border-green-500 hover:bg-green-600 hover:text-white",
     icon: <Mail className="w-5 h-5" />,
   },
   {
     title: "Instagram",
     href: "https://instagram.com/shivam",
-    color: "hover:bg-pink-600 hover:border-pink-600",
+     color: "text-pink-500 border-pink-500 hover:bg-pink-600 hover:text-white",
     icon: <Instagram className="w-5 h-5" />,
   },
   {
     title: "Facebook",
     href: "https://facebook.com/shivam",
-    color: "hover:bg-blue-600 hover:border-blue-600",
+    color: "text-blue-500 border-blue-500 hover:bg-blue-600 hover:text-white",
     icon: <Facebook className="w-5 h-5" />,
   },
 ];
@@ -67,10 +67,14 @@ const SocialMedia = ({
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
-               className={cn(
-  "p-2 border rounded-full text-gray-500 hover:text-white transition-all duration-300",
+      className={cn(
+
+  "p-2 border rounded-full transition-all duration-300",
+
   item.color,
+
   iconClassName
+
 )}
               >
                 {item.icon}
