@@ -113,21 +113,22 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
 
   <MobileBottomNav />
 </UserDataProvider>
-          <Toaster
-            position="bottom-right"
-            richColors
-            closeButton
-            toastOptions={{
-              style: {
-                background: "#ffffff",
-                color: "#1f2937",
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-                fontSize: "14px",
-              },
-              className: "sonner-toast",
-            }}
-          />
+    <Toaster
+  position="bottom-right"
+  richColors
+  closeButton
+  mobileOffset={90}
+  toastOptions={{
+    style: {
+      background: "#ffffff",
+      color: "#1f2937",
+      border: "1px solid #e5e7eb",
+      borderRadius: "8px",
+      fontSize: "14px",
+    },
+    className: "sonner-toast",
+  }}
+/>
 
           <Script src="https://checkout.razorpay.com/v1/checkout.js" />
 

@@ -84,12 +84,57 @@ const FavoriteButton = ({
       ) : (
         <button
           onClick={handleFavorite}
-          className="group relative hover:text-shop_light_green hoverEffect border border-shop_light_green/80 p-1.5 rounded-sm "
+        className="
+
+    group
+
+    relative
+
+    w-full
+
+    h-full
+
+    flex
+
+    items-center
+
+    justify-center
+
+    border
+
+    border-shop_orange/40
+
+    rounded-xl
+
+    bg-white
+
+    hover:bg-shop_orange/5
+
+    transition-all
+
+    duration-300
+
+  "
         >
-          <Heart
-            fill={existingProduct ? "#063c28" : "#fff"}
-            className="text-shop_light_green/80 group-hover:text-shop_light_green hoverEffect mt-.5"
-          />
+        <Heart
+
+  size={24}
+
+  fill={existingProduct ? "#d4af37" : "transparent"}
+
+  className="
+
+    text-shop_orange
+
+    group-hover:scale-110
+
+    transition-all
+
+    duration-300
+
+  "
+
+/>
         </button>
       )}
     </>

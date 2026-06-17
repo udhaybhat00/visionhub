@@ -48,8 +48,25 @@ const Loading = () => {
   const CurrentIcon = loadingSteps[currentStep].icon;
 
   return (
-    <div className="fixed min-h-screen w-full bg-shop_light_bg left-0 top-0 flex items-center justify-center z-50">
-      <div className="flex flex-col justify-center items-center gap-8 max-w-md mx-auto px-6">
+    <div
+  className="
+    fixed inset-0
+    bg-shop_light_bg
+    flex items-center justify-center
+    z-50
+    pb-16 md:pb-0
+  "
+>
+      <div
+  className="
+    flex flex-col
+    justify-center items-center
+    gap-6 md:gap-5
+    max-w-md mx-auto
+    px-6
+    -translate-y-8 md:translate-y-0
+  "
+>
         {/* Logo with enhanced animation */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -114,7 +131,7 @@ const Loading = () => {
             transition={{ duration: 0.4 }}
             className="space-y-2"
           >
-            <h2 className="text-xl font-semibold text-shop_dark_green">
+            <h2 className="text-lg md:text-xl font-semibold text-shop_dark_green">
               {loadingText}
             </h2>
             <p className="text-sm text-gray-600">
