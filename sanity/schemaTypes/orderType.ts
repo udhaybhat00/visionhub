@@ -148,6 +148,18 @@ export const orderType = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+  name: "couponCode",
+  title: "Coupon Code",
+  type: "string",
+}),
+
+defineField({
+  name: "couponDiscount",
+  title: "Coupon Discount",
+  type: "number",
+  initialValue: 0,
+}),
+    defineField({
       name: "address",
       title: "Shipping Address",
       type: "object",

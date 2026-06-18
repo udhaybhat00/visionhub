@@ -75,10 +75,18 @@ export const couponType = defineType({
     }),
   ],
 
-  preview: {
-    select: {
-      title: "code",
-      subtitle: "discountValue",
-    },
+preview: {
+  select: {
+    title: "code",
+    discount: "discountValue",
+    used: "timesUsed",
+    limit: "usageLimit",
   },
+  prepare(selection) {
+    return {
+      title: selection.title,
+      subtitle: `₹${selection.discount} • Used ${selection.used}/${selection.limit}`,
+    };
+  },
+},
 });

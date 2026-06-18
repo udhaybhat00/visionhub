@@ -69,6 +69,9 @@ export function CheckoutContent() {
     isBusiness: boolean;
     isActive: boolean;
   } | null>(null);
+
+  const [couponCode, setCouponCode] = useState("");
+const [couponDiscount, setCouponDiscount] = useState(0);
   
 
   // New pricing structure
@@ -82,7 +85,11 @@ export function CheckoutContent() {
 
   const shipping = finalSubtotal > 100 ? 0 : 10;
   const tax = finalSubtotal * (parseFloat(process.env.TAX_AMOUNT || "0") || 0);
-  const total = finalSubtotal + shipping + tax;
+  const total =
+  finalSubtotal +
+  shipping +
+  tax -
+  couponDiscount;
 
   // Fetch user profile for business account status
   useEffect(() => {
@@ -183,6 +190,49 @@ export function CheckoutContent() {
     }
   }, [searchParams]);
 
+ useEffect(() => {
+  const validateCoupon = async () => {
+    const code = searchParams.get("couponCode");
+
+    if (!code) return;
+
+    try {
+      const response = await fetch("/api/coupon", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          code,
+          subtotal: currentSubtotal,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) return;
+
+      const coupon = data.coupon;
+
+      let discount = 0;
+
+      if (coupon.discountType === "percentage") {
+        discount =
+          (currentSubtotal * coupon.discountValue) / 100;
+      } else {
+        discount = coupon.discountValue;
+      }
+
+      setCouponCode(coupon.code);
+      setCouponDiscount(discount);
+    } catch (error) {
+      console.error("Coupon validation failed:", error);
+    }
+  };
+
+  validateCoupon();
+}, [searchParams, currentSubtotal]);
+
   // Track initial cart state and redirect if empty
   useEffect(() => {
     if (hasInitialCart === null && isLoaded && cart !== undefined) {
@@ -210,14 +260,15 @@ export function CheckoutContent() {
     // Determine payment method based on action and gateway
    const paymentMethodToUse = PAYMENT_METHODS.RAZORPAY;
 
-    const result = await placeOrder(
-      selectedAddress,
-      paymentMethodToUse,
-      finalSubtotal, // Pass final subtotal (includes business discount)
-      shipping,
-      tax,
-      total
-    );
+ const result = await placeOrder(
+  selectedAddress,
+  paymentMethodToUse,
+  finalSubtotal,
+  shipping,
+  tax,
+  total,
+  couponCode,
+);
 
     if (result?.success && result.redirectTo) {
       setIsRedirecting(true);
@@ -509,6 +560,17 @@ const order = await response.json();
                 </span>
               </div>
             )}
+            {couponDiscount > 0 && (
+  <div className="flex justify-between text-green-600">
+    <span>
+      Coupon • {couponCode}
+    </span>
+
+    <span>
+      -<PriceFormatter amount={couponDiscount} />
+    </span>
+  </div>
+)}
             <div className="flex justify-between">
               <span>Shipping</span>
               {shipping === 0 ? (

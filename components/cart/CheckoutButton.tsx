@@ -27,9 +27,16 @@ interface Address {
 interface CheckoutButtonProps {
   cart: CartItem[];
   selectedAddress: Address | null;
+  couponCode?: string;
+  couponDiscount?: number;
 }
 
-export function CheckoutButton({ cart, selectedAddress }: CheckoutButtonProps) {
+export function CheckoutButton({
+  cart,
+  selectedAddress,
+  couponCode,
+  couponDiscount,
+}: CheckoutButtonProps) {
   const { user } = useUser();
   const { resetCart, setOrderPlacementState } = useCartStore();
   const { placeOrder, isPlacingOrder, orderStep } = useOrderPlacement({
@@ -69,8 +76,14 @@ export function CheckoutButton({ cart, selectedAddress }: CheckoutButtonProps) {
     });
 
     // Redirect with loading effect
-    const addressParam = encodeURIComponent(JSON.stringify(selectedAddress));
-    window.location.href = `/checkout?address=${addressParam}`;
+    const addressParam = encodeURIComponent(
+  JSON.stringify(selectedAddress)
+);
+
+
+window.location.href =
+  `/checkout?address=${addressParam}` +
+  `&couponCode=${couponCode || ""}`;
   };
 
   const handlePlaceOrder = async () => {
