@@ -133,7 +133,6 @@ window.location.href =
       shipping,
       tax,
       orderTotal,
-      false // redirectToCheckout = false
     );
 
     if (result?.success && result.redirectTo) {
