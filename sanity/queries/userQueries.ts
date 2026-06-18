@@ -313,7 +313,8 @@ export const getOrderById = async (orderId: string) => {
 export const USER_NOTIFICATIONS_QUERY = `
   *[_type == "user" && clerkUserId == $clerkUserId][0] {
     notifications[] {
-      id,
+      _key,
+      "id": coalesce(id, _key),
       title,
       message,
       type,
@@ -363,7 +364,10 @@ export const markNotificationAsRead = async (
 
     const updatedNotifications = (user.notifications || []).map(
       (notification: any) => {
-        if (notification.id === notificationId) {
+        if (
+          notification.id === notificationId ||
+          notification._key === notificationId
+        ) {
           return {
             ...notification,
             read: true,
@@ -400,9 +404,18 @@ export const deleteUserNotification = async (
       throw new Error("User not found");
     }
 
-    const updatedNotifications = (user.notifications || []).filter(
-      (notification: any) => notification.id !== notificationId
+    const existingNotifications = user.notifications || [];
+    const updatedNotifications = existingNotifications.filter(
+      (notification: any) =>
+        notification.id !== notificationId && notification._key !== notificationId
     );
+
+    if (updatedNotifications.length === existingNotifications.length) {
+      return {
+        success: false,
+        error: "Notification not found",
+      };
+    }
 
     await writeClient
       .patch(user._id)
