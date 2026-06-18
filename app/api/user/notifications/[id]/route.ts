@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
+import { deleteUserNotification } from "@/sanity/queries/userQueries";
 
 export async function DELETE(
   request: NextRequest,
@@ -14,9 +15,14 @@ export async function DELETE(
 
     const { id: notificationId } = await params;
 
-    // Here you would delete the notification from your database
-    // For now, we'll just return success
-    console.log(`Deleting notification ${notificationId} for user ${userId}`);
+    const result = await deleteUserNotification(userId, notificationId);
+
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error || "Failed to delete notification" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

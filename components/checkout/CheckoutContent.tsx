@@ -305,13 +305,24 @@ const [couponDiscount, setCouponDiscount] = useState(0);
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      amount: total,
-    }),
+  body: JSON.stringify({
+  items: cart.map((item) => ({
+    product: {
+      _id: item.product._id,
+    },
+    quantity: item.quantity,
+  })),
+  couponCode,
+}),
   });
 
-  if (!response.ok) {
-  toast.error("Failed to create Razorpay order");
+if (!response.ok) {
+  const errorData = await response.json().catch(() => null);
+
+  toast.error(
+    errorData?.error || "Failed to create Razorpay order"
+  );
+
   return;
 }
 
