@@ -471,7 +471,12 @@ const applyCoupon = async () => {
 
           {/* Checkout */}
           <div className="mt-6">
-            <CheckoutButton cart={cart} selectedAddress={selectedAddress} />
+ <CheckoutButton
+  cart={cart}
+  selectedAddress={selectedAddress}
+  couponCode={appliedCoupon}
+  couponDiscount={couponDiscount}
+/>
           </div>
         </div>
       </div>

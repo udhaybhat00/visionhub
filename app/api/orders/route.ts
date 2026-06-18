@@ -9,6 +9,7 @@ import {
 } from "@/lib/orderStatus";
 import crypto from "crypto";
 import { sendOrderStatusNotification } from "@/lib/notificationService";
+import { getCouponByCode } from "@/sanity/queries";
 
 interface CartItem {
   product: {
@@ -50,16 +51,89 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const reqBody = await request.json();
-    const {
-      items,
-      shippingAddress,
-      paymentMethod,
-      totalAmount,
-      subtotal,
-      shipping,
-      tax,
-    } = reqBody;
+  const reqBody = await request.json();
+
+const {
+  items,
+  shippingAddress,
+  paymentMethod,
+  totalAmount,
+  subtotal,
+  shipping,
+  tax,
+  couponCode,
+} = reqBody;
+
+let actualCouponDiscount = 0;
+
+if (couponCode) {
+  const coupon = await getCouponByCode(couponCode);
+
+  if (
+    coupon &&
+    coupon.isActive &&
+    (!coupon.expiryDate ||
+      new Date(coupon.expiryDate) > new Date()) &&
+    (!coupon.minimumOrderValue ||
+      subtotal >= coupon.minimumOrderValue)
+  ) {
+    if (coupon.discountType === "percentage") {
+      actualCouponDiscount =
+        (subtotal * coupon.discountValue) / 100;
+    } else {
+      actualCouponDiscount =
+        coupon.discountValue;
+    }
+  }
+}
+
+let verifiedCouponDiscount = 0;
+
+if (couponCode) {
+  const coupon = await getCouponByCode(couponCode);
+
+  if (!coupon) {
+    return NextResponse.json(
+      { error: "Invalid coupon" },
+      { status: 400 }
+    );
+  }
+
+  if (!coupon.isActive) {
+    return NextResponse.json(
+      { error: "Coupon inactive" },
+      { status: 400 }
+    );
+  }
+
+  if (
+    coupon.expiryDate &&
+    new Date(coupon.expiryDate) < new Date()
+  ) {
+    return NextResponse.json(
+      { error: "Coupon expired" },
+      { status: 400 }
+    );
+  }
+
+  if (
+    coupon.usageLimit &&
+    coupon.timesUsed >= coupon.usageLimit
+  ) {
+    return NextResponse.json(
+      { error: "Coupon limit reached" },
+      { status: 400 }
+    );
+  }
+
+  if (coupon.discountType === "percentage") {
+    verifiedCouponDiscount =
+      (subtotal * coupon.discountValue) / 100;
+  } else {
+    verifiedCouponDiscount =
+      coupon.discountValue;
+  }
+}
 
     // Validate required fields
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -113,9 +187,15 @@ export const POST = async (request: NextRequest) => {
           quantity: item.quantity,
         })
       ),
-      totalPrice: totalAmount,
+      totalPrice:
+  subtotal +
+  shipping +
+  tax -
+  verifiedCouponDiscount,
       currency: "INR",
-      amountDiscount: 0, // Can be calculated if you have discount logic
+     amountDiscount: verifiedCouponDiscount,
+couponCode: couponCode || "",
+couponDiscount: verifiedCouponDiscount,
       address: {
         _type: "object",
         name: shippingAddress.name,
@@ -148,6 +228,25 @@ export const POST = async (request: NextRequest) => {
 
     // Create order in Sanity using writeClient (has create permissions)
     const createdOrder = await writeClient.create(orderData);
+    
+
+    if (couponCode) {
+  const coupon = await writeClient.fetch(
+    `*[_type=="coupon" && code==$code][0]`,
+    {
+      code: couponCode,
+    }
+  );
+
+  if (coupon) {
+    await writeClient
+      .patch(coupon._id)
+      .inc({
+        timesUsed: 1,
+      })
+      .commit();
+  }
+}
 
     // Track order placed event
     try {

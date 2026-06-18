@@ -62,15 +62,16 @@ export function useOrderPlacement({ user }: UseOrderPlacementProps) {
     setOrderPlacementState,
   } = useCartStore();
 
-  const placeOrder = async (
-    selectedAddress: Address,
-    selectedPaymentMethod: PaymentMethod,
-    subtotal: number,
-    shipping: number,
-    tax: number,
-    total: number,
-    redirectToCheckout: boolean = false // New parameter to control redirect behavior
-  ) => {
+ const placeOrder = async (
+  selectedAddress: Address,
+  selectedPaymentMethod: PaymentMethod,
+  subtotal: number,
+  shipping: number,
+  tax: number,
+  total: number,
+  couponCode?: string,
+  redirectToCheckout: boolean = false
+) => {
     if (!selectedAddress) {
       toast.error("Address Required", {
         description: "Please select a shipping address",
@@ -124,15 +125,16 @@ export function useOrderPlacement({ user }: UseOrderPlacementProps) {
       // Step 1: Validate and prepare order data
       setOrderPlacementState(true, "creating");
 
-      const orderData = {
-        items: cartSnapshot,
-        shippingAddress: selectedAddress,
-        paymentMethod: selectedPaymentMethod,
-        totalAmount: total,
-        subtotal,
-        shipping,
-        tax,
-      };
+ const orderData = {
+  items: cartSnapshot,
+  shippingAddress: selectedAddress,
+  paymentMethod: selectedPaymentMethod,
+  totalAmount: total,
+  subtotal,
+  shipping,
+  tax,
+  couponCode,
+};
 
       // Create order in Sanity first (without email sending)
       const orderResponse = await fetch("/api/orders", {
