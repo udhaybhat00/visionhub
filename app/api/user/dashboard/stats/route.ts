@@ -21,7 +21,16 @@ interface Order {
   orderDate: string;
   status: string;
   totalPrice?: number;
+  paymentStatus?: string;
+  products?: Array<{
+    quantity?: number;
+    product?: {
+      name?: string;
+    };
+  }>;
 }
+
+type OrderProduct = NonNullable<Order["products"]>[number];
 
 interface WishlistItem {
   _id: string;
@@ -50,14 +59,61 @@ export async function GET(request: NextRequest) {
       ]);
 
     // Calculate stats from real data
+    const activeOrders =
+      userOrders?.filter(
+        (order: Order) =>
+          !["delivered", "completed", "cancelled", "canceled"].includes(
+            order.status?.toLowerCase()
+          )
+      ).length || 0;
+    const completedOrders =
+      userOrders?.filter((order: Order) =>
+        ["delivered", "completed"].includes(order.status?.toLowerCase())
+      ).length || 0;
+    const cancelledOrders =
+      userOrders?.filter((order: Order) =>
+        ["cancelled", "canceled"].includes(order.status?.toLowerCase())
+      ).length || 0;
+    const totalSpent =
+      userOrders?.reduce((sum: number, order: Order) => {
+        const isCancelled = ["cancelled", "canceled"].includes(
+          order.status?.toLowerCase()
+        );
+        return isCancelled ? sum : sum + (order.totalPrice || 0);
+      }, 0) || 0;
+    const sortedOrders = [...(userOrders || [])].sort(
+      (a: Order, b: Order) =>
+        new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
+    );
+    const latestOrder = sortedOrders[0]
+      ? {
+          id: sortedOrders[0]._id,
+          orderNumber: sortedOrders[0].orderNumber,
+          status: sortedOrders[0].status,
+          paymentStatus: sortedOrders[0].paymentStatus,
+          totalPrice: sortedOrders[0].totalPrice || 0,
+          orderDate: sortedOrders[0].orderDate,
+          itemCount:
+            sortedOrders[0].products?.reduce(
+              (sum: number, item: OrderProduct) => sum + (item.quantity || 0),
+              0
+            ) || 0,
+          firstProductName: sortedOrders[0].products?.[0]?.product?.name || "",
+        }
+      : null;
+
     const stats = {
       ordersCount: userOrders?.length || 0,
+      activeOrders,
+      completedOrders,
+      cancelledOrders,
+      totalSpent,
       wishlistCount: userWishlist?.length || 0,
       notificationsCount: userNotifications?.length || 0,
       unreadNotifications:
         userNotifications?.filter((n: Notification) => !n.read)?.length || 0,
-      rewardPoints: userData?.rewardPoints || 0,
       walletBalance: userData?.walletBalance || 0,
+      latestOrder,
     };
 
     // Create recent activity from real data
@@ -65,12 +121,7 @@ export async function GET(request: NextRequest) {
 
     // Add recent orders to activity
     if (userOrders && userOrders.length > 0) {
-      const recentOrders = userOrders
-        .sort(
-          (a: Order, b: Order) =>
-            new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
-        )
-        .slice(0, 2);
+      const recentOrders = sortedOrders.slice(0, 2);
 
       recentOrders.forEach((order: Order) => {
         recentActivity.push({
@@ -88,7 +139,7 @@ export async function GET(request: NextRequest) {
               : order.status === "shipped"
               ? "has been shipped"
               : "has been placed successfully"
-          }`,
+          }${order.totalPrice ? ` • ₹${order.totalPrice.toLocaleString("en-IN")}` : ""}`,
           timestamp: order.orderDate,
           type: "order" as const,
         });

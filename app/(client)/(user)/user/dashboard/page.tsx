@@ -1,42 +1,50 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import {
-  Package,
-  Heart,
-  Bell,
-  Star,
-  TrendingUp,
-  Clock,
   ArrowRight,
+  Bell,
+  CheckCircle2,
+  Clock3,
+  Heart,
+  MapPin,
+  Package,
+  ReceiptText,
+  Settings,
+  ShoppingBag,
+  Truck,
   User,
-  CheckCircle,
   Wallet,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import PremiumBanner from "@/components/ui/premium-banner";
-import PremiumBadge from "@/components/ui/premium-badge";
-import ApplicationSuccessNotification from "@/components/ui/application-success-notification";
-import { toast } from "sonner";
+
+interface LatestOrder {
+  id: string;
+  orderNumber: string;
+  status: string;
+  paymentStatus?: string;
+  totalPrice: number;
+  orderDate: string;
+  itemCount: number;
+  firstProductName?: string;
+}
 
 interface UserStats {
   ordersCount: number;
+  activeOrders: number;
+  completedOrders: number;
+  cancelledOrders: number;
+  totalSpent: number;
   wishlistCount: number;
   notificationsCount: number;
   unreadNotifications: number;
-  rewardPoints: number;
   walletBalance: number;
+  latestOrder: LatestOrder | null;
 }
 
 interface RecentActivity {
@@ -48,64 +56,105 @@ interface RecentActivity {
 }
 
 interface UserProfile {
-  _id: string;
-  isActive: boolean; // Premium account status
-  isBusiness: boolean; // Business account status
-  premiumStatus: "none" | "pending" | "active" | "rejected" | "cancelled";
-  businessStatus: "none" | "pending" | "active" | "rejected" | "cancelled";
-  membershipType: string;
+  isActive?: boolean;
+  isBusiness?: boolean;
+  membershipType?: string;
   firstName?: string;
   lastName?: string;
-  businessApprovedBy?: string;
-  businessApprovedAt?: string;
-  premiumAppliedAt?: string;
-  premiumApprovedBy?: string;
-  premiumApprovedAt?: string;
-  businessAppliedAt?: string;
-  rejectionReason?: string;
 }
+
+const defaultStats: UserStats = {
+  ordersCount: 0,
+  activeOrders: 0,
+  completedOrders: 0,
+  cancelledOrders: 0,
+  totalSpent: 0,
+  wishlistCount: 0,
+  notificationsCount: 0,
+  unreadNotifications: 0,
+  walletBalance: 0,
+  latestOrder: null,
+};
+
+const currency = new Intl.NumberFormat("en-IN", {
+  style: "currency",
+  currency: "INR",
+  maximumFractionDigits: 0,
+});
+
+const formatCurrency = (amount: number) => currency.format(amount || 0);
+
+const formatDate = (timestamp?: string) => {
+  if (!timestamp) return "Not available";
+
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(timestamp));
+};
+
+const formatTimeAgo = (timestamp: string) => {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffInMinutes = Math.max(
+    0,
+    Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
+  );
+
+  if (diffInMinutes < 1) return "Just now";
+  if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+  if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+  return `${Math.floor(diffInMinutes / 1440)}d ago`;
+};
+
+const labelFromStatus = (status?: string) =>
+  (status || "pending").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+const getStatusStyles = (status?: string) => {
+  switch ((status || "").toLowerCase()) {
+    case "delivered":
+    case "completed":
+      return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    case "shipped":
+    case "ready_for_delivery":
+    case "out_for_delivery":
+      return "border-blue-200 bg-blue-50 text-blue-700";
+    case "cancelled":
+    case "canceled":
+      return "border-red-200 bg-red-50 text-red-700";
+    default:
+      return "border-amber-200 bg-amber-50 text-amber-700";
+  }
+};
 
 export default function UserDashboardPage() {
   const { user } = useUser();
-  const [stats, setStats] = useState<UserStats>({
-    ordersCount: 0,
-    wishlistCount: 0,
-    notificationsCount: 0,
-    unreadNotifications: 0,
-    rewardPoints: 0,
-    walletBalance: 0,
-  });
+  const [stats, setStats] = useState<UserStats>(defaultStats);
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
-  const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [userExists, setUserExists] = useState<boolean>(false);
-  const [isApplyingBusiness, setIsApplyingBusiness] = useState<boolean>(false);
-  const [showSuccessNotification, setShowSuccessNotification] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
-  const [notificationType, setNotificationType] = useState<
-    "premium" | "business"
-  >("premium");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
 
-        // Fetch user status first
-        const statusResponse = await fetch("/api/user/status");
+        const [statusResponse, statsResponse] = await Promise.all([
+          fetch("/api/user/status"),
+          fetch("/api/user/dashboard/stats"),
+        ]);
+
         if (statusResponse.ok) {
           const statusData = await statusResponse.json();
-          setUserExists(statusData.userExists);
-          setUserProfile(statusData.userProfile);
+          setUserProfile(statusData.userProfile || null);
         }
 
-        // Fetch user dashboard stats
-        const response = await fetch("/api/user/dashboard/stats");
-        if (response.ok) {
-          const data = await response.json();
+        if (statsResponse.ok) {
+          const data = await statsResponse.json();
           if (data.success) {
-            setStats(data.stats);
-            setRecentActivity(data.recentActivity);
+            setStats({ ...defaultStats, ...data.stats });
+            setRecentActivity(data.recentActivity || []);
           }
         }
       } catch (error) {
@@ -120,640 +169,306 @@ export default function UserDashboardPage() {
     }
   }, [user]);
 
-  const handlePremiumRegister = () => {
-    // Show success notification instead of immediate reload
-    setNotificationType("premium");
-    setShowSuccessNotification(true);
-    setUserExists(true);
-  };
-
-  const handleBusinessAccountApply = async () => {
-    if (!user?.emailAddresses?.[0]?.emailAddress) {
-      toast.error("Unable to get user email");
-      return;
-    }
-
-    setIsApplyingBusiness(true);
-    try {
-      const response = await fetch("/api/user/business-apply", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: user.emailAddresses[0].emailAddress,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Show success notification instead of toast and reload
-        setNotificationType("business");
-        setShowSuccessNotification(true);
-        // Also update the user profile to reflect pending status
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      } else {
-        toast.error(
-          data.error || "Failed to submit business account application"
-        );
-      }
-    } catch (error) {
-      console.error("Error applying for business account:", error);
-      toast.error("Error submitting application");
-    } finally {
-      setIsApplyingBusiness(false);
-    }
-  };
-
-  const handleCancelApplication = async (
-    applicationType: "premium" | "business"
-  ) => {
-    if (!user?.emailAddresses?.[0]?.emailAddress) {
-      toast.error("Unable to get user email");
-      return;
-    }
-
-    setIsApplyingBusiness(true);
-    try {
-      const response = await fetch("/api/user/cancel-application", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: user.emailAddresses[0].emailAddress,
-          applicationType,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.success(data.message);
-        // Refresh user profile
-        window.location.reload();
-      } else {
-        toast.error(data.error || "Failed to cancel application");
-      }
-    } catch (error) {
-      console.error("Error cancelling application:", error);
-      toast.error("Error cancelling application");
-    } finally {
-      setIsApplyingBusiness(false);
-    }
-  };
-
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case "order":
-        return <Package className="h-4 w-4 text-blue-500" />;
-      case "notification":
-        return <Bell className="h-4 w-4 text-purple-500" />;
-      case "wishlist":
-        return <Heart className="h-4 w-4 text-red-500" />;
-      default:
-        return <Clock className="h-4 w-4 text-gray-500" />;
-    }
-  };
-
-  const formatTimeAgo = (timestamp: string) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffInMinutes = Math.floor(
-      (now.getTime() - date.getTime()) / (1000 * 60)
+  const displayName = useMemo(() => {
+    return (
+      userProfile?.firstName ||
+      user?.firstName ||
+      user?.primaryEmailAddress?.emailAddress?.split("@")[0] ||
+      "there"
     );
+  }, [user, userProfile]);
 
-    if (diffInMinutes < 60) {
-      return `${diffInMinutes}m ago`;
-    } else if (diffInMinutes < 1440) {
-      return `${Math.floor(diffInMinutes / 60)}h ago`;
-    } else {
-      return `${Math.floor(diffInMinutes / 1440)}d ago`;
-    }
+  const activityIcon = (type: RecentActivity["type"]) => {
+    if (type === "order") return <Package className="h-4 w-4" />;
+    if (type === "wishlist") return <Heart className="h-4 w-4" />;
+    return <Bell className="h-4 w-4" />;
   };
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8 space-y-8">
-        <div className="animate-pulse">
-          <div className="space-y-4 mb-8">
-            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-36 bg-gray-200 rounded-lg"></div>
-            ))}
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="h-80 bg-gray-200 rounded-lg"></div>
-            <div className="h-80 bg-gray-200 rounded-lg"></div>
-          </div>
+      <div className="space-y-6">
+        <div className="h-32 animate-pulse rounded-lg bg-gray-100" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, index) => (
+            <div key={index} className="h-28 animate-pulse rounded-lg bg-gray-100" />
+          ))}
+        </div>
+        <div className="grid gap-5 lg:grid-cols-[1.35fr_0.65fr]">
+          <div className="h-80 animate-pulse rounded-lg bg-gray-100" />
+          <div className="h-80 animate-pulse rounded-lg bg-gray-100" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Welcome Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <User className="h-6 w-6 text-blue-600" />
+    <div className="space-y-6">
+      <section className="rounded-lg border bg-white p-4 shadow-sm sm:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <Badge variant="outline" className="border-shop_light_green/40 text-shop_dark_green">
+                Customer account
+              </Badge>
+              {userProfile?.isBusiness && (
+                <Badge className="bg-shop_dark_green text-white">Business</Badge>
+              )}
+              {userProfile?.isActive && !userProfile?.isBusiness && (
+                <Badge className="bg-shop_light_green text-white">
+                  {userProfile.membershipType || "Active"}
+                </Badge>
+              )}
             </div>
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-bold text-gray-900">
-                  Welcome back,{" "}
-                  {user?.firstName ||
-                    user?.emailAddresses?.[0]?.emailAddress?.split("@")[0] ||
-                    "User"}
-                  !
-                </h1>
-                {userProfile?.isActive && (
-                  <PremiumBadge
-                    membershipType={userProfile.membershipType}
-                    size="md"
-                  />
-                )}
-                {userProfile?.isBusiness && (
-                  <div className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
-                    Business Account
-                  </div>
-                )}
-              </div>
-              <p className="text-gray-600 mt-1">
-                Here&apos;s what&apos;s happening with your account today
-              </p>
-            </div>
+            <h1 className="text-2xl font-semibold tracking-normal text-gray-950 sm:text-3xl">
+              Hi {displayName}, your store account is ready.
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600">
+              Track orders, manage saved items, update addresses, and review account
+              updates from one place.
+            </p>
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row lg:shrink-0">
+            <Button asChild className="bg-shop_dark_green hover:bg-black">
+              <Link href="/shop">
+                <ShoppingBag className="mr-2 h-4 w-4" />
+                Continue Shopping
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/user/orders">
+                <Package className="mr-2 h-4 w-4" />
+                View Orders
+              </Link>
+            </Button>
           </div>
         </div>
-        <Separator className="my-6" />
+      </section>
 
-        {/* Premium Banner for non-premium users (not in Sanity or isActive: false) */}
-        {(!userProfile ||
-          (!userProfile.isActive &&
-            userProfile.premiumStatus !== "pending" &&
-            userProfile.premiumStatus !== "rejected")) && (
-          <PremiumBanner
-            onRegister={handlePremiumRegister}
-            onDismiss={() => {}}
-          />
-        )}
-
-        {/* Premium Application Status */}
-        {userProfile && userProfile.premiumStatus === "pending" && (
-          <div className="mb-6 p-6 bg-gradient-to-r from-amber-50 to-yellow-50 border-l-4 border-amber-400 rounded-lg shadow-sm">
-            <div className="flex items-start gap-4">
-              <div className="shrink-0">
-                <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
-                  <Clock className="h-5 w-5 text-amber-600 animate-pulse" />
-                </div>
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="font-bold text-amber-900 text-lg">
-                    🎉 Premium Application Submitted!
-                  </h3>
-                  <div className="px-3 py-1 bg-amber-200 text-amber-800 text-xs font-medium rounded-full">
-                    PENDING REVIEW
-                  </div>
-                </div>
-                <p className="text-amber-800 text-sm mb-3">
-                  Great news! Your premium account application has been
-                  successfully submitted and is currently under administrative
-                  review.
-                </p>
-                <div className="bg-white/60 p-3 rounded-md border border-amber-200">
-                  <h4 className="font-semibold text-amber-900 text-sm mb-2">
-                    What happens next?
-                  </h4>
-                  <ul className="text-amber-700 text-xs space-y-1">
-                    <li>
-                      • Our admin team will review your application within 24-48
-                      hours
-                    </li>
-                    <li>
-                      • You&apos;ll receive an email notification once your
-                      status changes
-                    </li>
-                    <li>
-                      • Upon approval, you&apos;ll unlock premium features
-                      immediately
-                    </li>
-                  </ul>
-                </div>
-                {userProfile.premiumAppliedAt && (
-                  <p className="text-amber-600 text-xs mt-3">
-                    Applied on:{" "}
-                    {new Date(userProfile.premiumAppliedAt).toLocaleDateString(
-                      "en-US",
-                      {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      }
-                    )}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {userProfile && userProfile.premiumStatus === "rejected" && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <div className="flex items-center justify-between">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between gap-3">
               <div>
-                <h3 className="font-semibold text-red-900">
-                  Premium Application Rejected
-                </h3>
-                <p className="text-red-700 text-sm">
-                  Your premium account application was not approved. You can
-                  cancel to apply again.
+                <p className="text-sm text-gray-500">Active orders</p>
+                <p className="mt-1 text-2xl font-semibold text-gray-950">
+                  {stats.activeOrders}
                 </p>
-                {userProfile.rejectionReason && (
-                  <p className="text-red-600 text-xs mt-1">
-                    Reason: {userProfile.rejectionReason}
-                  </p>
-                )}
               </div>
-              <Button
-                onClick={() => handleCancelApplication("premium")}
-                disabled={isApplyingBusiness}
-                variant="outline"
-                size="sm"
-                className="text-blue-600 border-blue-200 hover:bg-blue-50"
-              >
-                Cancel & Reapply
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Premium Account Active Status */}
-        {userProfile &&
-          userProfile.isActive &&
-          userProfile.premiumStatus === "active" &&
-          !userProfile.isBusiness && (
-            <div className="mb-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-400 rounded-lg shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-bold text-green-900 text-lg">
-                      ✨ Premium Account Active!
-                    </h3>
-                    <div className="px-3 py-1 bg-green-200 text-green-800 text-xs font-medium rounded-full">
-                      APPROVED
-                    </div>
-                  </div>
-                  <p className="text-green-800 text-sm mb-3">
-                    Congratulations! Your premium account is now active and you
-                    have access to all premium features.
-                  </p>
-                  <div className="bg-white/60 p-3 rounded-md border border-green-200">
-                    <h4 className="font-semibold text-green-900 text-sm mb-2">
-                      Premium Benefits:
-                    </h4>
-                    <ul className="text-green-700 text-xs space-y-1">
-                      <li>• Exclusive access to premium features</li>
-                      <li>• Priority customer support</li>
-                      <li>• Enhanced rewards and loyalty points</li>
-                      <li>• Eligible for Business Account upgrade</li>
-                    </ul>
-                  </div>
-                  {userProfile.premiumApprovedAt &&
-                    userProfile.premiumApprovedBy && (
-                      <p className="text-green-600 text-xs mt-3">
-                        Approved by {userProfile.premiumApprovedBy} on{" "}
-                        {new Date(
-                          userProfile.premiumApprovedAt
-                        ).toLocaleDateString("en-US", {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </p>
-                    )}
-                </div>
+              <div className="rounded-md bg-blue-50 p-3 text-blue-700">
+                <Truck className="h-5 w-5" />
               </div>
             </div>
-          )}
-
-        {/* Business Account Application - Only for active premium users who are not business users */}
-        {userProfile &&
-          userProfile.isActive &&
-          !userProfile.isBusiness &&
-          userProfile.businessStatus !== "pending" &&
-          userProfile.businessStatus !== "rejected" && (
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-semibold text-blue-900 mb-2">
-                    Upgrade to Business Account
-                  </h3>
-                  <p className="text-blue-700 text-sm mb-3">
-                    Get 2% additional discount on all orders with our Business
-                    Account plan. Perfect for companies and bulk purchases.
-                  </p>
-                  <ul className="text-blue-600 text-sm space-y-1 mb-4">
-                    <li>• 2% additional discount on all orders</li>
-                    <li>• Priority customer support</li>
-                    <li>• Bulk order management</li>
-                    <li>• Business invoicing</li>
-                  </ul>
-                </div>
-                <Button
-                  onClick={handleBusinessAccountApply}
-                  disabled={isApplyingBusiness}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  {isApplyingBusiness ? (
-                    <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Applying...
-                    </div>
-                  ) : (
-                    "Apply for Business Account"
-                  )}
-                </Button>
-              </div>
-            </div>
-          )}
-
-        {/* Business Application Status */}
-        {userProfile && userProfile.businessStatus === "pending" && (
-          <div className="mb-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-400 rounded-lg shadow-sm">
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Clock className="h-5 w-5 text-blue-600 animate-pulse" />
-                </div>
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="font-bold text-blue-900 text-lg">
-                    🚀 Business Application Submitted!
-                  </h3>
-                  <div className="px-3 py-1 bg-blue-200 text-blue-800 text-xs font-medium rounded-full">
-                    PENDING REVIEW
-                  </div>
-                </div>
-                <p className="text-blue-800 text-sm mb-3">
-                  Excellent! Your business account application has been
-                  submitted successfully and is currently under administrative
-                  review.
-                </p>
-                <div className="bg-white/60 p-3 rounded-md border border-blue-200">
-                  <h4 className="font-semibold text-blue-900 text-sm mb-2">
-                    Business Account Benefits (Upon Approval):
-                  </h4>
-                  <ul className="text-blue-700 text-xs space-y-1">
-                    <li>• 2% additional discount on all orders</li>
-                    <li>• Priority customer support</li>
-                    <li>• Bulk order management</li>
-                    <li>• Business invoicing capabilities</li>
-                  </ul>
-                </div>
-                {userProfile.businessAppliedAt && (
-                  <p className="text-blue-600 text-xs mt-3">
-                    Applied on:{" "}
-                    {new Date(userProfile.businessAppliedAt).toLocaleDateString(
-                      "en-US",
-                      {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      }
-                    )}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Business Account Active Status */}
-        {userProfile &&
-          userProfile.isBusiness &&
-          userProfile.businessStatus === "active" && (
-            <div className="mb-6 p-6 bg-gradient-to-r from-emerald-50 to-green-50 border-l-4 border-emerald-400 rounded-lg shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                    <CheckCircle className="h-5 w-5 text-emerald-600" />
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-bold text-emerald-900 text-lg">
-                      💼 Business Account Active!
-                    </h3>
-                    <div className="px-3 py-1 bg-emerald-200 text-emerald-800 text-xs font-medium rounded-full">
-                      APPROVED
-                    </div>
-                  </div>
-                  <p className="text-emerald-800 text-sm mb-3">
-                    Fantastic! Your business account is now active and
-                    you&apos;re enjoying exclusive business benefits.
-                  </p>
-                  <div className="bg-white/60 p-3 rounded-md border border-emerald-200">
-                    <h4 className="font-semibold text-emerald-900 text-sm mb-2">
-                      Active Business Benefits:
-                    </h4>
-                    <ul className="text-emerald-700 text-xs space-y-1">
-                      <li>
-                        • 2% additional discount automatically applied at
-                        checkout
-                      </li>
-                      <li>• Priority customer support</li>
-                      <li>• Advanced bulk order management</li>
-                      <li>• Professional business invoicing</li>
-                    </ul>
-                  </div>
-                  {userProfile.businessApprovedAt &&
-                    userProfile.businessApprovedBy && (
-                      <p className="text-emerald-600 text-xs mt-3">
-                        Approved by {userProfile.businessApprovedBy} on{" "}
-                        {new Date(
-                          userProfile.businessApprovedAt
-                        ).toLocaleDateString("en-US", {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </p>
-                    )}
-                </div>
-              </div>
-            </div>
-          )}
-
-        {userProfile && userProfile.businessStatus === "rejected" && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <div className="flex items-center justify-between">
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between gap-3">
               <div>
-                <h3 className="font-semibold text-red-900">
-                  Business Application Rejected
-                </h3>
-                <p className="text-red-700 text-sm">
-                  Your business account application was not approved. You can
-                  cancel to apply again.
+                <p className="text-sm text-gray-500">Total orders</p>
+                <p className="mt-1 text-2xl font-semibold text-gray-950">
+                  {stats.ordersCount}
                 </p>
-                {userProfile.rejectionReason && (
-                  <p className="text-red-600 text-xs mt-1">
-                    Reason: {userProfile.rejectionReason}
-                  </p>
-                )}
               </div>
-              <Button
-                onClick={() => handleCancelApplication("business")}
-                disabled={isApplyingBusiness}
-                variant="outline"
-                size="sm"
-                className="text-blue-600 border-blue-200 hover:bg-blue-50"
-              >
-                Cancel & Reapply
-              </Button>
+              <div className="rounded-md bg-gray-100 p-3 text-gray-700">
+                <ReceiptText className="h-5 w-5" />
+              </div>
             </div>
-          </div>
-        )}
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-            <Package className="h-5 w-5" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold mb-1">{stats.ordersCount}</div>
-            <p className="text-xs text-blue-100">Orders placed</p>
           </CardContent>
         </Card>
-
-        <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0 shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <CardTitle className="text-sm font-medium">Notifications</CardTitle>
-            <Bell className="h-5 w-5" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold mb-1">
-              {stats.notificationsCount}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm text-gray-500">Saved items</p>
+                <p className="mt-1 text-2xl font-semibold text-gray-950">
+                  {stats.wishlistCount}
+                </p>
+              </div>
+              <div className="rounded-md bg-red-50 p-3 text-red-600">
+                <Heart className="h-5 w-5" />
+              </div>
             </div>
-            <p className="text-xs text-purple-100">
-              {stats.unreadNotifications} unread
-            </p>
           </CardContent>
         </Card>
-
-        <Card className="bg-gradient-to-br from-red-500 to-red-600 text-white border-0 shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <CardTitle className="text-sm font-medium">Wishlist</CardTitle>
-            <Heart className="h-5 w-5" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold mb-1">{stats.wishlistCount}</div>
-            <p className="text-xs text-red-100">Items saved</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-linear-to-br from-green-500 to-green-600 text-white border-0 shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <CardTitle className="text-sm font-medium">Reward Points</CardTitle>
-            <Star className="h-5 w-5" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold mb-1">{stats.rewardPoints}</div>
-            <p className="text-xs text-green-100">Available points</p>
-          </CardContent>
-        </Card>
-
-        {stats.walletBalance > 0 && (
-          <Card className="bg-linear-to-br from-emerald-500 to-teal-600 text-white border-0 shadow-lg hover:shadow-xl transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium">
-                Wallet Balance
-              </CardTitle>
-              <Wallet className="h-5 w-5" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold mb-1">
-                ${stats.walletBalance.toFixed(2)}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm text-gray-500">Unread updates</p>
+                <p className="mt-1 text-2xl font-semibold text-gray-950">
+                  {stats.unreadNotifications}
+                </p>
               </div>
-              <p className="text-xs text-emerald-100">From refunds</p>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-
-      {/* Content Section with Proper Spacing */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Recent Activity */}
-        <Card className="shadow-lg border-0">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Clock className="h-5 w-5 text-gray-600" />
-                <CardTitle className="text-lg">Recent Activity</CardTitle>
+              <div className="rounded-md bg-amber-50 p-3 text-amber-700">
+                <Bell className="h-5 w-5" />
               </div>
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/user/notifications">
-                  View All
-                  <ArrowRight className="ml-1 h-4 w-4" />
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="grid gap-5 lg:grid-cols-[1.35fr_0.65fr]">
+        <Card className="overflow-hidden">
+          <CardHeader className="border-b bg-gray-50/70 p-4 sm:p-5">
+            <div className="flex items-center justify-between gap-3">
+              <CardTitle className="text-lg">Latest Order</CardTitle>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/user/orders">
+                  All orders
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>
-            <CardDescription>Your latest account activity</CardDescription>
           </CardHeader>
-          <CardContent className="pt-0">
-            {recentActivity.length === 0 ? (
-              <div className="text-center py-8">
-                <Clock className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 text-sm">No recent activity</p>
+          <CardContent className="p-4 sm:p-5">
+            {stats.latestOrder ? (
+              <div className="space-y-5">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-sm text-gray-500">Order number</p>
+                    <h2 className="mt-1 text-xl font-semibold text-gray-950">
+                      #{stats.latestOrder.orderNumber}
+                    </h2>
+                    <p className="mt-2 text-sm text-gray-600">
+                      {stats.latestOrder.firstProductName || "Store order"}
+                      {stats.latestOrder.itemCount > 0
+                        ? ` • ${stats.latestOrder.itemCount} item${
+                            stats.latestOrder.itemCount === 1 ? "" : "s"
+                          }`
+                        : ""}
+                    </p>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className={getStatusStyles(stats.latestOrder.status)}
+                  >
+                    {labelFromStatus(stats.latestOrder.status)}
+                  </Badge>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-md border bg-white p-3">
+                    <p className="text-xs text-gray-500">Placed</p>
+                    <p className="mt-1 text-sm font-medium text-gray-950">
+                      {formatDate(stats.latestOrder.orderDate)}
+                    </p>
+                  </div>
+                  <div className="rounded-md border bg-white p-3">
+                    <p className="text-xs text-gray-500">Payment</p>
+                    <p className="mt-1 text-sm font-medium text-gray-950">
+                      {labelFromStatus(stats.latestOrder.paymentStatus || "pending")}
+                    </p>
+                  </div>
+                  <div className="rounded-md border bg-white p-3">
+                    <p className="text-xs text-gray-500">Total</p>
+                    <p className="mt-1 text-sm font-medium text-gray-950">
+                      {formatCurrency(stats.latestOrder.totalPrice)}
+                    </p>
+                  </div>
+                </div>
+
+                <Button asChild className="w-full bg-shop_dark_green hover:bg-black sm:w-auto">
+                  <Link href={`/user/orders/${stats.latestOrder.id}`}>
+                    Open order details
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
               </div>
             ) : (
+              <div className="rounded-lg border border-dashed p-6 text-center">
+                <Package className="mx-auto h-10 w-10 text-gray-300" />
+                <h3 className="mt-3 font-medium text-gray-950">No orders yet</h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Your first order will appear here after checkout.
+                </p>
+                <Button asChild className="mt-4 bg-shop_dark_green hover:bg-black">
+                  <Link href="/shop">Start shopping</Link>
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="p-4 sm:p-5">
+            <CardTitle className="text-lg">Account Summary</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 p-4 pt-0 sm:p-5 sm:pt-0">
+            <div className="rounded-md border p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm text-gray-500">Completed orders</p>
+                  <p className="mt-1 text-lg font-semibold text-gray-950">
+                    {stats.completedOrders}
+                  </p>
+                </div>
+                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+              </div>
+            </div>
+            <div className="rounded-md border p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm text-gray-500">Total spent</p>
+                  <p className="mt-1 text-lg font-semibold text-gray-950">
+                    {formatCurrency(stats.totalSpent)}
+                  </p>
+                </div>
+                <ReceiptText className="h-5 w-5 text-gray-700" />
+              </div>
+            </div>
+            {stats.walletBalance > 0 && (
+              <div className="rounded-md border p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm text-gray-500">Wallet balance</p>
+                    <p className="mt-1 text-lg font-semibold text-gray-950">
+                      {formatCurrency(stats.walletBalance)}
+                    </p>
+                  </div>
+                  <Wallet className="h-5 w-5 text-shop_light_green" />
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="grid gap-5 lg:grid-cols-2">
+        <Card>
+          <CardHeader className="p-4 sm:p-5">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">Recent Activity</CardTitle>
+              <Clock3 className="h-5 w-5 text-gray-400" />
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 pt-0 sm:p-5 sm:pt-0">
+            {recentActivity.length === 0 ? (
+              <p className="rounded-md border border-dashed p-5 text-center text-sm text-gray-500">
+                No recent activity yet.
+              </p>
+            ) : (
               <div className="space-y-4">
-                {recentActivity.slice(0, 5).map((activity, index) => (
+                {recentActivity.map((activity, index) => (
                   <div key={activity.id}>
-                    <div className="flex items-start space-x-3">
-                      <div className="flex-shrink-0 mt-0.5">
-                        {getActivityIcon(activity.type)}
+                    <div className="flex gap-3">
+                      <div className="mt-0.5 rounded-md bg-gray-100 p-2 text-gray-700">
+                        {activityIcon(activity.type)}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 leading-tight">
-                          {activity.title}
-                        </p>
-                        <p className="text-sm text-gray-500 mt-1">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                          <p className="text-sm font-medium text-gray-950">
+                            {activity.title}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {formatTimeAgo(activity.timestamp)}
+                          </p>
+                        </div>
+                        <p className="mt-1 text-sm leading-5 text-gray-600">
                           {activity.description}
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          {formatTimeAgo(activity.timestamp)}
                         </p>
                       </div>
                     </div>
-                    {index < recentActivity.slice(0, 5).length - 1 && (
-                      <Separator className="mt-4" />
-                    )}
+                    {index < recentActivity.length - 1 && <Separator className="mt-4" />}
                   </div>
                 ))}
               </div>
@@ -761,78 +476,49 @@ export default function UserDashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Quick Actions */}
-        <Card className="shadow-lg border-0 h-fit">
-          <CardHeader className="pb-4">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="h-5 w-5 text-gray-600" />
-              <CardTitle className="text-lg">Quick Actions</CardTitle>
-            </div>
-            <CardDescription>Frequently used features</CardDescription>
+        <Card>
+          <CardHeader className="p-4 sm:p-5">
+            <CardTitle className="text-lg">Manage Your Account</CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
-            <div className="grid grid-cols-1 gap-3">
-              <Link href="/user/orders">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start h-12 hover:bg-blue-50 hover:border-blue-200 transition-colors"
-                >
-                  <Package className="mr-3 h-4 w-4 text-blue-500" />
-                  <span className="font-medium">View Orders</span>
-                  <ArrowRight className="ml-auto h-4 w-4" />
-                </Button>
-              </Link>
-
-              <Link href="/user/notifications">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start h-12 hover:bg-purple-50 hover:border-purple-200 transition-colors"
-                >
-                  <Bell className="mr-3 h-4 w-4 text-purple-500" />
-                  <span className="font-medium">Notifications</span>
-                  {stats.unreadNotifications > 0 && (
-                    <Badge variant="destructive" className="ml-auto">
-                      {stats.unreadNotifications}
-                    </Badge>
-                  )}
-                  {stats.unreadNotifications === 0 && (
-                    <ArrowRight className="ml-auto h-4 w-4" />
-                  )}
-                </Button>
-              </Link>
-
-              <Link href="/wishlist">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start h-12 hover:bg-red-50 hover:border-red-200 transition-colors"
-                >
-                  <Heart className="mr-3 h-4 w-4 text-red-500" />
-                  <span className="font-medium">Wishlist</span>
-                  <ArrowRight className="ml-auto h-4 w-4" />
-                </Button>
-              </Link>
-
+          <CardContent className="grid gap-3 p-4 pt-0 sm:grid-cols-2 sm:p-5 sm:pt-0">
+            <Button asChild variant="outline" className="h-12 justify-start">
               <Link href="/user/profile">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start h-12 hover:bg-green-50 hover:border-green-200 transition-colors"
-                >
-                  <User className="mr-3 h-4 w-4 text-green-500" />
-                  <span className="font-medium">Profile Settings</span>
-                  <ArrowRight className="ml-auto h-4 w-4" />
-                </Button>
+                <User className="mr-3 h-4 w-4" />
+                Profile
               </Link>
-            </div>
+            </Button>
+            <Button asChild variant="outline" className="h-12 justify-start">
+              <Link href="/user/profile">
+                <MapPin className="mr-3 h-4 w-4" />
+                Addresses
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="h-12 justify-start">
+              <Link href="/wishlist">
+                <Heart className="mr-3 h-4 w-4" />
+                Wishlist
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="h-12 justify-start">
+              <Link href="/user/notifications">
+                <Bell className="mr-3 h-4 w-4" />
+                Notifications
+                {stats.unreadNotifications > 0 && (
+                  <Badge variant="destructive" className="ml-auto">
+                    {stats.unreadNotifications}
+                  </Badge>
+                )}
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="h-12 justify-start sm:col-span-2">
+              <Link href="/user/settings">
+                <Settings className="mr-3 h-4 w-4" />
+                Account settings
+              </Link>
+            </Button>
           </CardContent>
         </Card>
-      </div>
-
-      {/* Application Success Notification */}
-      <ApplicationSuccessNotification
-        isVisible={showNotification}
-        onClose={() => setShowNotification(false)}
-        type={notificationType}
-      />
+      </section>
     </div>
   );
 }

@@ -11,6 +11,12 @@ import crypto from "crypto";
 import { sendOrderStatusNotification } from "@/lib/notificationService";
 import { getCouponByCode } from "@/sanity/queries";
 
+import {
+  validateCartItems,
+  calculateCartSummary,
+  getBusinessDiscountRate,
+} from "@/lib/checkoutValidation";
+
 interface CartItem {
   product: {
     _id: string;
@@ -57,35 +63,61 @@ const {
   items,
   shippingAddress,
   paymentMethod,
-  totalAmount,
-  subtotal,
-  shipping,
-  tax,
   couponCode,
 } = reqBody;
 
-let actualCouponDiscount = 0;
 
-if (couponCode) {
-  const coupon = await getCouponByCode(couponCode);
-
-  if (
-    coupon &&
-    coupon.isActive &&
-    (!coupon.expiryDate ||
-      new Date(coupon.expiryDate) > new Date()) &&
-    (!coupon.minimumOrderValue ||
-      subtotal >= coupon.minimumOrderValue)
-  ) {
-    if (coupon.discountType === "percentage") {
-      actualCouponDiscount =
-        (subtotal * coupon.discountValue) / 100;
-    } else {
-      actualCouponDiscount =
-        coupon.discountValue;
+    // Validate required fields
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return NextResponse.json({ error: "No items provided" }, { status: 400 });
     }
-  }
-}
+
+    if (!shippingAddress) {
+      return NextResponse.json(
+        { error: "Shipping address is required" },
+        { status: 400 }
+      );
+    }
+
+    if (
+      !paymentMethod ||
+      !Object.values(PAYMENT_METHODS).includes(paymentMethod)
+    ) {
+      return NextResponse.json(
+        { error: "Invalid payment method" },
+        { status: 400 }
+      );
+    }
+
+    // Generate order number
+    const orderNumber = `ORDER-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)
+      .toUpperCase()}`;
+
+    const userEmail = user.emailAddresses[0]?.emailAddress;
+    const validatedItems = await validateCartItems(items);
+
+const cartSummary =
+  calculateCartSummary(validatedItems);
+
+const businessDiscountRate =
+  await getBusinessDiscountRate(userEmail);
+
+const businessDiscount =
+  cartSummary.currentSubtotal *
+  businessDiscountRate;
+
+const verifiedSubtotal =
+  cartSummary.currentSubtotal -
+  businessDiscount;
+
+const verifiedShipping =
+  verifiedSubtotal > 100 ? 0 : 10;
+
+const verifiedTax =
+  verifiedSubtotal *
+  (parseFloat(process.env.TAX_AMOUNT || "0") || 0);
 
 let verifiedCouponDiscount = 0;
 
@@ -126,44 +158,34 @@ if (couponCode) {
     );
   }
 
-  if (coupon.discountType === "percentage") {
-    verifiedCouponDiscount =
-      (subtotal * coupon.discountValue) / 100;
-  } else {
-    verifiedCouponDiscount =
-      coupon.discountValue;
+  if (
+    coupon.minimumOrderValue &&
+    verifiedSubtotal < coupon.minimumOrderValue
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "Minimum order value not met for this coupon",
+      },
+      { status: 400 }
+    );
   }
+
+  verifiedCouponDiscount =
+    coupon.discountType === "percentage"
+      ? (verifiedSubtotal *
+          coupon.discountValue) /
+        100
+      : coupon.discountValue;
 }
 
-    // Validate required fields
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      return NextResponse.json({ error: "No items provided" }, { status: 400 });
-    }
-
-    if (!shippingAddress) {
-      return NextResponse.json(
-        { error: "Shipping address is required" },
-        { status: 400 }
-      );
-    }
-
-    if (
-      !paymentMethod ||
-      !Object.values(PAYMENT_METHODS).includes(paymentMethod)
-    ) {
-      return NextResponse.json(
-        { error: "Invalid payment method" },
-        { status: 400 }
-      );
-    }
-
-    // Generate order number
-    const orderNumber = `ORDER-${Date.now()}-${Math.random()
-      .toString(36)
-      .substr(2, 9)
-      .toUpperCase()}`;
-
-    const userEmail = user.emailAddresses[0]?.emailAddress;
+const verifiedTotalAmount = Math.max(
+  0,
+  verifiedSubtotal +
+    verifiedShipping +
+    verifiedTax -
+    verifiedCouponDiscount
+);
     const userName =
       `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User";
     const userPhone =
@@ -177,7 +199,7 @@ if (couponCode) {
       email: userEmail,
       phone: userPhone,
       clerkUserId: userId,
-      products: items.map(
+     products: validatedItems.map(
         (item: { product: { _id: string }; quantity: number }) => ({
           _key: crypto.randomUUID(), // Generate unique key for each product item
           product: {
@@ -187,11 +209,7 @@ if (couponCode) {
           quantity: item.quantity,
         })
       ),
-      totalPrice:
-  subtotal +
-  shipping +
-  tax -
-  verifiedCouponDiscount,
+totalPrice: verifiedTotalAmount,
       currency: "INR",
      amountDiscount: verifiedCouponDiscount,
 couponCode: couponCode || "",
@@ -208,9 +226,9 @@ couponDiscount: verifiedCouponDiscount,
       orderDate: new Date().toISOString(),
       paymentMethod,
       paymentStatus: PAYMENT_STATUSES.PAID,
-      subtotal,
-      shipping,
-      tax,
+     subtotal: verifiedSubtotal,
+shipping: verifiedShipping,
+tax: verifiedTax,
       // Add payment-specific fields based on payment method
       ...(paymentMethod === PAYMENT_METHODS.RAZORPAY && {
         stripeCustomerId: "", // Will be populated when needed for invoicing
@@ -262,16 +280,16 @@ couponDiscount: verifiedCouponDiscount,
             eventParams: {
               orderId: createdOrder._id,
               orderNumber: createdOrder.orderNumber,
-              amount: totalAmount,
+              amount: verifiedTotalAmount,
               status: createdOrder.status,
               userId: userId,
               paymentMethod: paymentMethod,
-              itemCount: items.length,
-              subtotal: subtotal,
-              shipping: shipping,
-              tax: tax,
+              itemCount: validatedItems.length,
+             subtotal: verifiedSubtotal,
+shipping: verifiedShipping,
+tax: verifiedTax,
               customerEmail: userEmail,
-              products: items.map((item: CartItem) => ({
+              products: validatedItems.map((item: CartItem) => ({
                 productId: item.product._id,
                 name: item.product.name || "Unknown Product",
                 quantity: item.quantity,
@@ -294,7 +312,7 @@ couponDiscount: verifiedCouponDiscount,
             eventName: "purchase",
             eventParams: {
               orderId: createdOrder._id,
-              value: totalAmount,
+              value: verifiedTotalAmount,
               currency: "INR",
               items: items.map((item: CartItem) => ({
                 productId: item.product._id,
