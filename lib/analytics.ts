@@ -85,6 +85,25 @@ export function trackUserLogin(params: UserLoginParams) {
 
 export function trackProductView(params: ProductViewParams) {
   trackEvent("view_product", params);
+
+  if (typeof window !== "undefined") {
+    const viewed = JSON.parse(
+      localStorage.getItem("recentlyViewed") || "[]"
+    );
+
+    const updated = [
+      params,
+      ...viewed.filter(
+        (item: ProductViewParams) =>
+          item.productId !== params.productId
+      ),
+    ].slice(0, 8);
+
+    localStorage.setItem(
+      "recentlyViewed",
+      JSON.stringify(updated)
+    );
+  }
 }
 
 // Additional e-commerce tracking functions
