@@ -74,6 +74,33 @@ const ProductContent = ({
         productId: product._id,
         name: product.name || "Unknown",
       });
+
+      const slug = product.slug?.current;
+      if (!slug) return;
+
+      const viewedProduct = {
+        productId: product._id,
+        slug,
+        name: product.name || "Product",
+        imageUrl: product.images?.[0] ? urlFor(product.images[0]).url() : "",
+        price: product.price,
+        discount: product.discount || 0,
+      };
+
+      try {
+        const stored = JSON.parse(
+          localStorage.getItem("recentlyViewed") || "[]"
+        );
+        const existing = Array.isArray(stored) ? stored : [];
+        const next = [
+          viewedProduct,
+          ...existing.filter((item) => item.slug !== slug),
+        ].slice(0, 8);
+
+        localStorage.setItem("recentlyViewed", JSON.stringify(next));
+      } catch {
+        localStorage.setItem("recentlyViewed", JSON.stringify([viewedProduct]));
+      }
     }
   }, [product]);
 
@@ -381,7 +408,7 @@ const ProductContent = ({
         </ProductSectionWrapper>
 
         <ProductSectionWrapper delay={0.95}>
-  <RecentlyViewed />
+  <RecentlyViewed currentSlug={product.slug?.current} />
 </ProductSectionWrapper>
 
         {/* Related Products */}
