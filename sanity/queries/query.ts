@@ -127,6 +127,20 @@ const BRAND_QUERY = defineQuery(`*[_type == "product" && slug.current == $slug]{
 "brandName": brand->title
 }`);
 
+const COUPON_BY_CODE_QUERY = defineQuery(`
+*[_type == "coupon" && code == $code && isActive == true][0]{
+  _id,
+  code,
+  discountType,
+  discountValue,
+  minimumOrderValue,
+  expiryDate,
+  usageLimit,
+  timesUsed,
+  isActive
+}
+`);
+
 export {
   BANNER_QUERY,
   FEATURED_CATEGORY_QUERY,
@@ -145,4 +159,5 @@ export {
   PRODUCT_BY_SLUG_QUERY,
   RELATED_PRODUCTS_QUERY,
   BRAND_QUERY,
+  COUPON_BY_CODE_QUERY,
 };

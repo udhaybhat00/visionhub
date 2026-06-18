@@ -13,7 +13,6 @@ import { urlFor } from "@/sanity/lib/image";
 import { CartItemControls } from "./CartItemControls";
 import { AddressSelector } from "./AddressSelector";
 import { CheckoutButton } from "./CheckoutButton";
-import { OrderPlacementSkeleton } from "./OrderPlacementSkeleton";
 import { Trash2, AlertTriangle, X } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -25,6 +24,7 @@ import {
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 interface Address {
   _id: string;
@@ -72,6 +72,9 @@ export function ServerCartContent({
   } = useCartStore();
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [showClearModal, setShowClearModal] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState("");
 
   // Reset order placement state when cart page loads to clear any stale state
   useEffect(() => {
@@ -83,20 +86,72 @@ export function ServerCartContent({
   };
 
   const confirmResetCart = () => {
+ 
     resetCart();
     setShowClearModal(false);
     toast.success("Cart cleared successfully");
   };
 
-  // Set default address on mount
-  useEffect(() => {
-    const defaultAddress = userAddresses.find((addr) => addr.default);
-    if (defaultAddress) {
-      setSelectedAddress(defaultAddress);
-    } else if (userAddresses.length > 0) {
-      setSelectedAddress(userAddresses[0]);
+const applyCoupon = async () => {
+  if (!couponCode.trim()) {
+    toast.error("Enter coupon code");
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/coupon", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        code: couponCode,
+        subtotal: currentSubtotal,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      toast.error(data.message);
+      return;
     }
-  }, []);
+
+    const coupon = data.coupon;
+
+    let discount = 0;
+
+    if (coupon.discountType === "percentage") {
+      discount =
+        (currentSubtotal * coupon.discountValue) / 100;
+    } else {
+      discount = coupon.discountValue;
+    }
+
+    setCouponDiscount(discount);
+    setAppliedCoupon(coupon.code);
+
+    toast.success(
+      `${coupon.code} applied successfully`
+    );
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to apply coupon");
+  }
+};
+
+  // Set default address on mount
+ useEffect(() => {
+  const defaultAddress = userAddresses.find(
+    (addr) => addr.default
+  );
+
+  if (defaultAddress) {
+    setSelectedAddress(defaultAddress);
+  } else if (userAddresses.length > 0) {
+    setSelectedAddress(userAddresses[0]);
+  }
+}, [userAddresses]);
 
   // New pricing structure:
   // 1. Subtotal = gross amount (sum of original prices before discount)
@@ -111,7 +166,10 @@ export function ServerCartContent({
   const shipping = currentSubtotal > 100 ? 0 : 10;
   const tax =
     currentSubtotal * (parseFloat(process.env.TAX_AMOUNT || "0") || 0);
-  const finalTotal = currentSubtotal + shipping + tax;
+  const finalTotal = Math.max(
+  0,
+  currentSubtotal + shipping + tax - couponDiscount
+);
 
   // Don't show order placement skeleton in ServerCartContent
   // The overlay is handled by CheckoutButton component instead
@@ -291,49 +349,125 @@ export function ServerCartContent({
         {/* Order Summary */}
         <div className="border rounded-lg p-6">
           <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span>Subtotal ({cart.length} items)</span>
-              <PriceFormatter amount={grossSubtotal} />
-            </div>
-            {totalDiscount > 0 && (
-              <div className="flex justify-between text-green-600">
-                <span>Discount</span>
-                <span>
-                  -<PriceFormatter amount={totalDiscount} />
-                </span>
-              </div>
-            )}
-            <div className="flex justify-between">
-              <span>Shipping</span>
-              {shipping === 0 ? (
-                <span className="text-green-600 font-medium">Free</span>
-              ) : (
-                <PriceFormatter amount={shipping} />
-              )}
-            </div>
-            <div className="flex justify-between">
-              <span>Tax</span>
-              <PriceFormatter amount={tax} />
-            </div>
-            <Separator />
-            <div className="flex justify-between text-lg font-bold">
-              <span>Total</span>
-              <PriceFormatter amount={finalTotal} />
-            </div>
+          <div className="mb-5 space-y-2">
+  <label className="text-sm font-medium">
+    Coupon Code
+  </label>
 
-            {shipping === 0 && (
-              <p className="text-sm text-green-600">
-                🎉 You got free shipping!
-              </p>
-            )}
-            {currentSubtotal < 100 && (
-              <p className="text-sm text-muted-foreground">
-                Add <PriceFormatter amount={100 - currentSubtotal} /> more for
-                free shipping
-              </p>
-            )}
-          </div>
+  <div className="flex gap-2">
+   <Input
+  placeholder="Enter coupon code"
+  value={couponCode}
+  disabled={couponDiscount > 0}
+  onChange={(e) => setCouponCode(e.target.value)}
+  className={
+    couponDiscount > 0
+      ? "border-green-500 bg-green-50"
+      : ""
+  }
+/>
+
+  {couponDiscount > 0 ? (
+<Button
+  type="button"
+  size="sm"
+  variant="destructive"
+  className="px-3"
+ onClick={() => {
+  setCouponDiscount(0);
+  setCouponCode("");
+  setAppliedCoupon("");
+  toast.success("Coupon removed");
+}}
+>
+  Remove
+</Button>
+) : (
+  <Button
+    type="button"
+    variant="outline"
+    onClick={applyCoupon}
+  >
+    Apply
+  </Button>
+)}
+  </div>
+{couponDiscount > 0 && (
+  <div className="space-y-1">
+    <p className="text-xs text-green-600 font-medium">
+      ✓ You saved{" "}
+      <PriceFormatter amount={couponDiscount} /> with{" "}
+      {couponCode.toUpperCase()}
+    </p>
+
+    <p className="text-xs text-gray-500">
+      Maximum savings unlocked 🎉
+    </p>
+  </div>
+)}
+</div>
+      <div className="space-y-3">
+  <div className="flex justify-between">
+    <span>Subtotal ({cart.length} items)</span>
+    <PriceFormatter amount={grossSubtotal} />
+  </div>
+
+  {totalDiscount > 0 && (
+    <div className="flex justify-between text-green-600">
+      <span>Product Discount</span>
+      <span>
+        -<PriceFormatter amount={totalDiscount} />
+      </span>
+    </div>
+  )}
+
+{couponDiscount > 0 && (
+  <div className="flex justify-between text-green-600">
+  <span>
+  Coupon • {appliedCoupon}
+</span>
+    <span>
+      -<PriceFormatter amount={couponDiscount} />
+    </span>
+  </div>
+)}
+
+  <div className="flex justify-between">
+    <span>Shipping</span>
+
+    {shipping === 0 ? (
+      <span className="text-green-600 font-medium">
+        Free
+      </span>
+    ) : (
+      <PriceFormatter amount={shipping} />
+    )}
+  </div>
+
+  <div className="flex justify-between">
+    <span>Tax</span>
+    <PriceFormatter amount={tax} />
+  </div>
+
+  <Separator />
+
+  <div className="flex justify-between text-lg font-bold">
+    <span>Total</span>
+    <PriceFormatter amount={finalTotal} />
+  </div>
+
+  {shipping === 0 && (
+    <p className="text-sm text-green-600">
+      🎉 You got free shipping!
+    </p>
+  )}
+
+  {currentSubtotal < 100 && (
+    <p className="text-sm text-muted-foreground">
+      Add <PriceFormatter amount={100 - currentSubtotal} /> more for free shipping
+    </p>
+  )}
+</div>
 
           {/* Checkout */}
           <div className="mt-6">

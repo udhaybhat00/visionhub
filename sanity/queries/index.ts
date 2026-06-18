@@ -18,6 +18,7 @@ import {
   PRODUCT_BY_SLUG_QUERY,
   RELATED_PRODUCTS_QUERY,
   SINGLE_BLOG_QUERY,
+  COUPON_BY_CODE_QUERY,
 } from "./query";
 import { getOrderById } from "./userQueries";
 
@@ -370,6 +371,22 @@ const getRelatedProducts = unstable_cache(
   { revalidate: 900, tags: ["products"] }
 );
 
+const getCouponByCode = async (code: string) => {
+  try {
+    const { data } = await sanityFetch({
+      query: COUPON_BY_CODE_QUERY,
+      params: {
+        code: code.trim().toUpperCase(),
+      },
+    });
+
+    return data || null;
+  } catch (error) {
+    console.error("Error fetching coupon:", error);
+    return null;
+  }
+};
+
 export {
   getBanner,
   getFeaturedCategory,
@@ -389,4 +406,5 @@ export {
   getBrand,
   getRelatedProducts,
   getOrderById,
+  getCouponByCode,
 };

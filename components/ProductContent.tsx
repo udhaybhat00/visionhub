@@ -12,6 +12,9 @@ import ProductReviews from "@/components/ProductReviews";
 import { trackProductView } from "@/lib/analytics";
 import { ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+import { urlFor } from "@/sanity/lib/image";
+import RecentlyViewed from "@/components/RecentlyViewed";
 
 import { Product } from "@/sanity.types";
 import {
@@ -21,7 +24,7 @@ import {
   Shield,
   RefreshCw,
 } from "lucide-react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import useCartStore from "@/store";
 import { FaRegQuestionCircle } from "react-icons/fa";
@@ -54,6 +57,7 @@ const ProductContent = ({
 
   const router = useRouter();
   const { addItem } = useCartStore();
+  const [showStickyCart, setShowStickyCart] = useState(false);
 
   const handleBuyNow = () => {
     addItem(product);
@@ -72,6 +76,21 @@ const ProductContent = ({
       });
     }
   }, [product]);
+
+  useEffect(() => {
+  const handleScroll = () => {
+    if (window.scrollY > 1000) {
+      setShowStickyCart(true);
+    } else {
+      setShowStickyCart(false);
+    }
+  };
+
+  window.addEventListener("scroll", handleScroll);
+
+  return () =>
+    window.removeEventListener("scroll", handleScroll);
+}, []);
   
 
   const handleShare = async () => {
@@ -95,7 +114,7 @@ const ProductContent = ({
 
   return (
     <ProductAnimationWrapper>
-      <Container>
+      <Container className="pb-32 md:pb-0">
         {/* Breadcrumb Navigation */}
         <DynamicBreadcrumb
           productData={{
@@ -361,6 +380,10 @@ const ProductContent = ({
           />
         </ProductSectionWrapper>
 
+        <ProductSectionWrapper delay={0.95}>
+  <RecentlyViewed />
+</ProductSectionWrapper>
+
         {/* Related Products */}
         <ProductSectionWrapper delay={1.0}>
           <RelatedProducts
@@ -368,6 +391,58 @@ const ProductContent = ({
             relatedProducts={relatedProducts}
           />
         </ProductSectionWrapper>
+        {showStickyCart && (
+<div className="fixed bottom-[70px] left-0 right-0 md:hidden z-40 px-2">
+  <div className="bg-white/95 backdrop-blur-md border border-gray-200 shadow-2xl rounded-2xl px-3 py-2 flex items-center justify-between gap-3">
+
+    {/* Product Info */}
+    <div className="flex items-center gap-2 min-w-0">
+
+      <div className="w-12 h-12 rounded-lg overflow-hidden border bg-white flex-shrink-0">
+        {product?.images?.[0] && (
+          <Image
+            src={urlFor(product.images[0]).url()}
+            alt={product?.name || "Product"}
+            width={50}
+            height={50}
+            className="w-full h-full object-contain"
+          />
+        )}
+      </div>
+
+      <div className="min-w-0">
+        <p className="text-xs font-semibold text-gray-900 truncate max-w-[110px]">
+          {product?.name}
+        </p>
+
+      <div>
+  <p className="text-sm font-bold text-shop_dark_green">
+    ₹{product?.price?.toLocaleString()}
+  </p>
+
+  {product?.discount && (
+    <p className="text-[10px] font-semibold text-shop_light_green">
+      Save ₹
+      {Math.round(
+        (product.price || 0) * (product.discount / 100)
+      )}
+    </p>
+  )}
+</div>
+      </div>
+    </div>
+
+    {/* Add To Cart */}
+    <div className="w-[130px] flex-shrink-0">
+      <AddToCartButton
+        product={product}
+        className="h-10 rounded-xl text-sm font-semibold"
+      />
+    </div>
+
+  </div>
+</div>
+)}
       </Container>
     </ProductAnimationWrapper>
   );
