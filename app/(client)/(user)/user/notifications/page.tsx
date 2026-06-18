@@ -65,7 +65,9 @@ export default function UserNotificationsPage() {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/user/notifications");
+      const response = await fetch("/api/user/notifications", {
+        cache: "no-store",
+      });
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -152,40 +154,27 @@ export default function UserNotificationsPage() {
   const deleteNotification = async (notificationId: string) => {
     try {
       const response = await fetch(
-        `/api/user/notifications?id=${notificationId}`,
+        `/api/user/notifications?id=${encodeURIComponent(notificationId)}`,
         {
           method: "DELETE",
         }
       );
 
       if (response.ok) {
-        const updatedNotifs = allNotifications.filter(
-          (notification) => notification.id !== notificationId
-        );
-        setAllNotifications(updatedNotifs);
-        setTotalPages(Math.ceil(updatedNotifs.length / NOTIFICATIONS_PER_PAGE));
-
-        const notification = allNotifications.find(
-          (n) => n.id === notificationId
-        );
-        if (notification && !notification.read) {
-          setUnreadCount((prev) => Math.max(0, prev - 1));
-        }
-
-        // Close sidebar if deleted notification is selected
         if (selectedNotification?.id === notificationId) {
           setIsSidebarOpen(false);
           setSelectedNotification(null);
         }
 
-        // Remove from selected if it was selected
         setSelectedNotifications((prev) =>
           prev.filter((id) => id !== notificationId)
         );
 
+        await fetchNotifications();
         toast.success("Notification deleted");
       } else {
-        toast.error("Failed to delete notification");
+        const data = await response.json().catch(() => null);
+        toast.error(data?.error || "Failed to delete notification");
       }
     } catch (error) {
       console.error("Error deleting notification:", error);
@@ -202,26 +191,17 @@ export default function UserNotificationsPage() {
     setIsDeletingBulk(true);
     try {
       const deletePromises = selectedNotifications.map((id) =>
-        fetch(`/api/user/notifications?id=${id}`, { method: "DELETE" })
+        fetch(`/api/user/notifications?id=${encodeURIComponent(id)}`, {
+          method: "DELETE",
+        })
       );
 
       const results = await Promise.all(deletePromises);
       const successCount = results.filter((r) => r.ok).length;
 
       if (successCount > 0) {
-        const updatedNotifs = allNotifications.filter(
-          (notification) => !selectedNotifications.includes(notification.id)
-        );
-        setAllNotifications(updatedNotifs);
-        setTotalPages(Math.ceil(updatedNotifs.length / NOTIFICATIONS_PER_PAGE));
-
-        // Update unread count
-        const deletedUnreadCount = allNotifications.filter(
-          (n) => selectedNotifications.includes(n.id) && !n.read
-        ).length;
-        setUnreadCount((prev) => Math.max(0, prev - deletedUnreadCount));
-
         setSelectedNotifications([]);
+        await fetchNotifications();
         toast.success(`${successCount} notification(s) deleted`);
 
         // Adjust page if needed

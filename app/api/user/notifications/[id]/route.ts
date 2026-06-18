@@ -2,6 +2,8 @@ import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { deleteUserNotification } from "@/sanity/queries/userQueries";
 
+export const dynamic = "force-dynamic";
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -18,9 +20,10 @@ export async function DELETE(
     const result = await deleteUserNotification(userId, notificationId);
 
     if (!result.success) {
+      const status = result.error === "Notification not found" ? 404 : 500;
       return NextResponse.json(
         { error: result.error || "Failed to delete notification" },
-        { status: 500 }
+        { status }
       );
     }
 

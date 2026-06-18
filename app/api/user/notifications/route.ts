@@ -6,6 +6,8 @@ import {
   deleteUserNotification,
 } from "@/sanity/queries/userQueries";
 
+export const dynamic = "force-dynamic";
+
 interface UserNotification {
   sentAt: string;
   read: boolean;
@@ -27,12 +29,19 @@ export async function GET(request: NextRequest) {
         new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime()
     );
 
-    return NextResponse.json({
-      success: true,
-      notifications: sortedNotifications,
-      unreadCount: notifications.filter((n: UserNotification) => !n.read)
-        .length,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        notifications: sortedNotifications,
+        unreadCount: notifications.filter((n: UserNotification) => !n.read)
+          .length,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, max-age=0",
+        },
+      }
+    );
   } catch (error) {
     console.error("Error fetching user notifications:", error);
     return NextResponse.json(
@@ -62,7 +71,8 @@ export async function PATCH(request: NextRequest) {
     const result = await markNotificationAsRead(user.id, notificationId);
 
     if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 500 });
+      const status = result.error === "Notification not found" ? 404 : 500;
+      return NextResponse.json({ error: result.error }, { status });
     }
 
     return NextResponse.json({ success: true });
