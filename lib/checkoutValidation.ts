@@ -15,6 +15,7 @@ type RequestCartItem = {
 
 type SanityProduct = {
   _id: string;
+  _rev: string;
   name?: string;
   price?: number;
   discount?: number;
@@ -70,6 +71,7 @@ requestedQuantities.set(
   const products = await backendClient.fetch<SanityProduct[]>(
     `*[_type == "product" && _id in $ids]{
       _id,
+      _rev,
       name,
       price,
       discount,

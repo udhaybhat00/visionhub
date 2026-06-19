@@ -248,7 +248,8 @@ async function updateOrderWithPaymentCompletion(
     `*[_type == "order" && _id == $orderId][0]{
       status,
       paymentMethod,
-      paymentStatus
+      paymentStatus,
+      stockReducedAt
     }`,
     { orderId }
   );
@@ -304,8 +305,12 @@ async function updateOrderWithPaymentCompletion(
 
     if (order) {
       // Update stock levels for purchased products
-      if (order.products) {
+      if (order.products && !existingOrder?.stockReducedAt) {
         await updateStockLevels(order.products);
+        await backendClient
+          .patch(orderId)
+          .set({ stockReducedAt: new Date().toISOString() })
+          .commit();
       }
 
       // Send payment confirmation notification
@@ -356,15 +361,20 @@ async function updateStockLevels(
         continue;
       }
 
-      const newStock = Math.max(product.stock - quantity, 0); // Ensure stock does not go negative
+      if (quantity > product.stock) {
+        throw new Error(
+          `Insufficient stock for product ${productId}: ${product.stock} available, ${quantity} requested`
+        );
+      }
 
       // Update stock in Sanity
-      await backendClient.patch(productId).set({ stock: newStock }).commit();
+      await backendClient.patch(productId).dec({ stock: quantity }).commit();
     } catch (error) {
       console.error(
         `Failed to update stock for product ${orderProduct.product._ref}:`,
         error
       );
+      throw error;
     }
   }
 }

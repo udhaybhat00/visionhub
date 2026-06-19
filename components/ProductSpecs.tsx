@@ -1,117 +1,200 @@
 "use client";
 
-import { Product } from "@/sanity.types";
+import { BRAND_QUERYResult, Product } from "@/sanity.types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Package, Truck, Shield, Award } from "lucide-react";
+import type { ReactNode } from "react";
+import {
+  Award,
+  Check,
+  Clock3,
+  Package,
+  Shield,
+  ShieldCheck,
+  Sparkles,
+  Truck,
+} from "lucide-react";
 
 interface ProductSpecsProps {
   product: Product;
+  brand?: BRAND_QUERYResult | null;
 }
 
-const ProductSpecs = ({ product }: ProductSpecsProps) => {
+const ProductSpecs = ({ product, brand }: ProductSpecsProps) => {
+  const stockCount = product?.stock ?? 0;
+  const isOutOfStock = stockCount === 0;
+  const brandName = brand?.[0]?.brandName || "VisionHub Select";
+  const warranty = product?.warranty || "1 Year Warranty";
+  const sku = product?.slug?.current
+    ? `YE-${product.slug.current.slice(-8).toUpperCase()}`
+    : "YE-READY";
+
+  const Row = ({
+    label,
+    value,
+    accent,
+  }: {
+    label: string;
+    value: ReactNode;
+    accent?: boolean;
+  }) => (
+    <div className="flex items-center justify-between gap-3 rounded-lg bg-gray-50/80 px-3 py-2">
+      <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
+        {label}
+      </span>
+      <span
+        className={`text-sm font-semibold text-right ${
+          accent ? "text-shop_dark_green" : "text-gray-900"
+        }`}
+      >
+        {value}
+      </span>
+    </div>
+  );
+
+  const CheckItem = ({ children }: { children: ReactNode }) => (
+    <div className="flex items-center gap-2.5 text-sm text-gray-700">
+      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+        <Check className="size-3.5" strokeWidth={3} />
+      </span>
+      <span className="font-medium">{children}</span>
+    </div>
+  );
+
+  const cardClass =
+    "group overflow-hidden border border-gray-200/80 bg-white shadow-[0_12px_35px_rgba(15,15,15,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-shop_orange/40 hover:shadow-[0_18px_45px_rgba(15,15,15,0.09)]";
+  const iconClass =
+    "flex size-9 items-center justify-center rounded-lg bg-shop_orange/10 text-shop_orange ring-1 ring-shop_orange/15";
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+    <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
       {/* Product Features */}
-      <Card className="border-2 border-gray-100 hover:border-shop_light_green/30 transition-colors">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <Package className="h-5 w-5 text-shop_orange" />
-            <CardTitle className="text-sm font-semibold">
-              Product Info
-            </CardTitle>
+      <Card className={cardClass}>
+        <CardHeader className="p-4 pb-3">
+          <div className="flex items-center gap-3">
+            <span className={iconClass}>
+              <Package className="size-4" />
+            </span>
+            <div>
+              <CardTitle className="text-base font-bold text-shop_dark_green">
+                Product Info
+              </CardTitle>
+              <p className="text-xs text-gray-500">Essentials at a glance</p>
+            </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Stock:</span>
-            <Badge
-              variant={product?.stock === 0 ? "destructive" : "default"}
-              className={
-                product?.stock === 0
-                  ? ""
-                  : "bg-green-100 text-green-700 hover:bg-green-200"
-              }
-            >
-              {product?.stock === 0
-                ? "Out of Stock"
-                : `${product?.stock} Available`}
-            </Badge>
-          </div>
-          {product?.brand && (
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Brand:</span>
-              <span className="font-medium">Brand</span>
-            </div>
-          )}
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">SKU:</span>
-            <span className="font-medium text-xs text-gray-500">
-              #{product?.slug?.current?.slice(-8).toUpperCase()}
-            </span>
-          </div>
+        <CardContent className="space-y-2 p-4 pt-0">
+          <Row
+            label="Stock"
+            accent
+            value={
+              <Badge
+                variant={isOutOfStock ? "destructive" : "default"}
+                className={
+                  isOutOfStock
+                    ? "rounded-md"
+                    : "rounded-md bg-emerald-50 text-emerald-700 shadow-none hover:bg-emerald-50"
+                }
+              >
+                {isOutOfStock ? "Out of Stock" : `${stockCount} Available`}
+              </Badge>
+            }
+          />
+          <Row label="Brand" value={brandName} />
+          <Row
+            label="SKU"
+            value={
+              <span className="font-mono text-xs text-gray-600">{sku}</span>
+            }
+          />
         </CardContent>
       </Card>
 
       {/* Shipping Info */}
-      <Card className="border-2 border-gray-100 hover:border-shop_light_green/30 transition-colors">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <Truck className="h-5 w-5 text-shop_orange" />
-            <CardTitle className="text-sm font-semibold">Shipping</CardTitle>
+      <Card className={cardClass}>
+        <CardHeader className="p-4 pb-3">
+          <div className="flex items-center gap-3">
+            <span className={iconClass}>
+              <Truck className="size-4" />
+            </span>
+            <div>
+              <CardTitle className="text-base font-bold text-shop_dark_green">
+                Shipping
+              </CardTitle>
+              <p className="text-xs text-gray-500">Fast delivery options</p>
+            </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-green-600 font-medium">✓ Free Shipping</span>
+        <CardContent className="space-y-3 p-4 pt-0">
+          <CheckItem>Free Shipping</CheckItem>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-lg bg-gray-50 px-3 py-2">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                <Clock3 className="size-3.5" />
+                Standard
+              </div>
+              <p className="mt-1 text-sm font-semibold text-gray-900">
+                2-5 days
+              </p>
+            </div>
+            <div className="rounded-lg bg-gray-50 px-3 py-2">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                <Sparkles className="size-3.5" />
+                Express
+              </div>
+              <p className="mt-1 text-sm font-semibold text-gray-900">
+                1-2 days
+              </p>
+            </div>
           </div>
-          <div className="text-gray-600">Estimated: 2-5 business days</div>
-          <div className="text-gray-600">Express: 1-2 business days</div>
         </CardContent>
       </Card>
 
       {/* Warranty */}
-      <Card className="border-2 border-gray-100 hover:border-shop_light_green/30 transition-colors">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-shop_orange" />
-            <CardTitle className="text-sm font-semibold">Warranty</CardTitle>
+      <Card className={cardClass}>
+        <CardHeader className="p-4 pb-3">
+          <div className="flex items-center gap-3">
+            <span className={iconClass}>
+              <Shield className="size-4" />
+            </span>
+            <div>
+              <CardTitle className="text-base font-bold text-shop_dark_green">
+                Warranty
+              </CardTitle>
+              <p className="text-xs text-gray-500">Protected purchase</p>
+            </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <div className="text-gray-600">
-            <span className="font-medium text-shop_dark_green">1 Year</span>{" "}
-            Manufacturer Warranty
-          </div>
-          <div className="text-gray-600">
-            <span className="font-medium text-shop_dark_green">Secure Shopping</span>{" "}
-            Safe & Secure Payments
-          </div>
-          <div className="text-gray-600">Dedicated Assistance Available</div>
+        <CardContent className="space-y-3 p-4 pt-0">
+          <CheckItem>{warranty}</CheckItem>
+          <CheckItem>Secure payments</CheckItem>
+          <CheckItem>Dedicated assistance</CheckItem>
         </CardContent>
       </Card>
 
       {/* Quality Assurance */}
-      <Card className="border-2 border-gray-100 hover:border-shop_light_green/30 transition-colors">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <Award className="h-5 w-5 text-shop_orange" />
-            <CardTitle className="text-sm font-semibold">Quality</CardTitle>
+      <Card className={cardClass}>
+        <CardHeader className="p-4 pb-3">
+          <div className="flex items-center gap-3">
+            <span className={iconClass}>
+              <Award className="size-4" />
+            </span>
+            <div>
+              <CardTitle className="text-base font-bold text-shop_dark_green">
+                Quality
+              </CardTitle>
+              <p className="text-xs text-gray-500">Checked before dispatch</p>
+            </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-green-600 font-medium">✓ Quality Tested</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-green-600 font-medium">
-              ✓ Authentic Product
+        <CardContent className="space-y-3 p-4 pt-0">
+          <CheckItem>Quality tested</CheckItem>
+          <CheckItem>Authentic product</CheckItem>
+          <div className="flex items-center gap-2.5 text-sm text-gray-700">
+            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-shop_orange/10 text-shop_orange">
+              <ShieldCheck className="size-3.5" strokeWidth={2.6} />
             </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-green-600 font-medium">
-              ✓ Secure Packaging
-            </span>
+            <span className="font-medium">Secure packaging</span>
           </div>
         </CardContent>
       </Card>

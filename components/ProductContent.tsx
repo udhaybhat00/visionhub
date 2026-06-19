@@ -396,7 +396,7 @@ const ProductContent = ({
 
         {/* Product Specifications */}
         <ProductSectionWrapper delay={0.8}>
-          <ProductSpecs product={product} />
+          <ProductSpecs product={product} brand={brand} />
         </ProductSectionWrapper>
 
         {/* Customer Reviews */}
@@ -419,57 +419,53 @@ const ProductContent = ({
           />
         </ProductSectionWrapper>
         {showStickyCart && (
-<div className="fixed bottom-[70px] left-0 right-0 md:hidden z-40 px-2">
-  <div className="bg-white/95 backdrop-blur-md border border-gray-200 shadow-2xl rounded-2xl px-3 py-2 flex items-center justify-between gap-3">
+          <div className="fixed inset-x-0 bottom-[72px] z-40 px-3 md:hidden">
+            <div className="mx-auto flex max-w-md items-center gap-3 rounded-lg border border-gray-200/80 bg-white/95 px-3 py-2 shadow-[0_16px_45px_rgba(15,15,15,0.18)] backdrop-blur-xl">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <div className="flex size-[52px] shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
+                  {product?.images?.[0] ? (
+                    <Image
+                      src={urlFor(product.images[0]).url()}
+                      alt={product?.name || "Product"}
+                      width={52}
+                      height={52}
+                      className="size-full object-contain p-1"
+                    />
+                  ) : (
+                    <ShieldCheck className="size-5 text-shop_orange" />
+                  )}
+                </div>
 
-    {/* Product Info */}
-    <div className="flex items-center gap-2 min-w-0">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-bold leading-5 text-gray-950">
+                    {product?.name}
+                  </p>
+                  <div className="mt-0.5 flex items-baseline gap-2">
+                    <p className="text-base font-extrabold leading-none text-shop_dark_green">
+                      ₹{product?.price?.toLocaleString()}
+                    </p>
 
-      <div className="w-12 h-12 rounded-lg overflow-hidden border bg-white flex-shrink-0">
-        {product?.images?.[0] && (
-          <Image
-            src={urlFor(product.images[0]).url()}
-            alt={product?.name || "Product"}
-            width={50}
-            height={50}
-            className="w-full h-full object-contain"
-          />
+                    {product?.discount ? (
+                      <p className="whitespace-nowrap text-[11px] font-bold leading-none text-shop_orange">
+                        Save ₹
+                        {Math.round(
+                          (product.price || 0) * (product.discount / 100)
+                        )}
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+
+              <div className="w-[124px] shrink-0">
+                <AddToCartButton
+                  product={product}
+                  className="!h-11 rounded-lg text-sm font-bold tracking-normal shadow-md shadow-black/10"
+                />
+              </div>
+            </div>
+          </div>
         )}
-      </div>
-
-      <div className="min-w-0">
-        <p className="text-xs font-semibold text-gray-900 truncate max-w-[110px]">
-          {product?.name}
-        </p>
-
-      <div>
-  <p className="text-sm font-bold text-shop_dark_green">
-    ₹{product?.price?.toLocaleString()}
-  </p>
-
-  {product?.discount && (
-    <p className="text-[10px] font-semibold text-shop_light_green">
-      Save ₹
-      {Math.round(
-        (product.price || 0) * (product.discount / 100)
-      )}
-    </p>
-  )}
-</div>
-      </div>
-    </div>
-
-    {/* Add To Cart */}
-    <div className="w-[130px] flex-shrink-0">
-      <AddToCartButton
-        product={product}
-        className="h-10 rounded-xl text-sm font-semibold"
-      />
-    </div>
-
-  </div>
-</div>
-)}
       </Container>
     </ProductAnimationWrapper>
   );

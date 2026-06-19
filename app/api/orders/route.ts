@@ -12,9 +12,11 @@ import { sendOrderStatusNotification } from "@/lib/notificationService";
 import { getCouponByCode } from "@/sanity/queries";
 
 import {
+  CheckoutValidationError,
   validateCartItems,
   calculateCartSummary,
   getBusinessDiscountRate,
+  type ValidatedCartItem,
 } from "@/lib/checkoutValidation";
 
 interface CartItem {
@@ -25,6 +27,17 @@ interface CartItem {
     category?: string;
   };
   quantity: number;
+}
+
+function getStockDecrements(items: ValidatedCartItem[]) {
+  return items.map((item) => ({
+    productId: item.product._id,
+    revisionId: item.product._rev,
+    name: item.product.name || "An item",
+    quantity: item.quantity,
+    availableStock:
+      typeof item.product.stock === "number" ? item.product.stock : 0,
+  }));
 }
 
 export async function GET() {
@@ -120,6 +133,7 @@ const verifiedTax =
   (parseFloat(process.env.TAX_AMOUNT || "0") || 0);
 
 let verifiedCouponDiscount = 0;
+let verifiedCouponId = "";
 
 if (couponCode) {
   const coupon = await getCouponByCode(couponCode);
@@ -171,6 +185,7 @@ if (couponCode) {
     );
   }
 
+  verifiedCouponId = coupon._id;
   verifiedCouponDiscount =
     coupon.discountType === "percentage"
       ? (verifiedSubtotal *
@@ -244,27 +259,58 @@ tax: verifiedTax,
       }),
     };
 
-    // Create order in Sanity using writeClient (has create permissions)
-    const createdOrder = await writeClient.create(orderData);
-    
+    const stockDecrements = getStockDecrements(validatedItems);
+    const unavailableItem = stockDecrements.find(
+      (item) => item.quantity > item.availableStock
+    );
 
-    if (couponCode) {
-  const coupon = await writeClient.fetch(
-    `*[_type=="coupon" && code==$code][0]`,
-    {
-      code: couponCode,
+    if (unavailableItem) {
+      return NextResponse.json(
+        {
+          error: `${unavailableItem.name} only has ${unavailableItem.availableStock} in stock`,
+        },
+        { status: 409 }
+      );
     }
-  );
 
-  if (coupon) {
-    await writeClient
-      .patch(coupon._id)
-      .inc({
-        timesUsed: 1,
-      })
-      .commit();
-  }
-}
+    const orderId = crypto.randomUUID();
+    const stockReducedAt = new Date().toISOString();
+    let stockTransaction = writeClient
+      .transaction()
+      .create({
+        ...orderData,
+        _id: orderId,
+        stockReducedAt,
+      });
+
+    for (const item of stockDecrements) {
+      stockTransaction = stockTransaction.patch(item.productId, (patch) =>
+        patch.ifRevisionId(item.revisionId).dec({ stock: item.quantity })
+      );
+    }
+
+    if (verifiedCouponId) {
+      stockTransaction = stockTransaction.patch(verifiedCouponId, (patch) =>
+        patch.inc({ timesUsed: 1 })
+      );
+    }
+
+    await stockTransaction.commit();
+    const createdOrder = await writeClient.fetch(
+      `*[_type == "order" && _id == $orderId][0]{
+        _id,
+        orderNumber,
+        status,
+        paymentMethod,
+        totalPrice,
+        currency
+      }`,
+      { orderId }
+    );
+
+    if (!createdOrder) {
+      throw new Error("Order was not created");
+    }
 
     // Track order placed event
     try {
@@ -361,6 +407,25 @@ tax: verifiedTax,
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
+
+    if (error instanceof CheckoutValidationError) {
+      return NextResponse.json({ error: errorMessage }, { status: 409 });
+    }
+
+    if (
+      errorMessage.toLowerCase().includes("revision") ||
+      errorMessage.toLowerCase().includes("mutation") ||
+      errorMessage.toLowerCase().includes("transaction")
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Product stock changed while placing your order. Please review your cart and try again.",
+        },
+        { status: 409 }
+      );
+    }
+
     console.error("Order creation error:", error);
     console.error("Error details:", {
       message: errorMessage,
