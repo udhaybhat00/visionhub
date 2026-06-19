@@ -194,6 +194,14 @@ initialValue: "pending",
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: "stockReducedAt",
+      title: "Stock Reduced At",
+      type: "datetime",
+      readOnly: true,
+      description:
+        "Set when product stock has been decremented for this order.",
+    }),
+    defineField({
       name: "paymentStatus",
       title: "Payment Status",
       type: "string",
