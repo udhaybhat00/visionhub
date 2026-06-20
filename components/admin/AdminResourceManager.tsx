@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   Archive,
   Check,
+  Boxes,
   ChevronLeft,
   ChevronRight,
   Download,
@@ -125,6 +126,56 @@ function getImageUrl(value: any) {
   if (value.url) return value.url;
   if (value.asset?.url) return value.asset.url;
   return "";
+}
+
+function getDocumentTitle(document: SanityDoc) {
+  return formatLabel(
+    document.name ||
+      document.title ||
+      document.code ||
+      document.email ||
+      document.orderNumber ||
+      document._id
+  );
+}
+
+function getPrimaryImageValue(config: AdminResourceConfig, document: SanityDoc) {
+  const imageColumn = config.columns.find((column) => column.type === "image");
+  if (!imageColumn) return null;
+  return getColumnValue(document, imageColumn.key, imageColumn.path);
+}
+
+function ContainedImage({
+  src,
+  alt,
+  className,
+  imageClassName,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  imageClassName?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-md border border-slate-200 bg-white p-1",
+        className
+      )}
+    >
+      {src ? (
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          sizes="(max-width: 768px) 72px, 56px"
+          className={cn("object-contain", imageClassName)}
+        />
+      ) : (
+        <ImageIcon className="h-4 w-4 text-slate-400" />
+      )}
+    </div>
+  );
 }
 
 function formatCurrency(amount: number | null | undefined) {
@@ -336,11 +387,13 @@ function ResourceStatCards({
     }
 
     if (config.key === "products") {
-      const lowStock = documents.filter((doc) => Number(doc.stock || 0) <= 5).length;
+      const lowStock = documents.filter(
+        (doc) => Number(doc.stock || 0) > 0 && Number(doc.stock || 0) <= 5
+      ).length;
       return [
         { label: "Products", value: total },
         { label: "Low Stock Here", value: lowStock },
-        { label: "Archived Here", value: documents.filter((doc) => doc.status === "archived").length },
+        { label: "Out of Stock Here", value: documents.filter((doc) => Number(doc.stock || 0) <= 0).length },
       ];
     }
 
@@ -352,14 +405,14 @@ function ResourceStatCards({
   }, [config, documents, total]);
 
   return (
-    <div className="grid gap-3 sm:grid-cols-3">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
       {statItems.map((stat) => (
-        <Card key={stat.label} className="border-slate-200 shadow-sm">
+        <Card key={stat.label} className="rounded-lg border-slate-200 bg-white shadow-sm">
           <CardContent className="p-4">
             <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
               {stat.label}
             </p>
-            <p className="mt-2 text-2xl font-semibold text-slate-950">
+            <p className="mt-2 truncate text-2xl font-semibold tracking-tight text-slate-950">
               {stat.value}
             </p>
           </CardContent>
@@ -402,9 +455,27 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
   const [deleteTargetIds, setDeleteTargetIds] = useState<string[]>([]);
   const [uploadingField, setUploadingField] = useState<string | null>(null);
   const [page, setPage] = useState(0);
+  const [bulkStatus, setBulkStatus] = useState("");
+  const [bulkCategory, setBulkCategory] = useState("");
+  const [bulkStock, setBulkStock] = useState("");
+  const [slugCheck, setSlugCheck] = useState<{
+    sourceField: string;
+    value: string;
+  } | null>(null);
+  const [slugStatus, setSlugStatus] = useState<
+    "idle" | "checking" | "ready" | "error"
+  >("idle");
 
   const Icon = config.icon;
   const limit = 25;
+  const isProductResource = config.key === "products";
+  const categoryOptions = references.category || [];
+  const statusField = config.fields.find((field) => field.name === "status");
+  const hasSlugField = config.fields.some((field) => field.name === "slug");
+  const slugSourceField =
+    config.fields.find((field) =>
+      ["name", "title", "code", "email", "subject"].includes(field.name)
+    )?.name || "";
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedSearchTerm(searchTerm), 300);
@@ -475,12 +546,16 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
   const openCreate = () => {
     setEditingDoc(null);
     setForm(createInitialForm(config, null));
+    setSlugCheck(null);
+    setSlugStatus("idle");
     setIsEditorOpen(true);
   };
 
   const openEdit = (document: SanityDoc) => {
     setEditingDoc(document);
     setForm(createInitialForm(config, document));
+    setSlugCheck(null);
+    setSlugStatus("idle");
     setIsEditorOpen(true);
   };
 
@@ -489,7 +564,74 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
       ...current,
       [field.name]: value,
     }));
+
+    if (!hasSlugField) return;
+
+    if (field.name === "slug" || field.name === slugSourceField) {
+      setSlugCheck({
+        sourceField: field.name,
+        value: String(value || ""),
+      });
+    }
   };
+
+  useEffect(() => {
+    if (!isEditorOpen || !hasSlugField || !slugCheck) return;
+
+    const source = slugCheck.value.trim();
+    if (!source) {
+      setSlugStatus("idle");
+      if (slugCheck.sourceField !== "slug") {
+        setForm((current) =>
+          current.slug ? { ...current, slug: "" } : current
+        );
+      }
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setSlugStatus("checking");
+
+      try {
+        const params = new URLSearchParams({ slugSource: source });
+        if (editingDoc?._id) params.set("excludeId", editingDoc._id);
+
+        const response = await fetch(
+          `/api/admin/resources/${config.key}?${params.toString()}`,
+          {
+            cache: "no-store",
+            signal: controller.signal,
+          }
+        );
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result?.error || "Failed to create slug");
+        }
+
+        const nextSlug = result.current || result.slug?.current || "";
+        setForm((current) =>
+          current.slug === nextSlug ? current : { ...current, slug: nextSlug }
+        );
+        setSlugStatus("ready");
+      } catch (slugError) {
+        if (controller.signal.aborted) return;
+        setSlugStatus("error");
+      }
+    }, 300);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [
+    config.key,
+    editingDoc?._id,
+    hasSlugField,
+    isEditorOpen,
+    slugCheck,
+  ]);
 
   const saveDocument = async () => {
     setSaving(true);
@@ -541,6 +683,16 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
       }
 
       toast.success(label);
+      setDocuments((current) =>
+        current.map((document) =>
+          ids.includes(document._id)
+            ? {
+                ...document,
+                ...patch,
+              }
+            : document
+        )
+      );
       setSelectedIds([]);
       await fetchDocuments(page);
     } catch (actionError) {
@@ -618,6 +770,46 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
     }
   };
 
+  const runBulkStatusUpdate = async () => {
+    if (!bulkStatus || selectedIds.length === 0) return;
+    await runPatch(selectedIds, { status: bulkStatus }, "Product statuses updated");
+    setBulkStatus("");
+  };
+
+  const runBulkCategoryUpdate = async () => {
+    if (!bulkCategory || selectedIds.length === 0) return;
+    await runPatch(
+      selectedIds,
+      {
+        categories: [
+          {
+            _type: "reference",
+            _ref: bulkCategory,
+            _key:
+              typeof crypto !== "undefined" && "randomUUID" in crypto
+                ? crypto.randomUUID()
+                : `${bulkCategory}-${Date.now()}`,
+          },
+        ],
+      },
+      "Product categories updated"
+    );
+    setBulkCategory("");
+  };
+
+  const runBulkStockUpdate = async () => {
+    if (bulkStock === "" || selectedIds.length === 0) return;
+    const stock = Number(bulkStock);
+
+    if (Number.isNaN(stock) || stock < 0) {
+      toast.error("Enter a valid stock quantity");
+      return;
+    }
+
+    await runPatch(selectedIds, { stock }, "Product stock updated");
+    setBulkStock("");
+  };
+
   const uploadImages = async (field: AdminField, files: FileList | null) => {
     if (!files || files.length === 0) return;
 
@@ -677,20 +869,154 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
     URL.revokeObjectURL(url);
   };
 
+  const getFilterOptions = (
+    filter: NonNullable<AdminResourceConfig["filters"]>[number]
+  ) => {
+    if (filter.referenceTo) {
+      return (references[filter.referenceTo] || []).map((option) => ({
+        label: option.label,
+        value: option._id,
+      }));
+    }
+
+    return filter.options || [];
+  };
+
+  const renderProductPreview = (document: SanityDoc) => {
+    const images = Array.isArray(document.images) ? document.images : [];
+    const categories = Array.isArray(document.categories) ? document.categories : [];
+    const stock = Number(document.stock || 0);
+    const stockTone =
+      stock <= 0
+        ? "border-red-200 bg-red-50 text-red-700"
+        : stock <= 5
+          ? "border-amber-200 bg-amber-50 text-amber-700"
+          : "border-emerald-200 bg-emerald-50 text-emerald-700";
+
+    return (
+      <div className="space-y-5">
+        <div className="rounded-lg border border-slate-200 bg-white p-3">
+          {images.length > 0 ? (
+            <div className="grid gap-3">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <Image
+                  src={getImageUrl(images[0])}
+                  alt={getDocumentTitle(document)}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 560px"
+                  className="object-contain p-4"
+                />
+              </div>
+              {images.length > 1 && (
+                <div className="grid grid-cols-4 gap-2">
+                  {images.slice(0, 8).map((image: any, index: number) => (
+                    <ContainedImage
+                      key={image?._key || index}
+                      src={getImageUrl(image)}
+                      alt={`${getDocumentTitle(document)} ${index + 1}`}
+                      className="aspect-square h-auto w-full"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex aspect-[4/3] items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50">
+              <ImageIcon className="h-8 w-8 text-slate-300" />
+            </div>
+          )}
+        </div>
+
+        <div>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                Product Preview
+              </p>
+              <h3 className="mt-1 text-xl font-semibold tracking-tight text-slate-950">
+                {document.name || "Unnamed product"}
+              </h3>
+            </div>
+            <Badge variant="outline" className={cn("font-medium", badgeClass(document.status))}>
+              {formatLabel(document.status)}
+            </Badge>
+          </div>
+          {document.description && (
+            <p className="mt-3 text-sm leading-6 text-slate-600">
+              {document.description}
+            </p>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-lg border border-slate-200 bg-white p-3">
+            <p className="text-xs text-slate-500">Price</p>
+            <p className="mt-1 text-lg font-semibold text-slate-950">
+              {formatCurrency(Number(document.price || 0))}
+            </p>
+          </div>
+          <div className="rounded-lg border border-slate-200 bg-white p-3">
+            <p className="text-xs text-slate-500">Stock</p>
+            <Badge variant="outline" className={cn("mt-2", stockTone)}>
+              {stock} units
+            </Badge>
+          </div>
+          <div className="rounded-lg border border-slate-200 bg-white p-3">
+            <p className="text-xs text-slate-500">Brand</p>
+            <p className="mt-1 truncate text-sm font-medium text-slate-950">
+              {document.brand?.title || document.brandTitle || "Not set"}
+            </p>
+          </div>
+          <div className="rounded-lg border border-slate-200 bg-white p-3">
+            <p className="text-xs text-slate-500">Reviews</p>
+            <p className="mt-1 text-sm font-medium text-slate-950">
+              {Number(document.reviewCount || document.totalReviews || 0)} reviews
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-white p-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            Categories
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {categories.length > 0 ? (
+              categories.map((category: any) => (
+                <Badge key={category._id || category.title} variant="outline">
+                  {category.title || category.name || category._id}
+                </Badge>
+              ))
+            ) : (
+              <span className="text-sm text-slate-500">No categories assigned</span>
+            )}
+          </div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          {[
+            ["Type", document.variant],
+            ["Discount", document.discount ? `${document.discount}%` : "None"],
+            ["Frame", document.frameMaterial],
+            ["Lens", document.lensType],
+          ].map(([label, value]) => (
+            <div key={label} className="rounded-lg border border-slate-200 bg-white p-3">
+              <p className="text-xs text-slate-500">{label}</p>
+              <p className="mt-1 text-sm font-medium text-slate-950">
+                {formatLabel(value)}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   const renderColumn = (document: SanityDoc, column: (typeof config.columns)[number]) => {
     const value = getColumnValue(document, column.key, column.path);
 
     if (column.type === "image") {
       const url = getImageUrl(value);
-      return (
-        <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-md border bg-slate-50">
-          {url ? (
-            <Image src={url} alt="" width={44} height={44} className="h-full w-full object-cover" />
-          ) : (
-            <ImageIcon className="h-4 w-4 text-slate-400" />
-          )}
-        </div>
-      );
+      return <ContainedImage src={url} alt={getDocumentTitle(document)} className="h-12 w-14" />;
     }
 
     if (column.type === "currency") {
@@ -710,7 +1036,12 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
     }
 
     if (Array.isArray(value)) {
-      return <span>{value.filter(Boolean).join(", ") || "Not set"}</span>;
+      const labels = value
+        .map((item) => item?.title || item?.name || item?.label || item)
+        .filter(Boolean)
+        .join(", ");
+
+      return <span className="line-clamp-2">{labels || "Not set"}</span>;
     }
 
     return <span className="line-clamp-2">{formatLabel(value)}</span>;
@@ -858,9 +1189,15 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
             {images.map((image: any, index: number) => {
               const url = getImageUrl(image);
               return (
-                <div key={image?._key || index} className="relative aspect-square overflow-hidden rounded-lg border bg-slate-50">
+                <div key={image?._key || index} className="relative aspect-square overflow-hidden rounded-lg border border-slate-200 bg-white p-2">
                   {url ? (
-                    <Image src={url} alt="" fill className="object-cover" />
+                    <Image
+                      src={url}
+                      alt=""
+                      fill
+                      sizes="120px"
+                      className="object-contain p-2"
+                    />
                   ) : (
                     <ImageIcon className="m-auto mt-8 h-6 w-6 text-slate-400" />
                   )}
@@ -919,20 +1256,33 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
           placeholder={field.placeholder}
           onChange={(event) => updateForm(field, event.target.value)}
         />
+        {field.name === "slug" && slugStatus !== "idle" && (
+          <p
+            className={cn(
+              "text-xs",
+              slugStatus === "error" ? "text-red-600" : "text-slate-500"
+            )}
+          >
+            {slugStatus === "checking" && "Checking slug..."}
+            {slugStatus === "ready" && "Unique slug ready."}
+            {slugStatus === "error" &&
+              "Could not check uniqueness. It will be checked again on save."}
+          </p>
+        )}
       </div>
     );
   };
 
   return (
-    <div className="space-y-6 bg-slate-50 p-4 sm:p-6">
+    <div className="space-y-6 bg-[#f7f8fa] p-4 text-slate-950 sm:p-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex items-start gap-3">
-          <div className="rounded-xl bg-white p-3 text-slate-700 shadow-sm ring-1 ring-slate-200">
+          <div className="rounded-lg bg-white p-3 text-slate-700 shadow-sm ring-1 ring-slate-200">
             <Icon className="h-6 w-6" />
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-              Sanity Schema Module
+              Commerce Resource
             </p>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
               {config.title}
@@ -942,17 +1292,17 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
             </p>
           </div>
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Button variant="outline" className="bg-white" onClick={exportCsv}>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 lg:flex">
+          <Button variant="outline" className="bg-white shadow-sm" onClick={exportCsv}>
             <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
-          <Button variant="outline" className="bg-white" onClick={() => fetchDocuments(page)}>
+          <Button variant="outline" className="bg-white shadow-sm" onClick={() => fetchDocuments(page)}>
             <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
           </Button>
           {config.createEnabled && (
-            <Button onClick={openCreate}>
+            <Button onClick={openCreate} className="shadow-sm">
               <Plus className="mr-2 h-4 w-4" />
               New {config.singularTitle}
             </Button>
@@ -962,7 +1312,7 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
 
       <ResourceStatCards config={config} documents={documents} total={pagination.total} />
 
-      <Card className="border-slate-200 bg-white shadow-sm">
+      <Card className="rounded-lg border-slate-200 bg-white shadow-sm">
         <CardContent className="space-y-4 p-4">
           <div className="grid gap-3 lg:grid-cols-[1fr_auto]">
             <div className="relative">
@@ -971,31 +1321,35 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder={`Search ${config.title.toLowerCase()}...`}
-                className="pl-9"
+                className="border-slate-200 bg-white pl-9 shadow-none"
               />
             </div>
             <div className="flex flex-wrap gap-2">
-              {(config.filters || []).map((filter) => (
-                <Select
-                  key={filter.key}
-                  value={filters[filter.key] || "all"}
-                  onValueChange={(value) =>
-                    setFilters((current) => ({ ...current, [filter.key]: value }))
-                  }
-                >
-                  <SelectTrigger className="w-[160px] bg-white">
-                    <SelectValue placeholder={filter.label} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All {filter.label}</SelectItem>
-                    {filter.options.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ))}
+              {(config.filters || []).map((filter) => {
+                const options = getFilterOptions(filter);
+
+                return (
+                  <Select
+                    key={filter.key}
+                    value={filters[filter.key] || "all"}
+                    onValueChange={(value) =>
+                      setFilters((current) => ({ ...current, [filter.key]: value }))
+                    }
+                  >
+                    <SelectTrigger className="h-9 w-full min-w-[150px] border-slate-200 bg-white shadow-none sm:w-[160px]">
+                      <SelectValue placeholder={filter.label} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All {filter.label}</SelectItem>
+                      {options.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                );
+              })}
             </div>
           </div>
 
@@ -1005,19 +1359,81 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
                 initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
-                className="flex flex-col gap-3 rounded-lg border border-blue-200 bg-blue-50 p-3 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-950 p-3 text-white shadow-sm lg:flex-row lg:items-center lg:justify-between"
               >
-                <p className="text-sm font-medium text-blue-900">
+                <p className="text-sm font-medium">
                   {selectedIds.length} selected
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center">
+                  {isProductResource && (
+                    <>
+                      <Select value={bulkStatus} onValueChange={setBulkStatus}>
+                        <SelectTrigger className="h-8 w-full border-white/20 bg-white/10 text-white shadow-none lg:w-[170px]">
+                          <SelectValue placeholder="Bulk status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(statusField?.options || []).map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        disabled={!bulkStatus}
+                        onClick={runBulkStatusUpdate}
+                      >
+                        Apply status
+                      </Button>
+                      <Select value={bulkCategory} onValueChange={setBulkCategory}>
+                        <SelectTrigger className="h-8 w-full border-white/20 bg-white/10 text-white shadow-none lg:w-[180px]">
+                          <SelectValue placeholder="Bulk category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categoryOptions.map((option) => (
+                            <SelectItem key={option._id} value={option._id}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        disabled={!bulkCategory}
+                        onClick={runBulkCategoryUpdate}
+                      >
+                        Apply category
+                      </Button>
+                      <div className="flex gap-2">
+                        <Input
+                          type="number"
+                          min={0}
+                          value={bulkStock}
+                          onChange={(event) => setBulkStock(event.target.value)}
+                          placeholder="Stock"
+                          className="h-8 w-full border-white/20 bg-white/10 text-white placeholder:text-white/60 shadow-none lg:w-24"
+                        />
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          disabled={bulkStock === ""}
+                          onClick={runBulkStockUpdate}
+                        >
+                          Update stock
+                        </Button>
+                      </div>
+                    </>
+                  )}
                   {(config.bulkActions || []).map((action) => {
                     const ActionIcon = getActionIcon(action);
                     return (
                       <Button
                         key={action.key}
                         size="sm"
-                        variant={action.tone === "destructive" ? "destructive" : "outline"}
+                        variant={action.tone === "destructive" ? "destructive" : "secondary"}
                         onClick={() => runBulkAction(action)}
                       >
                         <ActionIcon className="mr-2 h-4 w-4" />
@@ -1027,7 +1443,7 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
                   })}
                   {config.deleteEnabled && (
                     <Button size="sm" variant="destructive" onClick={() => requestDelete(selectedIds)}>
-                      <Trash2 className="mr-2 h-4 w-4" />
+                      <Trash2 className="h-4 w-4" />
                       Delete selected
                     </Button>
                   )}
@@ -1042,7 +1458,7 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
             </div>
           )}
 
-          <div className="hidden overflow-hidden rounded-lg border md:block">
+          <div className="hidden overflow-hidden rounded-lg border border-slate-200 md:block">
             <Table>
               <TableHeader>
                 <TableRow className="bg-slate-50">
@@ -1072,7 +1488,7 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
                   </TableRow>
                 ) : (
                   documents.map((document) => (
-                    <TableRow key={document._id}>
+                    <TableRow key={document._id} className="hover:bg-slate-50/70">
                       <TableCell>
                         <Checkbox
                           checked={selectedIds.includes(document._id)}
@@ -1086,10 +1502,10 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
                       ))}
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <Button size="icon" variant="ghost" onClick={() => setDetailsDoc(document)}>
+                          <Button size="icon" variant="ghost" onClick={() => setDetailsDoc(document)} aria-label={`Preview ${getDocumentTitle(document)}`}>
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button size="icon" variant="ghost" onClick={() => openEdit(document)}>
+                          <Button size="icon" variant="ghost" onClick={() => openEdit(document)} aria-label={`Edit ${getDocumentTitle(document)}`}>
                             <Edit className="h-4 w-4" />
                           </Button>
                           <DropdownMenu>
@@ -1133,32 +1549,43 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
           <div className="space-y-3 md:hidden">
             {loading ? (
               Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="h-32 animate-pulse rounded-lg bg-slate-100" />
+                <div key={index} className="h-36 animate-pulse rounded-lg bg-slate-100" />
               ))
             ) : documents.length === 0 ? (
               <div className="rounded-lg border p-8 text-center text-sm text-slate-500">
                 No {config.title.toLowerCase()} found.
               </div>
             ) : (
-              documents.map((document) => (
-                <Card key={document._id} className="border-slate-200">
+              documents.map((document) => {
+                const imageUrl = getImageUrl(getPrimaryImageValue(config, document));
+
+                return (
+                <Card key={document._id} className="rounded-lg border-slate-200 shadow-sm">
                   <CardContent className="space-y-3 p-4">
                     <div className="flex items-start justify-between gap-3">
-                      <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex min-w-0 items-start gap-3">
                         <Checkbox
                           checked={selectedIds.includes(document._id)}
                           onCheckedChange={() => toggleSelect(document._id)}
+                          className="mt-1"
                         />
+                        {config.columns.some((column) => column.type === "image") && (
+                          <ContainedImage
+                            src={imageUrl}
+                            alt={getDocumentTitle(document)}
+                            className="h-16 w-16"
+                          />
+                        )}
                         <div className="min-w-0">
                           <p className="truncate font-medium text-slate-950">
-                            {formatLabel(document.name || document.title || document.code || document.email || document.orderNumber || document._id)}
+                            {getDocumentTitle(document)}
                           </p>
                           <p className="text-xs text-slate-500">
                             Updated {formatDate(document._updatedAt)}
                           </p>
                         </div>
                       </div>
-                      <Button size="icon" variant="ghost" onClick={() => setDetailsDoc(document)}>
+                      <Button size="icon" variant="ghost" onClick={() => setDetailsDoc(document)} aria-label={`Preview ${getDocumentTitle(document)}`}>
                         <Eye className="h-4 w-4" />
                       </Button>
                     </div>
@@ -1174,7 +1601,7 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
                         ))}
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" className="flex-1" onClick={() => openEdit(document)}>
+                      <Button size="sm" variant="outline" className="flex-1 bg-white" onClick={() => openEdit(document)}>
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
                       </Button>
@@ -1186,7 +1613,8 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
                     </div>
                   </CardContent>
                 </Card>
-              ))
+                );
+              })
             )}
           </div>
 
@@ -1209,15 +1637,15 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
       </Card>
 
       <Sheet open={Boolean(detailsDoc)} onOpenChange={(open) => !open && setDetailsDoc(null)}>
-        <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
-          <SheetHeader>
+        <SheetContent className="admin-responsive-sheet w-full overflow-y-auto border-slate-200 p-0 sm:max-w-xl max-sm:inset-x-0 max-sm:bottom-0 max-sm:top-auto max-sm:h-[92dvh] max-sm:max-w-none max-sm:rounded-t-2xl max-sm:border-l-0">
+          <SheetHeader className="border-b border-slate-200 bg-white p-5">
             <SheetTitle>{config.singularTitle} Details</SheetTitle>
             <SheetDescription>
               Live Sanity document fields for this record.
             </SheetDescription>
           </SheetHeader>
           {detailsDoc && (
-            <div className="space-y-4 p-4">
+            <div className="space-y-5 p-4 sm:p-5">
               <div className="flex gap-2">
                 <Button className="flex-1" onClick={() => openEdit(detailsDoc)}>
                   <Edit className="mr-2 h-4 w-4" />
@@ -1232,17 +1660,25 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
                   </Button>
                 )}
               </div>
-              {config.columns.map((column) => (
-                <div key={column.key} className="rounded-lg border bg-white p-3">
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                    {column.label || column.key}
-                  </p>
-                  <div className="mt-2 text-sm text-slate-950">
-                    {renderColumn(detailsDoc, column)}
-                  </div>
+
+              {isProductResource ? (
+                renderProductPreview(detailsDoc)
+              ) : (
+                <div className="space-y-3">
+                  {config.columns.map((column) => (
+                    <div key={column.key} className="rounded-lg border border-slate-200 bg-white p-3">
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                        {column.label || column.key}
+                      </p>
+                      <div className="mt-2 text-sm text-slate-950">
+                        {renderColumn(detailsDoc, column)}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-              <details className="rounded-lg border bg-slate-50 p-3">
+              )}
+
+              <details className="rounded-lg border border-slate-200 bg-slate-50 p-3">
                 <summary className="cursor-pointer text-sm font-medium text-slate-700">
                   Raw schema data
                 </summary>
@@ -1256,8 +1692,8 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
       </Sheet>
 
       <Dialog open={isEditorOpen} onOpenChange={setIsEditorOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
-          <DialogHeader>
+        <DialogContent className="admin-responsive-dialog max-h-[90vh] overflow-y-auto border-slate-200 sm:max-w-3xl max-sm:left-0 max-sm:right-0 max-sm:bottom-0 max-sm:top-auto max-sm:h-[92dvh] max-sm:w-screen max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-t-2xl max-sm:border-x-0 max-sm:border-b-0 max-sm:p-4">
+          <DialogHeader className="border-b border-slate-100 pb-4">
             <DialogTitle>
               {editingDoc ? "Edit" : "Create"} {config.singularTitle}
             </DialogTitle>
@@ -1278,7 +1714,7 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
               </div>
             ))}
           </div>
-          <DialogFooter>
+          <DialogFooter className="border-t border-slate-100 pt-4">
             <Button variant="outline" onClick={() => setIsEditorOpen(false)} disabled={saving}>
               Cancel
             </Button>
@@ -1291,7 +1727,7 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
       </Dialog>
 
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <DialogContent>
+        <DialogContent className="admin-responsive-dialog border-slate-200 max-sm:left-0 max-sm:right-0 max-sm:bottom-0 max-sm:top-auto max-sm:w-screen max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-t-2xl max-sm:border-x-0 max-sm:border-b-0">
           <DialogHeader>
             <DialogTitle>Delete {config.singularTitle}</DialogTitle>
             <DialogDescription>

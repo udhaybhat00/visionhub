@@ -770,3 +770,59 @@
 .animate-marquee {
   animation: marquee 12s linear infinite;
 }
+
+.admin-responsive-sheet {
+  width: min(100vw, 640px);
+}
+
+.admin-responsive-dialog {
+  width: min(calc(100vw - 2rem), 768px);
+}
+
+.admin-image-contain,
+.admin-image-contain img {
+  object-fit: contain;
+}
+
+body.admin-page-active [data-mobile-bottom-nav] {
+  display: none;
+}
+
+body.admin-page-active {
+  padding-bottom: 0;
+}
+
+@media (max-width: 640px) {
+  .admin-responsive-sheet {
+    inset: auto 0 0 0 !important;
+    width: 100vw !important;
+    max-width: none !important;
+    height: min(92dvh, 760px) !important;
+    border-left: 0 !important;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    transform: translate3d(0, 0, 0) !important;
+  }
+
+  .admin-responsive-dialog {
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: 100vw !important;
+    max-width: none !important;
+    height: min(92dvh, 760px) !important;
+    max-height: 92dvh !important;
+    transform: none !important;
+    border-radius: 16px 16px 0 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    overflow-y: auto !important;
+  }
+
+  [data-slot="dialog-content"].admin-responsive-dialog[data-state="open"],
+  [data-slot="sheet-content"].admin-responsive-sheet[data-state="open"] {
+    transform: translate3d(0, 0, 0) !important;
+  }
+}

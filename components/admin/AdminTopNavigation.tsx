@@ -1,34 +1,31 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
 import { useClerk } from "@clerk/nextjs";
-import { Button } from "@/components/ui/button";
 import {
-  LayoutDashboard,
-  Package,
-  ShoppingCart,
   BarChart3,
-  Shield,
   Bell,
-  LogOut,
-  Menu,
-  X,
-  User,
-  ChevronDown,
-  ChevronUp,
-  Star,
-  Mail,
-  Crown,
-  Tags,
-  Building2,
-  Percent,
   BookOpen,
+  Building2,
   Images,
+  LayoutDashboard,
+  LogOut,
+  Mail,
+  Menu,
   MessageSquare,
-  Database,
+  Package,
+  Percent,
+  Shield,
+  ShoppingCart,
+  Star,
+  Tags,
+  User,
+  X,
 } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface AdminTopNavigationProps {
   currentPath: string;
@@ -42,388 +39,180 @@ interface AdminTopNavigationProps {
 }
 
 const adminRoutes = [
-  {
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    href: "/admin",
-    isPremium: true,
-  },
-  {
-    label: "Analytics",
-    icon: BarChart3,
-    href: "/admin/analytics",
-    isPremium: true,
-  },
-  {
-    label: "Products",
-    icon: Package,
-    href: "/admin/products",
-  },
-  {
-    label: "Categories",
-    icon: Tags,
-    href: "/admin/categories",
-  },
-  {
-    label: "Brands",
-    icon: Building2,
-    href: "/admin/brands",
-  },
-  {
-    label: "Orders",
-    icon: ShoppingCart,
-    href: "/admin/orders",
-  },
-  {
-    label: "Coupons",
-    icon: Percent,
-    href: "/admin/coupons",
-  },
-  {
-    label: "Reviews",
-    icon: Star,
-    href: "/admin/reviews",
-  },
-  {
-    label: "Blog",
-    icon: BookOpen,
-    href: "/admin/blog",
-  },
-  {
-    label: "Banners",
-    icon: Images,
-    href: "/admin/banners",
-  },
-  {
-    label: "Subscriptions",
-    icon: Mail,
-    href: "/admin/subscriptions",
-  },
-  {
-    label: "Contacts",
-    icon: MessageSquare,
-    href: "/admin/contacts",
-  },
-  {
-    label: "Sanity Users",
-    icon: Database,
-    href: "/admin/sanity-users",
-  },
-  {
-    label: "Notifications",
-    icon: Bell,
-    href: "/admin/notifications",
-  },
+  { label: "Dashboard", icon: LayoutDashboard, href: "/admin" },
+  { label: "Analytics", icon: BarChart3, href: "/admin/analytics" },
+  { label: "Products", icon: Package, href: "/admin/products" },
+  { label: "Categories", icon: Tags, href: "/admin/categories" },
+  { label: "Brands", icon: Building2, href: "/admin/brands" },
+  { label: "Orders", icon: ShoppingCart, href: "/admin/orders" },
+  { label: "Coupons", icon: Percent, href: "/admin/coupons" },
+  { label: "Reviews", icon: Star, href: "/admin/reviews" },
+  { label: "Blog", icon: BookOpen, href: "/admin/blog" },
+  { label: "Banners", icon: Images, href: "/admin/banners" },
+  { label: "Subscriptions", icon: Mail, href: "/admin/subscriptions" },
+  { label: "Contacts", icon: MessageSquare, href: "/admin/contacts" },
+  { label: "Notifications", icon: Bell, href: "/admin/notifications" },
 ];
 
 const AdminTopNavigation = ({ currentPath, user }: AdminTopNavigationProps) => {
   const { signOut } = useClerk();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [desktopMenuOpen, setDesktopMenuOpen] = useState(true);
-  const [isAnimating, setIsAnimating] = useState(false);
 
-  const handleMobileMenuToggle = () => {
-    if (!isAnimating) {
-      setIsAnimating(true);
-      setMobileMenuOpen(!mobileMenuOpen);
-      setTimeout(() => setIsAnimating(false), 300);
-    }
-  };
+  const userName =
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "Admin";
+  const email = user?.primaryEmailAddress?.emailAddress;
+
+  const NavLinks = ({ onNavigate }: { onNavigate?: () => void }) => (
+    <nav className="flex flex-col gap-1 lg:flex-row lg:items-center lg:gap-1">
+      {adminRoutes.map((route) => {
+        const isActive =
+          currentPath === route.href ||
+          (route.href !== "/admin" && currentPath.startsWith(route.href));
+        const Icon = route.icon;
+
+        return (
+          <Link
+            key={route.href}
+            href={route.href}
+            onClick={onNavigate}
+            className={cn(
+              "group flex shrink-0 items-center gap-2 rounded-md px-2.5 py-2 text-sm font-medium transition-colors",
+              isActive
+                ? "bg-slate-950 text-white"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
+            )}
+          >
+            <Icon
+              className={cn(
+                "h-4 w-4",
+                isActive ? "text-white" : "text-slate-400 group-hover:text-slate-700"
+              )}
+            />
+            <span>{route.label}</span>
+          </Link>
+        );
+      })}
+    </nav>
+  );
 
   return (
     <>
-      {/* Mobile Header */}
-      <div className="lg:hidden">
-        <div className="flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-shop_light_green/10">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-gradient-to-br from-shop_light_green to-shop_dark_green rounded-xl">
-              <Shield className="w-6 h-6 text-white" />
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex min-h-16 max-w-[1600px] items-center gap-3 px-4 sm:px-6">
+          <div className="flex min-w-0 shrink-0 items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="Open admin navigation"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <Link href="/admin" className="flex min-w-0 items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-950 text-white">
+                <Shield className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-slate-950">
+                  VisionHub Admin
+                </p>
+                <p className="hidden text-xs text-slate-500 sm:block">
+                  Ecommerce operating system
+                </p>
+              </div>
+            </Link>
+          </div>
+
+          <div className="scrollbar-hide hidden min-w-0 flex-1 justify-start overflow-x-auto px-2 lg:flex">
+            <NavLinks />
+          </div>
+
+          <div className="flex shrink-0 items-center gap-2">
+            <div className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1 shadow-sm sm:flex">
+              {user?.imageUrl ? (
+                <img
+                  src={user.imageUrl}
+                  alt={userName}
+                  className="h-7 w-7 rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600">
+                  <User className="h-4 w-4" />
+                </div>
+              )}
+              <div className="max-w-36 leading-tight">
+                <p className="truncate text-xs font-semibold text-slate-950">
+                  {userName}
+                </p>
+                <p className="truncate text-[11px] text-slate-500">
+                  {email || "Administrator"}
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden border-slate-200 bg-white shadow-sm sm:inline-flex"
+              onClick={() => signOut()}
+            >
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <div
+        className={cn(
+          "fixed inset-0 z-50 bg-slate-950/40 transition-opacity lg:hidden",
+          mobileMenuOpen ? "opacity-100" : "pointer-events-none opacity-0"
+        )}
+        onClick={() => setMobileMenuOpen(false)}
+      />
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex w-[86vw] max-w-sm flex-col border-r border-slate-200 bg-white shadow-2xl transition-transform duration-300 lg:hidden",
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <div className="flex items-center justify-between border-b border-slate-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-950 text-white">
+              <Shield className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="font-semibold text-gray-900">Admin Panel</h2>
+              <p className="text-sm font-semibold text-slate-950">
+                VisionHub Admin
+              </p>
+              <p className="text-xs text-slate-500">{email || "Admin"}</p>
             </div>
           </div>
           <Button
             variant="ghost"
-            size="sm"
-            onClick={handleMobileMenuToggle}
-            className="p-2 transition-transform duration-200 hover:scale-105"
-            disabled={isAnimating}
+            size="icon"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-label="Close admin navigation"
           >
-            {mobileMenuOpen ? (
-              <X className="h-5 w-5 transition-transform duration-200" />
-            ) : (
-              <Menu className="h-5 w-5 transition-transform duration-200" />
-            )}
+            <X className="h-5 w-5" />
           </Button>
         </div>
-      </div>
 
-      {/* Desktop Top Navigation */}
-      <div className="hidden lg:block">
-        <div className="bg-white rounded-2xl shadow-xl border border-shop_light_green/10 overflow-hidden">
-          {/* Admin Profile Header */}
-          <div className="p-6 bg-gradient-to-r from-shop_dark_green to-shop_light_green text-white">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-white/20 rounded-xl">
-                  <Shield className="w-8 h-8 text-white" />
-                </div>
-                <div>
-                  <h2 className="font-bold text-xl text-white">Admin Panel</h2>
-                  <p className="text-white/80 text-sm">
-                    Welcome back, {user?.firstName} {user?.lastName}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-4">
-                  {user?.imageUrl ? (
-                    <img
-                      src={user.imageUrl}
-                      alt="Admin avatar"
-                      className="w-10 h-10 rounded-full object-cover border-2 border-white/30"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                      <User className="h-5 w-5 text-white" />
-                    </div>
-                  )}
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-                    <span className="text-white/90 text-sm">Online</span>
-                  </div>
-                </div>
-                <Button
-                  onClick={() => signOut()}
-                  variant="ghost"
-                  size="sm"
-                  className="text-white hover:bg-white/20 border border-white/30 transition-all duration-200"
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Accordion Toggle Header */}
-          <div className="px-6 py-4 border-b border-gray-100">
-            <Button
-              variant="ghost"
-              onClick={() => setDesktopMenuOpen(!desktopMenuOpen)}
-              className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-all duration-200"
-            >
-              <div className="flex items-center space-x-2">
-                <Menu className="h-5 w-5 text-shop_dark_green" />
-                <span className="font-medium text-gray-900">
-                  Navigation Menu
-                </span>
-              </div>
-              {desktopMenuOpen ? (
-                <ChevronUp className="h-5 w-5 text-gray-500 transition-transform duration-200" />
-              ) : (
-                <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200" />
-              )}
-            </Button>
-          </div>
-
-          {/* Collapsible Horizontal Navigation */}
-          <div
-            className={cn(
-              "grid transition-all duration-300 ease-in-out",
-              desktopMenuOpen
-                ? "grid-rows-[1fr] opacity-100"
-                : "grid-rows-[0fr] opacity-0"
-            )}
-          >
-            <div className="overflow-hidden">
-              <nav className="px-4 py-3">
-                <div className="flex flex-nowrap gap-2 overflow-x-auto scrollbar-hide">
-                  {adminRoutes.map((route, index) => {
-                    const isActive = currentPath === route.href;
-                    const Icon = route.icon;
-
-                    return (
-                      <Link
-                        key={route.href}
-                        href={route.href}
-                        className={cn(
-                          "admin-nav-item flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 group border-2 transform hover:scale-[1.02] whitespace-nowrap shrink-0",
-                          isActive
-                            ? "active bg-shop_light_green/10 border-shop_light_green shadow-md scale-[1.02]"
-                            : "hover:bg-gray-50 border-gray-200 hover:border-shop_light_green/40"
-                        )}
-                        style={{
-                          animationDelay: desktopMenuOpen
-                            ? `${index * 50}ms`
-                            : "0ms",
-                        }}
-                      >
-                        <div
-                          className={cn(
-                            "p-1.5 rounded-md transition-all duration-200",
-                            isActive
-                              ? "bg-shop_light_green text-white shadow-md"
-                              : "bg-gray-100 text-gray-600 group-hover:bg-shop_light_green/20 group-hover:text-shop_dark_green"
-                          )}
-                        >
-                          <Icon className="h-3.5 w-3.5" />
-                        </div>
-                        <div
-                          className={cn(
-                            "font-medium text-xs transition-colors duration-200 flex items-center gap-1",
-                            isActive ? "text-shop_dark_green" : "text-gray-900"
-                          )}
-                        >
-                          <span>{route.label}</span>
-                          {route.isPremium && (
-                            <Crown className="w-3 h-3 text-yellow-500" />
-                          )}
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </nav>
-            </div>
-          </div>
+        <div className="min-h-0 flex-1 overflow-y-auto p-3">
+          <NavLinks onNavigate={() => setMobileMenuOpen(false)} />
         </div>
-      </div>
 
-      {/* Mobile Navigation Menu */}
-      <div
-        className={cn(
-          "lg:hidden overflow-hidden mobile-menu-container",
-          mobileMenuOpen
-            ? "max-h-[800px] opacity-100 mt-2"
-            : "max-h-0 opacity-0 mt-0"
-        )}
-      >
-        <div
-          className={cn(
-            "admin-mobile-menu bg-white rounded-2xl shadow-xl border border-shop_light_green/10 overflow-hidden transform transition-all duration-300 ease-out",
-            mobileMenuOpen
-              ? "translate-y-0 scale-100"
-              : "-translate-y-4 scale-95"
-          )}
-        >
-          {/* Admin Profile Section */}
-          <div
-            className={cn(
-              "p-6 bg-gradient-to-r from-shop_dark_green to-shop_light_green text-white transition-all duration-200 delay-75",
-              mobileMenuOpen
-                ? "translate-y-0 opacity-100"
-                : "-translate-y-2 opacity-0"
-            )}
+        <div className="border-t border-slate-200 p-4">
+          <Button
+            variant="outline"
+            className="w-full justify-center"
+            onClick={() => signOut()}
           >
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-white/20 rounded-xl">
-                <Shield className="w-8 h-8 text-white" />
-              </div>
-              <div className="flex-1">
-                <h2 className="font-bold text-lg text-white">Admin Panel</h2>
-                <p className="text-white/80 text-sm">
-                  {user?.firstName} {user?.lastName}
-                </p>
-                <p className="text-white/70 text-xs">
-                  {user?.primaryEmailAddress?.emailAddress}
-                </p>
-              </div>
-              {user?.imageUrl && (
-                <img
-                  src={user.imageUrl}
-                  alt="Admin avatar"
-                  className="w-12 h-12 rounded-full object-cover border-2 border-white/30"
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Mobile Navigation Links */}
-          <nav
-            className={cn(
-              "p-6 space-y-2 transition-all duration-300 delay-100",
-              mobileMenuOpen
-                ? "translate-y-0 opacity-100"
-                : "translate-y-2 opacity-0"
-            )}
-          >
-            {adminRoutes.map((route, index) => {
-              const isActive = currentPath === route.href;
-              const Icon = route.icon;
-
-              return (
-                <Link
-                  key={route.href}
-                  href={route.href}
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setIsAnimating(true);
-                    setTimeout(() => setIsAnimating(false), 300);
-                  }}
-                  className={cn(
-                    "admin-nav-item flex items-center gap-4 p-4 rounded-xl transition-all duration-200 group",
-                    isActive
-                      ? "active bg-gradient-to-r from-shop_light_green to-shop_dark_green text-white shadow-lg"
-                      : "hover:bg-shop_light_bg hover:shadow-md text-gray-900"
-                  )}
-                  style={{
-                    animationDelay: mobileMenuOpen ? `${index * 50}ms` : "0ms",
-                  }}
-                >
-                  <div
-                    className={cn(
-                      "p-3 rounded-lg transition-all duration-200",
-                      isActive
-                        ? "bg-white/20 text-white"
-                        : "bg-shop_light_green/10 text-shop_light_green group-hover:bg-shop_light_green/20"
-                    )}
-                  >
-                    <Icon className="w-5 h-5 transition-transform group-hover:scale-110" />
-                  </div>
-                  <div className="flex-1">
-                    <div
-                      className={cn(
-                        "font-semibold text-base transition-colors duration-200 flex items-center gap-2",
-                        isActive ? "text-white" : "text-gray-900"
-                      )}
-                    >
-                      <span>{route.label}</span>
-                      {route.isPremium && (
-                        <Crown className="w-4 h-4 text-yellow-400" />
-                      )}
-                    </div>
-                  </div>
-                  {isActive && (
-                    <div className="w-3 h-3 bg-white rounded-full animate-pulse shadow-sm" />
-                  )}
-                </Link>
-              );
-            })}
-
-            {/* Sign Out Button */}
-            <div className="pt-4 border-t border-gray-200 mt-4">
-              <Button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setIsAnimating(true);
-                  setTimeout(() => {
-                    setIsAnimating(false);
-                    signOut();
-                  }, 300);
-                }}
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 transform hover:scale-105 active:scale-95"
-              >
-                <LogOut className="h-5 w-5 mr-3" />
-                <span className="font-medium">Sign Out</span>
-              </Button>
-            </div>
-          </nav>
+            <LogOut className="h-4 w-4" />
+            Sign out
+          </Button>
         </div>
-      </div>
+      </aside>
     </>
   );
 };

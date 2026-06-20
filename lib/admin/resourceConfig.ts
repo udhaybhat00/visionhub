@@ -57,7 +57,8 @@ export type AdminFilter = {
   key: string;
   label: string;
   field: string;
-  options: AdminOption[];
+  options?: AdminOption[];
+  referenceTo?: string;
 };
 
 export type AdminQuickAction =
@@ -225,6 +226,39 @@ export const adminResourceConfigs: Record<string, AdminResourceConfig> = {
     filters: [
       { key: "status", label: "Status", field: "status", options: statusOptions.product },
       { key: "variant", label: "Type", field: "variant", options: statusOptions.variant },
+      { key: "category", label: "Category", field: "categories", referenceTo: "category" },
+      { key: "brand", label: "Brand", field: "brand", referenceTo: "brand" },
+      {
+        key: "stockStatus",
+        label: "Stock",
+        field: "stock",
+        options: [
+          { label: "In stock", value: "inStock" },
+          { label: "Low stock", value: "lowStock" },
+          { label: "Out of stock", value: "outOfStock" },
+        ],
+      },
+      {
+        key: "priceRange",
+        label: "Price",
+        field: "price",
+        options: [
+          { label: "Under ₹1,000", value: "0-1000" },
+          { label: "₹1,000 - ₹2,500", value: "1000-2500" },
+          { label: "₹2,500 - ₹5,000", value: "2500-5000" },
+          { label: "₹5,000+", value: "5000-" },
+        ],
+      },
+      {
+        key: "discount",
+        label: "Discount",
+        field: "discount",
+        options: [
+          { label: "No discount", value: "none" },
+          { label: "Any discount", value: "active" },
+          { label: "30% or more", value: "high" },
+        ],
+      },
     ],
     quickActions: [
       { key: "archive", label: "Archive", type: "patch", patch: { status: "archived" }, tone: "outline" },

@@ -587,23 +587,28 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Notification Management</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold leading-tight">
+            Notification Management
+          </h1>
           <p className="text-muted-foreground">
             Send and manage notifications to users
           </p>
         </div>
         <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
           <SheetTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-2" />
               Send Notification
             </Button>
           </SheetTrigger>
-          <SheetContent className="w-[600px] sm:w-[600px] p-6" side="right">
+          <SheetContent
+            className="admin-responsive-sheet w-full overflow-y-auto p-4 sm:w-[600px] sm:p-6"
+            side="right"
+          >
             <SheetHeader className="px-0">
               <SheetTitle>Send New Notification</SheetTitle>
             </SheetHeader>
@@ -730,7 +735,7 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
                   Select Recipients *
                 </label>
                 <div className="mt-2">
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex flex-col gap-2 mb-3 sm:flex-row sm:items-center">
                     <Search className="w-4 h-4 text-gray-400" />
                     <Input
                       placeholder="Search users..."
@@ -741,6 +746,7 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
                     <Button
                       variant="outline"
                       size="sm"
+                      className="w-full sm:w-auto"
                       onClick={() => {
                         if (selectedUsers.length === filteredUsers.length) {
                           setSelectedUsers([]);
@@ -768,7 +774,7 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
                     {filteredUsers.map((user, index) => (
                       <div
                         key={index.toString()}
-                        className="flex items-center p-3 border-b last:border-b-0 hover:bg-gray-50"
+                        className="flex items-start gap-3 p-3 border-b last:border-b-0 hover:bg-gray-50"
                       >
                         <input
                           key={`checkbox-${user._id}`}
@@ -793,9 +799,9 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
                               }));
                             }
                           }}
-                          className="mr-3"
+                          className="mt-1"
                         />
-                        <div className="flex-1">
+                        <div className="min-w-0 flex-1">
                           <div className="font-medium">
                             {user.firstName} {user.lastName}
                           </div>
@@ -810,7 +816,7 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
                             </div>
                           )}
                         </div>
-                        <div className="flex flex-col gap-1">
+                        <div className="flex shrink-0 flex-col gap-1">
                           <Badge
                             variant={user.isActive ? "default" : "secondary"}
                           >
@@ -866,7 +872,7 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-4">
+              <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
                 <Button
                   variant="outline"
                   onClick={() => setIsSidebarOpen(false)}
@@ -901,23 +907,25 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <Users className="w-5 h-5 text-blue-500" />
-              <div>
+              <div className="min-w-0">
                 <div className="text-2xl font-bold">{users.length}</div>
-                <div className="text-sm text-muted-foreground">Total Users</div>
+                <div className="text-sm leading-tight text-muted-foreground">
+                  Total Users
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <Bell className="w-5 h-5 text-green-500" />
-              <div>
+              <div className="min-w-0">
                 <div className="text-2xl font-bold">
                   {sentNotifications.length}
                 </div>
@@ -930,9 +938,9 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <MessageSquare className="w-5 h-5 text-orange-500" />
-              <div>
+              <div className="min-w-0">
                 <div className="text-2xl font-bold">
                   {sentNotifications.reduce(
                     (total, notif) => total + notif.recipientCount,
@@ -948,9 +956,9 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <CheckCircle className="w-5 h-5 text-purple-500" />
-              <div>
+              <div className="min-w-0">
                 <div className="text-2xl font-bold">
                   {sentNotifications.reduce(
                     (total, notif) =>
@@ -970,9 +978,9 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
       {/* Sent Notifications */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Sent Notifications</CardTitle>
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <CardTitle className="leading-tight">Sent Notifications</CardTitle>
+            <div className="grid grid-cols-[auto_1fr] gap-2 sm:grid-cols-4">
               {/* Refresh Button */}
               <Button
                 variant="outline"
@@ -994,7 +1002,7 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
                 value={notificationTypeFilter}
                 onValueChange={handleTypeFilterChange}
               >
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-full min-w-0">
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1012,7 +1020,7 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
                 value={notificationPriorityFilter}
                 onValueChange={handlePriorityFilterChange}
               >
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-full min-w-0">
                   <SelectValue placeholder="Priority" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1029,7 +1037,7 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
                 value={notificationDateFilter}
                 onValueChange={handleDateFilterChange}
               >
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-full min-w-0">
                   <SelectValue placeholder="Date" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1050,7 +1058,104 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
               No notifications sent yet
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <>
+            <div className="space-y-3 md:hidden">
+              {filteredNotifications.map((notification) => {
+                const readCount = notification.recipients.filter(
+                  (r) => r.read
+                ).length;
+                const readRate =
+                  notification.recipientCount > 0
+                    ? Math.round((readCount / notification.recipientCount) * 100)
+                    : 0;
+
+                return (
+                  <Card key={notification.id} className="border-slate-200 shadow-sm">
+                    <CardContent className="space-y-3 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <h3 className="truncate font-semibold">
+                            {notification.title}
+                          </h3>
+                          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                            {notification.message}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewNotification(notification)}
+                          className="h-8 w-8 shrink-0 p-1"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant={getTypeColor(notification.type)}>
+                          {notification.type}
+                        </Badge>
+                        <Badge variant={getPriorityColor(notification.priority)}>
+                          {notification.priority}
+                        </Badge>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div className="rounded-md bg-slate-50 p-2">
+                          <p className="text-xs text-muted-foreground">
+                            Recipients
+                          </p>
+                          <p className="font-medium">
+                            {notification.recipientCount}
+                          </p>
+                        </div>
+                        <div className="rounded-md bg-slate-50 p-2">
+                          <p className="text-xs text-muted-foreground">
+                            Read Rate
+                          </p>
+                          <p className="font-medium">
+                            {readCount}/{notification.recipientCount} ({readRate}%)
+                          </p>
+                        </div>
+                        <div className="rounded-md bg-slate-50 p-2">
+                          <p className="text-xs text-muted-foreground">
+                            Sent
+                          </p>
+                          <p className="font-medium">
+                            {new Date(notification.sentAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="rounded-md bg-slate-50 p-2">
+                          <p className="text-xs text-muted-foreground">
+                            Sender
+                          </p>
+                          <p className="truncate font-medium">
+                            {notification.sentBy}
+                          </p>
+                        </div>
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteNotification(notification.id)}
+                        disabled={deletingNotificationId === notification.id}
+                        className="w-full text-red-600 hover:bg-red-50 hover:text-red-700"
+                      >
+                        {deletingNotificationId === notification.id ? (
+                          <Clock className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                        Delete
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
+            <div className="hidden overflow-x-auto md:block">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -1149,11 +1254,12 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
                 </TableBody>
               </Table>
             </div>
+            </>
           )}
 
           {/* Pagination */}
           {sentNotifications.length > 0 && (
-            <div className="flex items-center justify-between mt-6 pt-4 border-t">
+            <div className="flex flex-col gap-3 mt-6 pt-4 border-t sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm text-muted-foreground">
                 Showing{" "}
                 {(sentNotificationsPage - 1) * sentNotificationsLimit + 1} to{" "}
@@ -1163,7 +1269,7 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
                 )}{" "}
                 of {sentNotificationsTotal} notifications
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between gap-2 sm:justify-end">
                 <Button
                   variant="outline"
                   size="sm"
@@ -1200,7 +1306,7 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
       {/* Notification Details Sidebar */}
       <Sheet open={isViewSidebarOpen} onOpenChange={setIsViewSidebarOpen}>
         <SheetContent
-          className="w-[700px] sm:w-[700px] p-6 overflow-y-auto"
+          className="admin-responsive-sheet w-full overflow-y-auto p-4 sm:w-[700px] sm:p-6 max-sm:inset-x-0 max-sm:bottom-0 max-sm:top-auto max-sm:h-[92dvh] max-sm:max-w-none max-sm:rounded-t-2xl max-sm:border-l-0"
           side="right"
         >
           <SheetHeader className="px-0">
@@ -1210,7 +1316,7 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
           {selectedNotification && (
             <div className="space-y-6 mt-6">
               {/* Basic Information */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="text-sm font-medium text-gray-500">
                     Title
@@ -1231,7 +1337,7 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="text-sm font-medium text-gray-500">
                     Priority
@@ -1254,7 +1360,7 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="text-sm font-medium text-gray-500">
                     Sent By
@@ -1288,7 +1394,7 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
                 <label className="text-sm font-medium text-gray-500 mb-3 block">
                   Recipients Details
                 </label>
-                <div className="border rounded-md overflow-hidden">
+                <div className="border rounded-md overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -1333,7 +1439,7 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
               </div>
 
               {/* Statistics */}
-              <div className="grid grid-cols-3 gap-4 pt-4 border-t">
+              <div className="grid grid-cols-3 gap-3 pt-4 border-t">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-blue-600">
                     {
@@ -1430,7 +1536,7 @@ const AdminNotifications: React.FC<AdminNotificationsProps> = ({
           <DialogOverlay />
           <DialogPrimitive.Content
             className={cn(
-              "fixed left-[50%] top-[50%] z-50 grid w-full max-w-md translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg"
+              "admin-responsive-dialog fixed left-[50%] top-[50%] z-50 grid w-full max-w-md translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg max-sm:left-0 max-sm:right-0 max-sm:bottom-0 max-sm:top-auto max-sm:w-screen max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-t-2xl max-sm:border-x-0 max-sm:border-b-0"
             )}
           >
             <VisuallyHidden.Root>

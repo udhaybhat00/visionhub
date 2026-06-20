@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import {
   AdminField,
+  AdminFilter,
   getAdminResourceConfig,
   resolveSpecialPatchValues,
 } from "@/lib/admin/resourceConfig";
@@ -54,6 +55,64 @@ function normalizeSlug(value: unknown) {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, ""),
   };
+}
+
+function slugify(value: unknown) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 96);
+}
+
+function getSlugSource(input: Record<string, unknown>) {
+  return (
+    input.name ||
+    input.title ||
+    input.code ||
+    input.email ||
+    input.subject ||
+    "item"
+  );
+}
+
+async function createUniqueSlug(
+  documentType: string,
+  source: unknown,
+  excludeId?: string
+) {
+  const baseSlug = slugify(source) || "item";
+  let slug = baseSlug;
+  let suffix = 2;
+  const excludeIds = excludeId
+    ? Array.from(
+        new Set([
+          excludeId,
+          excludeId.startsWith("drafts.")
+            ? excludeId.replace(/^drafts\./, "")
+            : `drafts.${excludeId}`,
+        ])
+      )
+    : [];
+
+  while (true) {
+    const existing = await writeClient.fetch(
+      `count(*[_type == $type && slug.current == $slug && !(_id in $excludeIds)])`,
+      { type: documentType, slug, excludeIds },
+      { cache: "no-store", next: { revalidate: 0 } }
+    );
+
+    if (!existing) {
+      return {
+        _type: "slug",
+        current: slug,
+      };
+    }
+
+    slug = `${baseSlug}-${suffix}`;
+    suffix += 1;
+  }
 }
 
 function createReference(id: string) {
@@ -208,6 +267,70 @@ function buildFilterValue(field: AdminField | undefined, value: string) {
   return value;
 }
 
+function addFilterCondition({
+  filter,
+  value,
+  field,
+  paramName,
+  filterConditions,
+  queryParams,
+}: {
+  filter: AdminFilter;
+  value: string;
+  field: AdminField | undefined;
+  paramName: string;
+  filterConditions: string[];
+  queryParams: Record<string, unknown>;
+}) {
+  if (filter.key === "stockStatus") {
+    if (value === "inStock") filterConditions.push("stock > 5");
+    if (value === "lowStock") {
+      filterConditions.push("defined(stock) && stock > 0 && stock <= 5");
+    }
+    if (value === "outOfStock") {
+      filterConditions.push("defined(stock) && stock <= 0");
+    }
+    return;
+  }
+
+  if (filter.key === "priceRange") {
+    const [min, max] = value.split("-");
+    if (min) {
+      const minParam = `${paramName}_min`;
+      filterConditions.push(`${filter.field} >= $${minParam}`);
+      queryParams[minParam] = Number(min);
+    }
+    if (max) {
+      const maxParam = `${paramName}_max`;
+      filterConditions.push(`${filter.field} <= $${maxParam}`);
+      queryParams[maxParam] = Number(max);
+    }
+    return;
+  }
+
+  if (filter.key === "discount") {
+    if (value === "none") filterConditions.push("coalesce(discount, 0) <= 0");
+    if (value === "active") filterConditions.push("coalesce(discount, 0) > 0");
+    if (value === "high") filterConditions.push("coalesce(discount, 0) >= 30");
+    return;
+  }
+
+  if (field?.type === "referenceArray") {
+    filterConditions.push(`references($${paramName})`);
+    queryParams[paramName] = value;
+    return;
+  }
+
+  if (field?.type === "reference") {
+    filterConditions.push(`${filter.field}._ref == $${paramName}`);
+    queryParams[paramName] = value;
+    return;
+  }
+
+  filterConditions.push(`${filter.field} == $${paramName}`);
+  queryParams[paramName] = buildFilterValue(field, value);
+}
+
 async function getReferenceOptions(referenceTypes: string[]) {
   if (referenceTypes.length === 0) return {};
 
@@ -248,6 +371,30 @@ export async function GET(
   const search = searchParams.get("search")?.trim();
   const includeReferences = searchParams.get("includeReferences") === "true";
   const projection = config.projection || "{...}";
+  const slugSource = searchParams.get("slugSource");
+  const excludeId = searchParams.get("excludeId") || undefined;
+
+  if (slugSource !== null) {
+    const slug = await createUniqueSlug(
+      config.documentType,
+      slugSource,
+      excludeId
+    );
+
+    return NextResponse.json(
+      {
+        slug,
+        current: slug.current,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      }
+    );
+  }
 
   if (id) {
     const [document, references] = await Promise.all([
@@ -294,8 +441,14 @@ export async function GET(
 
     const field = config.fields.find((item) => item.name === filter.field);
     const paramName = `filter_${filter.key}`;
-    filterConditions.push(`${filter.field} == $${paramName}`);
-    queryParams[paramName] = buildFilterValue(field, value);
+    addFilterCondition({
+      filter,
+      value,
+      field,
+      paramName,
+      filterConditions,
+      queryParams,
+    });
   }
 
   const filterQuery = filterConditions.join(" && ");
@@ -368,6 +521,15 @@ export async function POST(
 
   const body = await request.json();
   const data = normalizeDocumentData(config.fields, body);
+  const hasSlugField = config.fields.some((field) => field.name === "slug");
+
+  if (hasSlugField) {
+    const slug = data.slug as { current?: string } | undefined;
+    data.slug = await createUniqueSlug(
+      config.documentType,
+      slug?.current || getSlugSource(body)
+    );
+  }
 
   const created = await writeClient.create({
     _type: config.documentType,
@@ -409,9 +571,21 @@ export async function PATCH(
     return NextResponse.json({ error: "No writable fields supplied" }, { status: 400 });
   }
 
+  const hasSlugField = config.fields.some((field) => field.name === "slug");
   const documents = [];
   for (const id of ids) {
-    const document = await writeClient.patch(id).set(data).commit();
+    const documentData = { ...data };
+
+    if (hasSlugField && "slug" in documentData) {
+      const slug = documentData.slug as { current?: string } | undefined;
+      documentData.slug = await createUniqueSlug(
+        config.documentType,
+        slug?.current || getSlugSource(body.data || body),
+        id
+      );
+    }
+
+    const document = await writeClient.patch(id).set(documentData).commit();
     documents.push(document);
   }
 
