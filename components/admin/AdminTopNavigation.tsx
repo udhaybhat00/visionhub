@@ -7,13 +7,11 @@ import { useClerk } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
-  Users,
   Package,
   ShoppingCart,
   BarChart3,
   Shield,
   Bell,
-  UserCheck,
   LogOut,
   Menu,
   X,
@@ -23,6 +21,13 @@ import {
   Star,
   Mail,
   Crown,
+  Tags,
+  Building2,
+  Percent,
+  BookOpen,
+  Images,
+  MessageSquare,
+  Database,
 } from "lucide-react";
 
 interface AdminTopNavigationProps {
@@ -50,19 +55,19 @@ const adminRoutes = [
     isPremium: true,
   },
   {
-    label: "Users",
-    icon: Users,
-    href: "/admin/users",
-  },
-  {
-    label: "Account Requests",
-    icon: UserCheck,
-    href: "/admin/account-requests",
-  },
-  {
     label: "Products",
     icon: Package,
     href: "/admin/products",
+  },
+  {
+    label: "Categories",
+    icon: Tags,
+    href: "/admin/categories",
+  },
+  {
+    label: "Brands",
+    icon: Building2,
+    href: "/admin/brands",
   },
   {
     label: "Orders",
@@ -70,16 +75,39 @@ const adminRoutes = [
     href: "/admin/orders",
   },
   {
+    label: "Coupons",
+    icon: Percent,
+    href: "/admin/coupons",
+  },
+  {
     label: "Reviews",
     icon: Star,
     href: "/admin/reviews",
-    isPremium: true,
+  },
+  {
+    label: "Blog",
+    icon: BookOpen,
+    href: "/admin/blog",
+  },
+  {
+    label: "Banners",
+    icon: Images,
+    href: "/admin/banners",
   },
   {
     label: "Subscriptions",
     icon: Mail,
     href: "/admin/subscriptions",
-    isPremium: true,
+  },
+  {
+    label: "Contacts",
+    icon: MessageSquare,
+    href: "/admin/contacts",
+  },
+  {
+    label: "Sanity Users",
+    icon: Database,
+    href: "/admin/sanity-users",
   },
   {
     label: "Notifications",

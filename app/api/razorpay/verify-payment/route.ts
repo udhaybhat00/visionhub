@@ -1,5 +1,9 @@
-import crypto from "crypto";
 import { NextResponse } from "next/server";
+
+import {
+  finalizeRazorpayOrder,
+  verifyRazorpayPaymentSignature,
+} from "@/lib/razorpayOrders";
 
 export async function POST(req: Request) {
   try {
@@ -9,19 +13,21 @@ export async function POST(req: Request) {
       razorpay_signature,
     } = await req.json();
 
-    const body =
-      razorpay_order_id + "|" + razorpay_payment_id;
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Missing Razorpay payment fields",
+        },
+        { status: 400 }
+      );
+    }
 
-    const expectedSignature = crypto
-      .createHmac(
-        "sha256",
-        process.env.RAZORPAY_KEY_SECRET!
-      )
-      .update(body)
-      .digest("hex");
-
-    const isValid =
-      expectedSignature === razorpay_signature;
+    const isValid = verifyRazorpayPaymentSignature({
+      razorpayOrderId: razorpay_order_id,
+      razorpayPaymentId: razorpay_payment_id,
+      razorpaySignature: razorpay_signature,
+    });
 
     if (!isValid) {
       return NextResponse.json(
@@ -33,9 +39,17 @@ export async function POST(req: Request) {
       );
     }
 
+    const finalizedOrder = await finalizeRazorpayOrder({
+      razorpayOrderId: razorpay_order_id,
+      razorpayPaymentId: razorpay_payment_id,
+      razorpaySignature: razorpay_signature,
+      source: "browser",
+    });
+
     return NextResponse.json({
       success: true,
       message: "Payment verified successfully",
+      order: finalizedOrder,
     });
   } catch (error) {
     console.error(error);

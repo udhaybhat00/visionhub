@@ -1,5 +1,3 @@
-import Container from "@/components/Container";
-import DynamicBreadcrumb from "@/components/DynamicBreadcrumb";
 import { ShoppingBag } from "lucide-react";
 import { CheckoutContent } from "@/components/checkout/CheckoutContent";
 import { notFound } from "next/navigation";
@@ -29,51 +27,40 @@ export default async function CheckoutPage({ searchParams }: Props) {
     }
 
     return (
-      <Container className="py-6">
-        {/* Breadcrumb with custom items for payment flow */}
-        <DynamicBreadcrumb
-          customItems={[
-            { label: "Home", href: "/" },
-            { label: "Orders", href: "/orders" },
-            { label: "Payment" },
-          ]}
-          className="mb-6"
-        />
-
-        {/* Checkout Header */}
-        <div className="flex items-center gap-2 mb-6">
-          <ShoppingBag className="w-6 h-6" />
-          <h1 className="text-2xl font-bold">Complete Payment</h1>
+      <main className="min-h-screen bg-[#f7f7f5] px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-black text-white">
+              <ShoppingBag className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">VisionHub checkout</p>
+              <h1 className="text-2xl font-semibold text-gray-950">Complete Payment</h1>
+            </div>
+          </div>
+          <OrderCheckoutContent order={order} />
         </div>
-
-        {/* Order Checkout Content */}
-        <OrderCheckoutContent order={order} />
-      </Container>
+      </main>
     );
   }
 
   // Regular checkout flow
   return (
-    <Container className="py-6">
-      {/* Breadcrumb with parent context showing "Home > Dashboard > Cart > Checkout" */}
-      <DynamicBreadcrumb
-        customItems={[
-          { label: "Home", href: "/" },
-          { label: "Dashboard", href: "/user" },
-          { label: "Cart", href: "/cart" },
-          { label: "Checkout" },
-        ]}
-        className="mb-6"
-      />
-
-      {/* Checkout Header */}
-      <div className="flex items-center gap-2 mb-6">
-        <ShoppingBag className="w-6 h-6" />
-        <h1 className="text-2xl font-bold">Checkout</h1>
+    <main className="min-h-screen bg-[#f7f7f5] px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-6">
+          <p className="text-sm font-medium uppercase tracking-[0.18em] text-gray-500">
+            VisionHub secure checkout
+          </p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-gray-950 sm:text-5xl">
+            Finish your order.
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-500 sm:text-base">
+            Premium eyewear, encrypted payment, and tracked delivery in one polished checkout.
+          </p>
+        </div>
+        <CheckoutContent />
       </div>
-
-      {/* Checkout Content */}
-      <CheckoutContent />
-    </Container>
+    </main>
   );
 }

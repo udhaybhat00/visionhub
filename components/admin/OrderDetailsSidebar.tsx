@@ -32,6 +32,8 @@ import {
   Truck,
   Save,
   X,
+  Printer,
+  Mail,
 } from "lucide-react";
 import { Order } from "./types";
 import { showToast } from "@/lib/toast";
@@ -67,6 +69,8 @@ const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
     rescheduledDate: order?.rescheduledDate || "",
     rescheduledReason: order?.rescheduledReason || "",
     cashCollectedAmount: order?.cashCollectedAmount || 0,
+    assignedDeliverymanName: order?.assignedDeliverymanName || "",
+    assignedDeliverymanId: order?.assignedDeliverymanId || "",
   });
 
   React.useEffect(() => {
@@ -84,6 +88,8 @@ const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
         rescheduledDate: order.rescheduledDate || "",
         rescheduledReason: order.rescheduledReason || "",
         cashCollectedAmount: order.cashCollectedAmount || 0,
+        assignedDeliverymanName: order.assignedDeliverymanName || "",
+        assignedDeliverymanId: order.assignedDeliverymanId || "",
       });
     }
   }, [order]);
@@ -209,6 +215,36 @@ const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
     } catch (error) {
       console.error("Error updating order:", error);
       showToast.error("Failed to update order");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handlePrintInvoice = () => {
+    if (!order) return;
+    window.open(`/invoice/${order._id}`, "_blank", "noopener,noreferrer");
+  };
+
+  const handleResendEmail = async () => {
+    if (!order) return;
+
+    setIsUpdating(true);
+    try {
+      const response = await fetch(`/api/admin/orders/${order._id}/resend-email`, {
+        method: "POST",
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result?.error || "Failed to resend email");
+      }
+
+      showToast.success("Order email resent");
+      await onOrderUpdate(order._id);
+    } catch (error) {
+      showToast.error(
+        error instanceof Error ? error.message : "Failed to resend email"
+      );
     } finally {
       setIsUpdating(false);
     }
@@ -403,29 +439,14 @@ const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="pending">🔴 Pending</SelectItem>
-                        <SelectItem value="address_confirmed">
-                          🟡 Address Confirmed
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="confirmed">Confirmed</SelectItem>
+                        <SelectItem value="processing">
+                          Preparing Eyewear
                         </SelectItem>
-                        <SelectItem value="order_confirmed">
-                          🟢 Order Confirmed
-                        </SelectItem>
-                        <SelectItem value="packed">📦 Packed</SelectItem>
-                        <SelectItem value="ready_for_delivery">
-                          ✅ Ready for Delivery
-                        </SelectItem>
-                        <SelectItem value="shipped">
-                          🚚 Out for Delivery
-                        </SelectItem>
-                        <SelectItem value="delivered">📬 Delivered</SelectItem>
-                        <SelectItem value="completed">✔️ Completed</SelectItem>
-                        <SelectItem value="cancelled">❌ Cancelled</SelectItem>
-                        <SelectItem value="rescheduled">
-                          📅 Rescheduled
-                        </SelectItem>
-                        <SelectItem value="failed_delivery">
-                          ⚠️ Failed Delivery
-                        </SelectItem>
+                        <SelectItem value="shipped">Shipped</SelectItem>
+                        <SelectItem value="delivered">Delivered</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -697,18 +718,39 @@ const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
                     )}
                   </div>
                 </div>
-                <div>
-                  <Label className="text-sm font-medium">
-                    Assigned Deliveryman
-                  </Label>
-                  <p className="text-sm">
-                    {order.assignedDeliverymanName || "Not assigned"}
-                  </p>
-                  {order.assignedDeliverymanId && (
-                    <p className="text-xs text-gray-500">
-                      ID: {order.assignedDeliverymanId}
-                    </p>
-                  )}
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <Label htmlFor="assignedDeliverymanName">
+                      Assigned Employee
+                    </Label>
+                    <Input
+                      id="assignedDeliverymanName"
+                      value={formData.assignedDeliverymanName}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "assignedDeliverymanName",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Employee name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="assignedDeliverymanId">
+                      Assigned Employee ID
+                    </Label>
+                    <Input
+                      id="assignedDeliverymanId"
+                      value={formData.assignedDeliverymanId}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "assignedDeliverymanId",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Employee user or Sanity ID"
+                    />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -1000,7 +1042,26 @@ const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
             </Card>
 
             {/* Action Buttons */}
-            <div className="flex gap-4 pt-6 pb-4 px-2">
+            <div className="grid gap-3 pt-6 pb-4 px-2 sm:grid-cols-2">
+              <Button
+                onClick={handlePrintInvoice}
+                variant="outline"
+                className="h-12 text-base font-medium"
+                size="lg"
+              >
+                <Printer className="w-5 h-5 mr-2" />
+                Print Invoice
+              </Button>
+              <Button
+                onClick={handleResendEmail}
+                disabled={isUpdating}
+                variant="outline"
+                className="h-12 text-base font-medium"
+                size="lg"
+              >
+                <Mail className="w-5 h-5 mr-2" />
+                Resend Email
+              </Button>
               <Button
                 onClick={handleUpdateOrder}
                 disabled={isUpdating}

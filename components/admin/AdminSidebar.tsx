@@ -4,14 +4,12 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
-  Users,
   Package,
   ShoppingCart,
   BarChart3,
   TrendingUp,
   Shield,
   Bell,
-  UserCheck,
   Star,
 } from "lucide-react";
 
@@ -31,18 +29,6 @@ const adminRoutes = [
     icon: BarChart3,
     href: "/admin/analytics",
     description: "Business Insights",
-  },
-  {
-    label: "Users",
-    icon: Users,
-    href: "/admin/users",
-    description: "Customer Management",
-  },
-  {
-    label: "Account Requests",
-    icon: UserCheck,
-    href: "/admin/account-requests",
-    description: "Premium & Business Approvals",
   },
   {
     label: "Products",

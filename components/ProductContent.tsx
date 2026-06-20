@@ -15,6 +15,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 import RecentlyViewed from "@/components/RecentlyViewed";
+import AiStylistCTA from "@/components/AiStylistCTA";
 
 import { Product } from "@/sanity.types";
 import {
@@ -397,6 +398,10 @@ const ProductContent = ({
         {/* Product Specifications */}
         <ProductSectionWrapper delay={0.8}>
           <ProductSpecs product={product} brand={brand} />
+        </ProductSectionWrapper>
+
+        <ProductSectionWrapper delay={0.85}>
+          <AiStylistCTA compact />
         </ProductSectionWrapper>
 
         {/* Customer Reviews */}

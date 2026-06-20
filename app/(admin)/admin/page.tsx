@@ -1,12 +1,7 @@
-import AdminPremiumFeature from "@/components/admin/AdminPremiumFeature";
+import AdminDashboard from "@/components/admin/AdminDashboard";
 
 const AdminPage = () => {
-  return (
-    <AdminPremiumFeature
-      featureName="Admin Dashboard"
-      description="Unlock powerful analytics, insights, and management tools with the premium version of VisionHub Pro."
-    />
-  );
+  return <AdminDashboard />;
 };
 
 export default AdminPage;

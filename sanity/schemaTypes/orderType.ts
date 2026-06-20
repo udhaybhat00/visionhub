@@ -73,6 +73,25 @@ export const orderType = defineType({
       hidden: ({ document }) => document?.paymentMethod !== "stripe",
     }),
     defineField({
+      name: "razorpayOrderId",
+      title: "Razorpay Order ID",
+      type: "string",
+      hidden: ({ document }) => document?.paymentMethod !== "razorpay",
+    }),
+    defineField({
+      name: "razorpayPaymentId",
+      title: "Razorpay Payment ID",
+      type: "string",
+      hidden: ({ document }) => document?.paymentMethod !== "razorpay",
+    }),
+    defineField({
+      name: "razorpaySignature",
+      title: "Razorpay Signature",
+      type: "string",
+      hidden: ({ document }) => document?.paymentMethod !== "razorpay",
+      readOnly: true,
+    }),
+    defineField({
       name: "products",
       title: "Products",
       type: "array",
@@ -200,6 +219,45 @@ initialValue: "pending",
       readOnly: true,
       description:
         "Set when product stock has been decremented for this order.",
+    }),
+    defineField({
+      name: "stockReductionFailedAt",
+      title: "Stock Reduction Failed At",
+      type: "datetime",
+      readOnly: true,
+      description:
+        "Set if a paid order could not decrement stock automatically.",
+    }),
+    defineField({
+      name: "stockReductionError",
+      title: "Stock Reduction Error",
+      type: "text",
+      readOnly: true,
+    }),
+    defineField({
+      name: "paymentCompletedAt",
+      title: "Payment Completed At",
+      type: "datetime",
+      readOnly: true,
+    }),
+    defineField({
+      name: "razorpayWebhookProcessedAt",
+      title: "Razorpay Webhook Processed At",
+      type: "datetime",
+      hidden: ({ document }) => document?.paymentMethod !== "razorpay",
+      readOnly: true,
+    }),
+    defineField({
+      name: "orderEmailSentAt",
+      title: "Order Email Sent At",
+      type: "datetime",
+      readOnly: true,
+    }),
+    defineField({
+      name: "couponUsageCountedAt",
+      title: "Coupon Usage Counted At",
+      type: "datetime",
+      readOnly: true,
     }),
     defineField({
       name: "paymentStatus",

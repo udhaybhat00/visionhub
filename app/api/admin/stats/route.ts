@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth, currentUser, clerkClient } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { client } from "@/sanity/lib/client";
 import { isUserAdmin } from "@/lib/adminUtils";
 
@@ -32,42 +32,28 @@ export async function GET() {
     const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
 
     // Optimized: Fetch all data in a single GROQ query
-    const [allStats, totalUsers] = await Promise.all([
-      client.fetch(
-        `{
-          "totalOrders": count(*[_type == "order"]),
-          "totalRevenue": *[_type == "order" && defined(totalPrice)].totalPrice,
-          "totalProducts": count(*[_type == "product"]),
-          "recentOrders": count(*[_type == "order" && dateTime(orderDate) >= dateTime($currentMonthStart)]),
-          "recentRevenue": *[_type == "order" && dateTime(orderDate) >= dateTime($currentMonthStart) && defined(totalPrice)].totalPrice,
-          "lastMonthOrders": count(*[_type == "order" && dateTime(orderDate) >= dateTime($lastMonthStart) && dateTime(orderDate) <= dateTime($lastMonthEnd)]),
-          "lastMonthRevenue": *[_type == "order" && dateTime(orderDate) >= dateTime($lastMonthStart) && dateTime(orderDate) <= dateTime($lastMonthEnd) && defined(totalPrice)].totalPrice,
-          "cardPayments": *[_type == "order" && paymentMethod == "card" && paymentStatus == "paid"].totalPrice,
-          "codPaid": *[_type == "order" && paymentMethod == "cash_on_delivery" && paymentStatus == "paid"].totalPrice,
-          "codPending": *[_type == "order" && paymentMethod == "cash_on_delivery" && paymentStatus == "pending"].totalPrice,
-          "totalCardOrders": count(*[_type == "order" && paymentMethod == "card"]),
-          "totalCodOrders": count(*[_type == "order" && paymentMethod == "cash_on_delivery"]),
-          "codPendingOrders": count(*[_type == "order" && paymentMethod == "cash_on_delivery" && paymentStatus == "pending"])
-        }`,
-        {
-          currentMonthStart: currentMonthStart.toISOString(),
-          lastMonthStart: lastMonthStart.toISOString(),
-          lastMonthEnd: lastMonthEnd.toISOString(),
-        }
-      ),
-
-      // Get total users from Clerk
-      (async () => {
-        try {
-          const clerk = await clerkClient();
-          const usersResponse = await clerk.users.getUserList({ limit: 1 });
-          return usersResponse.totalCount || 0;
-        } catch (error) {
-          console.error("Error fetching users from Clerk:", error);
-          return 0;
-        }
-      })(),
-    ]);
+    const allStats = await client.fetch(
+      `{
+        "totalOrders": count(*[_type == "order"]),
+        "totalRevenue": *[_type == "order" && defined(totalPrice)].totalPrice,
+        "totalProducts": count(*[_type == "product"]),
+        "recentOrders": count(*[_type == "order" && dateTime(orderDate) >= dateTime($currentMonthStart)]),
+        "recentRevenue": *[_type == "order" && dateTime(orderDate) >= dateTime($currentMonthStart) && defined(totalPrice)].totalPrice,
+        "lastMonthOrders": count(*[_type == "order" && dateTime(orderDate) >= dateTime($lastMonthStart) && dateTime(orderDate) <= dateTime($lastMonthEnd)]),
+        "lastMonthRevenue": *[_type == "order" && dateTime(orderDate) >= dateTime($lastMonthStart) && dateTime(orderDate) <= dateTime($lastMonthEnd) && defined(totalPrice)].totalPrice,
+        "cardPayments": *[_type == "order" && paymentMethod == "card" && paymentStatus == "paid"].totalPrice,
+        "codPaid": *[_type == "order" && paymentMethod == "cash_on_delivery" && paymentStatus == "paid"].totalPrice,
+        "codPending": *[_type == "order" && paymentMethod == "cash_on_delivery" && paymentStatus == "pending"].totalPrice,
+        "totalCardOrders": count(*[_type == "order" && paymentMethod == "card"]),
+        "totalCodOrders": count(*[_type == "order" && paymentMethod == "cash_on_delivery"]),
+        "codPendingOrders": count(*[_type == "order" && paymentMethod == "cash_on_delivery" && paymentStatus == "pending"])
+      }`,
+      {
+        currentMonthStart: currentMonthStart.toISOString(),
+        lastMonthStart: lastMonthStart.toISOString(),
+        lastMonthEnd: lastMonthEnd.toISOString(),
+      }
+    );
 
     // Helper function to sum array values
     const sumArray = (arr: number[] | null | undefined): number => {
@@ -93,7 +79,6 @@ export async function GET() {
     const stats = {
       totalRevenue,
       totalOrders: allStats.totalOrders || 0,
-      totalUsers,
       totalProducts: allStats.totalProducts || 0,
       revenueChange: Number(
         calculateChange(recentRevenue, lastMonthRevenue).toFixed(1)
@@ -104,7 +89,6 @@ export async function GET() {
           allStats.lastMonthOrders || 0
         ).toFixed(1)
       ),
-      usersChange: totalUsers > 0 ? 5.2 : 0,
       productsChange: allStats.totalProducts > 0 ? 2.1 : 0,
       paymentBreakdown: {
         cardRevenue: Number(cardRevenue.toFixed(2)),

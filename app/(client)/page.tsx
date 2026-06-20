@@ -4,6 +4,7 @@ import HomeBanner from "@/components/HomeBanner";
 import ProductGrid from "@/components/ProductGrid";
 import ShopByBrands from "@/components/ShopByBrands";
 import ShopFeatures from "@/components/ShopFeatures";
+import AiStylistCTA from "@/components/AiStylistCTA";
 import { getCategories } from "@/sanity/queries";
 import { generateOrganizationSchema, generateWebsiteSchema } from "@/lib/seo";
 
@@ -32,6 +33,7 @@ export default async function Home() {
 
       <HomeBanner />
       <div className="pt-4 pb-10">
+        <AiStylistCTA />
         <ProductGrid />
         <HomeCategories categories={categories} />
         <ShopByBrands />
