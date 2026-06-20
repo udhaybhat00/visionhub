@@ -4,19 +4,15 @@ import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import {
   TrendingUp,
-  Users,
   Package,
   ShoppingCart,
-  DollarSign,
+  IndianRupee,
   Eye,
   ArrowUpRight,
   ArrowDownRight,
   Activity,
   Calendar,
   RefreshCw,
-  UserCheck,
-  Crown,
-  Building2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,25 +23,14 @@ import Link from "next/link";
 interface DashboardStats {
   totalRevenue: number;
   totalOrders: number;
-  totalUsers: number;
   totalProducts: number;
   revenueChange: number;
   ordersChange: number;
-  usersChange: number;
   productsChange: number;
-}
-
-interface AccountRequestsSummary {
-  pendingPremiumCount: number;
-  pendingBusinessCount: number;
-  totalPendingRequests: number;
-  recentRequests: number;
 }
 
 const AdminDashboardOverview = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [accountRequests, setAccountRequests] =
-    useState<AccountRequestsSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,29 +38,19 @@ const AdminDashboardOverview = () => {
     try {
       setError(null);
 
-      // Fetch both dashboard stats and account requests summary
-      const [statsResponse, requestsResponse] = await Promise.all([
-        fetch("/api/admin/stats"),
-        fetch("/api/admin/account-requests-summary"),
-      ]);
+      const statsResponse = await fetch("/api/admin/stats");
 
-      if (!statsResponse.ok || !requestsResponse.ok) {
-        throw new Error(
-          `HTTP error! stats: ${statsResponse.status}, requests: ${requestsResponse.status}`
-        );
+      if (!statsResponse.ok) {
+        throw new Error(`HTTP error! stats: ${statsResponse.status}`);
       }
 
-      const [statsData, requestsData] = await Promise.all([
-        statsResponse.json(),
-        requestsResponse.json(),
-      ]);
+      const statsData = await statsResponse.json();
 
-      if (statsData.error || requestsData.error) {
-        throw new Error(statsData.error || requestsData.error);
+      if (statsData.error) {
+        throw new Error(statsData.error);
       }
 
       setStats(statsData);
-      setAccountRequests(requestsData);
     } catch (error) {
       console.error("Error fetching stats:", error);
       setError(
@@ -95,7 +70,7 @@ const AdminDashboardOverview = () => {
       title: "Total Revenue",
       value: stats?.totalRevenue || 0,
       change: stats?.revenueChange || 0,
-      icon: DollarSign,
+      icon: IndianRupee,
       format: "currency",
       color: "from-green-500 to-emerald-600",
       href: "/admin/analytics",
@@ -108,15 +83,6 @@ const AdminDashboardOverview = () => {
       format: "number",
       color: "from-blue-500 to-cyan-600",
       href: "/admin/orders",
-    },
-    {
-      title: "Total Users",
-      value: stats?.totalUsers || 0,
-      change: stats?.usersChange || 0,
-      icon: Users,
-      format: "number",
-      color: "from-purple-500 to-pink-600",
-      href: "/admin/users",
     },
     {
       title: "Total Products",
@@ -138,28 +104,11 @@ const AdminDashboardOverview = () => {
       color: "from-shop_light_green to-shop_dark_green",
     },
     {
-      title: "Account Requests",
-      description: `${
-        accountRequests?.totalPendingRequests || 0
-      } pending requests`,
-      icon: UserCheck,
-      href: "/admin/account-requests",
-      color: "from-amber-500 to-orange-600",
-      badge: accountRequests?.totalPendingRequests || 0,
-    },
-    {
       title: "Manage Orders",
       description: "Process and track orders",
       icon: ShoppingCart,
       href: "/admin/orders",
-      color: "from-shop_light_blue to-shop_dark_blue",
-    },
-    {
-      title: "User Management",
-      description: "View and manage customers",
-      icon: Users,
-      href: "/admin/users",
-      color: "from-shop_orange to-shop_light_orange",
+      color: "from-blue-500 to-cyan-600",
     },
     {
       title: "Product Catalog",
@@ -172,7 +121,11 @@ const AdminDashboardOverview = () => {
 
   const formatValue = (value: number, format: string) => {
     if (format === "currency") {
-      return `$${value.toLocaleString()}`;
+      return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+      }).format(value);
     }
     return value.toLocaleString();
   };
@@ -230,7 +183,7 @@ const AdminDashboardOverview = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {statCards.map((stat, index) => {
           const Icon = stat.icon;
           const isPositive = stat.change >= 0;
@@ -280,71 +233,6 @@ const AdminDashboardOverview = () => {
         })}
       </div>
 
-      {/* Account Requests Summary */}
-      {accountRequests && accountRequests.totalPendingRequests > 0 && (
-        <div className="space-y-4">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-dark-color mb-2">
-              Pending Account Requests
-            </h2>
-            <p className="text-light-color">
-              Review and approve user account applications
-            </p>
-          </div>
-
-          <Card className="border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-amber-100">
-            <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="flex items-center justify-center mb-3">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-                      <Crown className="w-6 h-6 text-white" />
-                    </div>
-                  </div>
-                  <div className="text-2xl font-bold text-amber-900 mb-1">
-                    {accountRequests.pendingPremiumCount}
-                  </div>
-                  <p className="text-sm text-amber-700">Premium Requests</p>
-                </div>
-
-                <div className="text-center">
-                  <div className="flex items-center justify-center mb-3">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                      <Building2 className="w-6 h-6 text-white" />
-                    </div>
-                  </div>
-                  <div className="text-2xl font-bold text-blue-900 mb-1">
-                    {accountRequests.pendingBusinessCount}
-                  </div>
-                  <p className="text-sm text-blue-700">Business Requests</p>
-                </div>
-
-                <div className="text-center">
-                  <div className="flex items-center justify-center mb-3">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
-                      <UserCheck className="w-6 h-6 text-white" />
-                    </div>
-                  </div>
-                  <div className="text-2xl font-bold text-green-900 mb-1">
-                    {accountRequests.recentRequests}
-                  </div>
-                  <p className="text-sm text-green-700">This Week</p>
-                </div>
-              </div>
-
-              <div className="mt-6 text-center">
-                <Link href="/admin/account-requests">
-                  <Button className="bg-amber-600 hover:bg-amber-700 text-white">
-                    <UserCheck className="w-4 h-4 mr-2" />
-                    Review Requests
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
       {/* Quick Actions */}
       <div className="space-y-6">
         <div className="text-center">
@@ -375,11 +263,6 @@ const AdminDashboardOverview = () => {
                           >
                             <Icon className="w-6 h-6 text-white" />
                           </div>
-                          {action.badge && action.badge > 0 && (
-                            <Badge variant="destructive" className="bg-red-500">
-                              {action.badge}
-                            </Badge>
-                          )}
                         </div>
                         <div>
                           <h3 className="font-semibold text-dark-color group-hover:text-shop_dark_green transition-colors">

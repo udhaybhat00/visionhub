@@ -72,14 +72,10 @@ const AdminOrders: React.FC = () => {
         return "bg-green-100 text-green-800";
       case "shipped":
         return "bg-blue-100 text-blue-800";
-      case "ready_for_delivery":
-        return "bg-cyan-100 text-cyan-800";
-      case "packed":
+      case "processing":
         return "bg-purple-100 text-purple-800";
-      case "order_confirmed":
+      case "confirmed":
         return "bg-emerald-100 text-emerald-800";
-      case "address_confirmed":
-        return "bg-yellow-100 text-yellow-800";
       case "pending":
         return "bg-orange-100 text-orange-800";
       case "cancelled":
@@ -314,22 +310,11 @@ const AdminOrders: React.FC = () => {
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="address_confirmed">
-                  Address Confirmed
-                </SelectItem>
-                <SelectItem value="order_confirmed">Order Confirmed</SelectItem>
-                <SelectItem value="packed">Packed</SelectItem>
-                <SelectItem value="ready_for_delivery">
-                  Ready for Delivery
-                </SelectItem>
-                <SelectItem value="shipped">
-                  Out for Delivery
-                </SelectItem>
+                <SelectItem value="confirmed">Confirmed</SelectItem>
+                <SelectItem value="processing">Preparing Eyewear</SelectItem>
+                <SelectItem value="shipped">Shipped</SelectItem>
                 <SelectItem value="delivered">Delivered</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
                 <SelectItem value="cancelled">Cancelled</SelectItem>
-                <SelectItem value="rescheduled">Rescheduled</SelectItem>
-                <SelectItem value="failed_delivery">Failed Delivery</SelectItem>
               </SelectContent>
             </Select>
             <Button

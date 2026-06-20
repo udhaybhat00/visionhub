@@ -1,6 +1,6 @@
 export default function AnnouncementBar() {
   return (
- <div className="bg-gradient-to-r from-shop_dark_green to-shop_light_green">
+ <div data-announcement-bar className="bg-gradient-to-r from-shop_dark_green to-shop_light_green">
   <div className="hidden md:flex justify-center items-center text-white text-sm py-2">
     👓 Premium Eyewear Collection • 🚚 Pan India Delivery • ⭐ 100% Authentic Products • 🔒 Secure Payments
   </div>

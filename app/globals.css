@@ -243,6 +243,24 @@
   display: none;
 }
 
+@media (max-width: 767px) {
+  body.ai-stylist-active {
+    overflow: hidden;
+    background: #030712;
+  }
+
+  body.ai-stylist-active > main {
+    padding-bottom: 0;
+  }
+
+  body.ai-stylist-active header,
+  body.ai-stylist-active footer,
+  body.ai-stylist-active [data-announcement-bar],
+  body.ai-stylist-active [data-mobile-bottom-nav] {
+    display: none;
+  }
+}
+
 /* Custom scrollbar for sidebar */
 .scrollbar-thin::-webkit-scrollbar {
   width: 6px;

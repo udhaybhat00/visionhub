@@ -9,13 +9,17 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import {
+  BadgeCheck,
+  ChevronDown,
   CreditCard,
+  Headphones,
+  LockKeyhole,
   Truck,
   MapPin,
   ShoppingBag,
   Package,
   Loader2,
-  X,
+  ShieldCheck,
 } from "lucide-react";
 import useCartStore, { CartItem } from "@/store";
 import PriceFormatter from "@/components/PriceFormatter";
@@ -24,9 +28,10 @@ import { urlFor } from "@/sanity/lib/image";
 import { toast } from "sonner";
 import { PAYMENT_METHODS, PaymentMethod } from "@/lib/orderStatus";
 import { OrderAddressSelector } from "@/components/checkout/OrderAddressSelector";
-import { useOrderPlacement } from "@/hooks/useOrderPlacement";
 import { CheckoutSkeleton } from "@/components/checkout/CheckoutSkeleton";
 import { OrderPlacementOverlay } from "@/components/cart/OrderPlacementSkeleton";
+import { motion } from "framer-motion";
+import AiStylistCTA from "@/components/AiStylistCTA";
 
 interface OrderAddress {
   _id: string;
@@ -43,6 +48,56 @@ interface OrderAddress {
   source: "order";
 }
 
+const progressSteps = ["Cart", "Address", "Payment", "Review", "Success"];
+
+const trustItems = [
+  { label: "100% Authentic Products", icon: BadgeCheck },
+  { label: "Secure Payments", icon: ShieldCheck },
+  { label: "Fast Shipping", icon: Truck },
+  { label: "Expert Support", icon: Headphones },
+];
+
+function CheckoutProgress() {
+  return (
+    <div className="rounded-[24px] border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+      <div className="relative">
+        <div className="absolute left-5 right-5 top-4 h-0.5 bg-gray-100" />
+        <motion.div
+          initial={{ width: "0%" }}
+          animate={{ width: "62%" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="absolute left-5 top-4 h-0.5 bg-gray-950"
+        />
+        <div className="relative flex justify-between">
+          {progressSteps.map((item, index) => {
+            const active = index <= 2;
+            return (
+              <div key={item} className="flex flex-col items-center gap-2">
+                <div
+                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-all ${
+                    active
+                      ? "bg-gray-950 text-white shadow-md"
+                      : "bg-gray-100 text-gray-400"
+                  }`}
+                >
+                  {index < 2 ? "✓" : index + 1}
+                </div>
+                <span
+                  className={`hidden text-xs font-medium sm:block ${
+                    active ? "text-gray-950" : "text-gray-400"
+                  }`}
+                >
+                  {item}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function CheckoutContent() {
   const { user, isLoaded } = useUser();
   const searchParams = useSearchParams();
@@ -52,9 +107,6 @@ export function CheckoutContent() {
     getSubTotalPrice,
     getTotalDiscount,
   } = useCartStore();
-  const { placeOrder, isPlacingOrder, orderStep } = useOrderPlacement({
-    user: user!,
-  });
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<PaymentMethod>(PAYMENT_METHODS.RAZORPAY);
   const [selectedAddress, setSelectedAddress] = useState<OrderAddress | null>(
@@ -64,6 +116,11 @@ export function CheckoutContent() {
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
   const [actionType, setActionType] = useState<"pay" | "order" | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+  const [orderStep, setOrderStep] = useState<
+    "validating" | "creating" | "emailing" | "redirecting"
+  >("validating");
   const [hasInitialCart, setHasInitialCart] = useState<boolean | null>(null);
   const [userProfile, setUserProfile] = useState<{
     isBusiness: boolean;
@@ -247,137 +304,105 @@ const [couponDiscount, setCouponDiscount] = useState(0);
   }, [cart, hasInitialCart, isLoaded]);
 
 
-  const handlePlaceOrder = async (
-  action: "pay"
-) => {
+  const handleRazorpayPayment = async () => {
     if (!selectedAddress) {
       toast.error("Please select a shipping address");
       return;
     }
 
-    setActionType(action);
+    setActionType("pay");
+    setIsPlacingOrder(true);
+    setOrderStep("creating");
 
-    // Determine payment method based on action and gateway
-   const paymentMethodToUse = PAYMENT_METHODS.RAZORPAY;
-
- const result = await placeOrder(
-  selectedAddress,
-  paymentMethodToUse,
-  finalSubtotal,
-  shipping,
-  tax,
-  total,
-  couponCode,
-);
-
-    if (result?.success && result.redirectTo) {
-      setIsRedirecting(true);
-      if (
-        action === "pay" &&
-        ("isStripeRedirect" in result && result.isStripeRedirect) ||
-("isClerkRedirect" in result && result.isClerkRedirect)
-      ) {
-        // Direct payment - clear cart and redirect
-        resetCart();
-        window.location.href = result.redirectTo;
-      } else {
-        // Order placed - clear cart and redirect with appropriate delay
-        setTimeout(
-          () => {
-            resetCart();
-            window.location.href = result.redirectTo;
+    const response = await fetch("/api/razorpay/create-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        items: cart.map((item) => ({
+          product: {
+            _id: item.product._id,
           },
-          500
-        );
-      }
-    }
+          quantity: item.quantity,
+        })),
+        shippingAddress: selectedAddress,
+        couponCode,
+      }),
+    });
 
-    setActionType(null);
-  };
-  const handleRazorpayPayment = async () => {
-  if (!selectedAddress) {
-    toast.error("Please select a shipping address");
-    return;
-  }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
 
-  const response = await fetch("/api/razorpay/create-order", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  body: JSON.stringify({
-  items: cart.map((item) => ({
-    product: {
-      _id: item.product._id,
-    },
-    quantity: item.quantity,
-  })),
-  couponCode,
-}),
-  });
+      toast.error(errorData?.error || "Failed to create Razorpay order");
 
-if (!response.ok) {
-  const errorData = await response.json().catch(() => null);
-
-  toast.error(
-    errorData?.error || "Failed to create Razorpay order"
-  );
-
-  return;
-}
-
-const order = await response.json();
-
-  const options = {
-  key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
-    amount: order.amount,
-    currency: "INR",
-    name: "VisionHub",
-    description: "Eyewear Purchase",
-    order_id: order.id,
-    prefill: {
-  name: user?.fullName || "",
-  email: user?.primaryEmailAddress?.emailAddress || "",
-},
-
-   handler: async function (response: any) {
-  try {
-    const verifyResponse = await fetch(
-      "/api/razorpay/verify-payment",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(response),
-      }
-    );
-
-    const result = await verifyResponse.json();
-
-    if (!result.success) {
-      toast.error("Payment verification failed");
+      setIsPlacingOrder(false);
+      setActionType(null);
       return;
     }
 
-    toast.success("Payment successful!");
+    const order = await response.json();
+    setIsPlacingOrder(false);
+    setActionType(null);
 
-    await handlePlaceOrder("pay");
-  } catch (error) {
-    console.error(error);
-    toast.error("Payment verification failed");
-  }
-},
+    const options = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
+      amount: order.amount,
+      currency: "INR",
+      name: "VisionHub",
+      description: "Eyewear Purchase",
+      order_id: order.id,
+      prefill: {
+        name: user?.fullName || "",
+        email: user?.primaryEmailAddress?.emailAddress || "",
+      },
 
-    theme: {
-      color: "#1B4332",
-    },
+      handler: async function (response: any) {
+        try {
+          const verifyResponse = await fetch("/api/razorpay/verify-payment", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(response),
+          });
+
+          const result = await verifyResponse.json();
+
+          if (!result.success) {
+            toast.error("Payment verification failed");
+            return;
+          }
+
+          const finalizedOrder = result.order;
+          const orderId = finalizedOrder?.orderId || order.localOrderId;
+          const orderNumber = finalizedOrder?.orderNumber || order.orderNumber;
+
+          toast.success("Payment successful!");
+          setIsRedirecting(true);
+          resetCart();
+          window.location.href = `/success?order_id=${orderId}&orderNumber=${orderNumber}`;
+        } catch (error) {
+          console.error(error);
+          toast.error("Payment verification failed");
+        }
+      },
+
+      theme: {
+        color: "#1B4332",
+      },
+    };
+
+    const razorpay = new (window as any).Razorpay(options);
+
+    razorpay.on("payment.failed", function () {
+      setIsPlacingOrder(false);
+      setActionType(null);
+      window.location.href = `/payment-failed?order_id=${order.localOrderId}&orderNumber=${order.orderNumber}`;
+    });
+
+    razorpay.open();
   };
-
-  const razorpay = new (window as any).Razorpay(options);
-
-  razorpay.open();
-};
 
   if (!isLoaded) {
     return <CheckoutSkeleton />;
@@ -428,218 +453,160 @@ const order = await response.json();
     );
   }
 
-  return (
-    <div className="grid lg:grid-cols-3 gap-8">
-      {/* Order Items */}
-      <div className="lg:col-span-2 space-y-6">
-
-        {/* Shipping Address */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="w-5 h-5" />
-              Shipping Address
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoadingAddresses ? (
-              <div className="space-y-3">
-                <div className="flex items-start gap-3 p-4 border rounded-lg">
-                  <div className="w-4 h-4 bg-gray-200 rounded-full animate-pulse mt-1"></div>
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-gray-200 rounded animate-pulse w-32"></div>
-                    <div className="h-3 bg-gray-200 rounded animate-pulse w-48"></div>
-                    <div className="h-3 bg-gray-200 rounded animate-pulse w-40"></div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-4 border rounded-lg">
-                  <div className="w-4 h-4 bg-gray-200 rounded-full animate-pulse mt-1"></div>
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-gray-200 rounded animate-pulse w-28"></div>
-                    <div className="h-3 bg-gray-200 rounded animate-pulse w-52"></div>
-                    <div className="h-3 bg-gray-200 rounded animate-pulse w-36"></div>
-                  </div>
-                </div>
-              </div>
-            ) : searchParams.get("address") ? (
-              // Show only selected address when coming from cart
-              selectedAddress && (
-                <div className="p-4 border rounded-lg bg-muted/50">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <p className="font-medium">{selectedAddress.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {selectedAddress.address}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {selectedAddress.city}, {selectedAddress.state}{" "}
-                        {selectedAddress.zip}
-                      </p>
-                      {selectedAddress.email && (
-                        <p className="text-sm text-muted-foreground">
-                          {selectedAddress.email}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded">
-                      ✓ Selected
-                    </div>
-                  </div>
-                </div>
-              )
-            ) : (
-              <OrderAddressSelector
-                addresses={addresses}
-                selectedAddress={selectedAddress}
-                onAddressSelect={setSelectedAddress}
-                isLoading={isLoadingAddresses}
-              />
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Order Items */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Order Items ({cart.length})</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {cart.map((item: CartItem) => (
-              <div
+  const summary = (
+    <Card className="overflow-hidden rounded-[28px] border-gray-100 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)]">
+      <CardHeader className="p-5 pb-3">
+        <CardTitle className="flex items-center justify-between text-lg">
+          Order Summary
+          <span className="text-xs font-medium text-gray-500">{cart.length} items</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4 p-5 pt-0">
+        <div className="max-h-72 space-y-3 overflow-auto pr-1">
+          {cart.map((item: CartItem) => {
+            const price = item.product.price || 0;
+            const discount = item.product.discount || 0;
+            const original = price + (discount * price) / 100;
+            const saved = Math.max(0, original - price) * item.quantity;
+            return (
+              <motion.div
                 key={item.product._id}
-                className="flex gap-3 p-3 border rounded-lg"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex gap-3 rounded-2xl border border-gray-100 p-3"
               >
-                <div className="w-16 h-16 shrink-0">
-                  <Image
-                    src={
-                      item.product.images?.[0]
-                        ? urlFor(item.product.images[0]).url()
-                        : "/placeholder.jpg"
-                    }
-                    alt={item.product.name || "Product"}
-                    width={64}
-                    height={64}
-                    className="w-full h-full object-cover rounded"
-                  />
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-medium">{item.product.name}</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Qty: {item.quantity}
-                  </p>
+                <Image
+                  src={item.product.images?.[0] ? urlFor(item.product.images[0]).url() : "/placeholder.jpg"}
+                  alt={item.product.name || "Product"}
+                  width={72}
+                  height={72}
+                  className="h-[72px] w-[72px] rounded-xl object-cover"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-gray-950">{item.product.name}</p>
+                  <p className="mt-1 text-xs text-gray-500">Qty {item.quantity}</p>
+                  {saved > 0 && <p className="mt-1 text-xs font-medium text-emerald-700">Saved <PriceFormatter amount={saved} /></p>}
                 </div>
                 <div className="text-right">
-                  <p className="font-medium">
-                    <PriceFormatter
-                      amount={(item.product.price || 0) * item.quantity}
-                    />
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    <PriceFormatter amount={item.product.price || 0} /> each
-                  </p>
+                  <PriceFormatter amount={price * item.quantity} className="text-sm text-gray-950" />
+                  {discount > 0 && <p className="text-xs text-gray-400 line-through">₹{(original * item.quantity).toFixed(2)}</p>}
                 </div>
-              </div>
+              </motion.div>
+            );
+          })}
+        </div>
+        <Separator />
+        <div className="space-y-3 text-sm">
+          <div className="flex justify-between"><span className="text-gray-500">Original price</span><PriceFormatter amount={grossSubtotal} /></div>
+          {totalDiscount > 0 && <div className="flex justify-between text-emerald-700"><span>Product discount</span><span>-₹{totalDiscount.toFixed(2)}</span></div>}
+          {businessDiscount > 0 && <div className="flex justify-between text-emerald-700"><span>Business savings</span><span>-₹{businessDiscount.toFixed(2)}</span></div>}
+          {couponDiscount > 0 && <div className="flex justify-between text-emerald-700"><span>Coupon {couponCode}</span><span>-₹{couponDiscount.toFixed(2)}</span></div>}
+          <div className="flex justify-between"><span className="text-gray-500">Shipping</span><span className="font-semibold">{shipping === 0 ? "Free" : `₹${shipping.toFixed(2)}`}</span></div>
+          <div className="flex justify-between"><span className="text-gray-500">Tax</span><PriceFormatter amount={tax} /></div>
+        </div>
+        <Separator />
+        <div className="flex items-end justify-between">
+          <span className="text-sm text-gray-500">Final Total</span>
+          <PriceFormatter amount={total} className="text-2xl font-bold text-gray-950" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="pb-28 lg:pb-0">
+      <CheckoutProgress />
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_420px]">
+        <div className="space-y-6">
+          <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+            <Card className="rounded-[28px] border-gray-100 bg-white shadow-sm">
+              <CardHeader className="p-5">
+                <CardTitle className="flex items-center gap-2 text-lg"><MapPin className="h-5 w-5" /> Delivery Address</CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 pt-0">
+                {isLoadingAddresses ? (
+                  <div className="space-y-3">
+                    <div className="h-20 animate-pulse rounded-2xl bg-gray-100" />
+                    <div className="h-20 animate-pulse rounded-2xl bg-gray-100" />
+                  </div>
+                ) : searchParams.get("address") && selectedAddress ? (
+                  <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="font-semibold text-gray-950">{selectedAddress.name}</p>
+                        <p className="mt-1 text-sm leading-6 text-gray-500">{selectedAddress.address}, {selectedAddress.city}, {selectedAddress.state} {selectedAddress.zip}</p>
+                        {selectedAddress.email && <p className="text-sm text-gray-500">{selectedAddress.email}</p>}
+                      </div>
+                      <span className="rounded-full bg-gray-950 px-3 py-1 text-xs font-medium text-white">Selected</span>
+                    </div>
+                  </div>
+                ) : (
+                  <OrderAddressSelector addresses={addresses} selectedAddress={selectedAddress} onAddressSelect={setSelectedAddress} isLoading={isLoadingAddresses} />
+                )}
+              </CardContent>
+            </Card>
+          </motion.section>
+
+          <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
+            <Card className="rounded-[28px] border-gray-100 bg-white shadow-sm">
+              <CardHeader className="p-5">
+                <CardTitle className="flex items-center gap-2 text-lg"><LockKeyhole className="h-5 w-5" /> Secure Payment</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 p-5 pt-0">
+                <div className="rounded-3xl border border-gray-950 bg-gray-950 p-5 text-white shadow-xl">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.2em] text-gray-400">Razorpay</p>
+                      <h3 className="mt-2 text-xl font-semibold">Encrypted online payment</h3>
+                      <p className="mt-2 text-sm leading-6 text-gray-300">Pay securely with cards, UPI, wallets, or netbanking.</p>
+                    </div>
+                    <CreditCard className="h-10 w-10 text-white" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {["Secure Checkout", "Encrypted Payments", "Fast Delivery", "Warranty Support"].map((item) => (
+                    <div key={item} className="flex items-center gap-2 rounded-2xl bg-gray-50 p-3 text-sm font-medium text-gray-700">
+                      <ShieldCheck className="h-4 w-4 text-emerald-700" /> {item}
+                    </div>
+                  ))}
+                </div>
+                <Button onClick={handleRazorpayPayment} disabled={isPlacingOrder || !selectedAddress || cart.length === 0} className="hidden h-[52px] w-full rounded-full bg-gray-950 text-base font-semibold hover:bg-black lg:flex">
+                  {isPlacingOrder && actionType === "pay" ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing</> : <>Pay Securely <PriceFormatter amount={total} className="ml-2 text-white" /></>}
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.section>
+
+          <div className="grid gap-3 sm:grid-cols-4">
+            {trustItems.map(({ label, icon: Icon }) => (
+              <motion.div key={label} whileHover={{ y: -2 }} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                <Icon className="h-5 w-5 text-gray-950" />
+                <p className="mt-3 text-sm font-semibold text-gray-900">{label}</p>
+              </motion.div>
             ))}
-          </CardContent>
-        </Card>
-      </div>
+          </div>
 
-      {/* Order Summary */}
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Order Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex justify-between">
-              <span>Subtotal ({cart.length} items)</span>
-              <PriceFormatter amount={grossSubtotal} />
-            </div>
-            {totalDiscount > 0 && (
-              <div className="flex justify-between text-green-600">
-                <span>Discount</span>
-                <span>
-                  -<PriceFormatter amount={totalDiscount} />
-                </span>
-              </div>
-            )}
-            {businessDiscount > 0 && (
-              <div className="flex justify-between text-blue-600">
-                <span>Business Account Discount (2%)</span>
-                <span>
-                  -<PriceFormatter amount={businessDiscount} />
-                </span>
-              </div>
-            )}
-            {couponDiscount > 0 && (
-  <div className="flex justify-between text-green-600">
-    <span>
-      Coupon • {couponCode}
-    </span>
-
-    <span>
-      -<PriceFormatter amount={couponDiscount} />
-    </span>
-  </div>
-)}
-            <div className="flex justify-between">
-              <span>Shipping</span>
-              {shipping === 0 ? (
-                <span className="text-green-600 font-medium">Free</span>
-              ) : (
-                <PriceFormatter amount={shipping} />
-              )}
-            </div>
-            <div className="flex justify-between">
-              <span>Tax</span>
-              <PriceFormatter amount={tax} />
-            </div>
-            <Separator />
-            <div className="flex justify-between text-lg font-bold">
-              <span>Total</span>
-              <PriceFormatter amount={total} />
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="space-y-3">
-          <Button
-            onClick={handleRazorpayPayment}
-            disabled={isPlacingOrder || !selectedAddress || cart.length === 0}
-            className="w-full h-12 text-lg font-semibold"
-            size="lg"
-          >
-            {isPlacingOrder && actionType === "pay" ? (
-              <div className="flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Processing...
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <CreditCard className="w-5 h-5" />
-                Pay Now
-              </div>
-            )}
-          </Button>
-
+          <AiStylistCTA compact />
         </div>
 
-        <div className="text-center text-xs text-muted-foreground">
-          {selectedPaymentMethod === PAYMENT_METHODS.RAZORPAY ? (
-            <>
-              <p>🔒 Secure checkout powered by Razorpay</p>
-              <p>Your payment information is encrypted and secure</p>
-            </>
-          ) : (
-            <>
-              <p>💵 Pay when your order arrives</p>
-              <p>Cash payment to delivery agent</p>
-            </>
-          )}
+        <aside className="hidden lg:block">
+          <div className="sticky top-6">{summary}</div>
+        </aside>
+
+        <div className="lg:hidden">
+          <button onClick={() => setIsSummaryOpen(!isSummaryOpen)} className="mb-3 flex w-full items-center justify-between rounded-2xl border border-gray-100 bg-white p-4 font-semibold shadow-sm">
+            Order summary <ChevronDown className={`h-4 w-4 transition ${isSummaryOpen ? "rotate-180" : ""}`} />
+          </button>
+          {isSummaryOpen && <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>{summary}</motion.div>}
         </div>
       </div>
 
-      {/* Order Placement Overlay */}
+      <div className="fixed inset-x-0 bottom-[72px] z-50 border-t border-gray-100 bg-white/95 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-16px_40px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
+        <Button onClick={handleRazorpayPayment} disabled={isPlacingOrder || !selectedAddress || cart.length === 0} className="h-[52px] w-full rounded-full bg-gray-950 text-base font-semibold hover:bg-black">
+          {isPlacingOrder && actionType === "pay" ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing</> : <>Pay Securely <PriceFormatter amount={total} className="ml-2 text-white" /></>}
+        </Button>
+      </div>
+
       {isPlacingOrder && (
         <OrderPlacementOverlay
           step={orderStep}

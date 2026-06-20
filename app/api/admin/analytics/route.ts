@@ -1,72 +1,234 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
+
 import { isUserAdmin } from "@/lib/adminUtils";
-import { client } from "@/sanity/lib/client";
+import { backendClient } from "@/sanity/lib/backendClient";
 
-interface OrderProduct {
-  name: string;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+type OrderProduct = {
   quantity?: number;
+  product?: {
+    _id?: string;
+    name?: string;
+    price?: number;
+    slug?: { current?: string };
+    images?: unknown[];
+  };
+};
+
+type AnalyticsOrder = {
+  _id: string;
+  orderNumber?: string;
+  customerName?: string;
+  email?: string;
+  totalPrice?: number;
+  currency?: string;
+  status?: string;
+  paymentStatus?: string;
+  paymentMethod?: string;
+  orderDate?: string;
+  products?: OrderProduct[];
+};
+
+type LowStockProduct = {
+  _id: string;
+  name?: string;
+  stock?: number;
   price?: number;
-  category?: string;
-  brand?: string;
+  slug?: { current?: string };
+};
+
+type DailyMetric = {
+  date: string;
+  label: string;
+  revenue: number;
+  orders: number;
+};
+
+const LOW_STOCK_THRESHOLD = 5;
+
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-interface AnalyticsOrder {
-  _id: string;
-  orderNumber: string;
-  customerName: string;
-  email: string;
-  totalAmount: number;
-  status: string;
-  paymentMethod: string;
-  orderDate: string;
-  products?: OrderProduct[];
+function endOfDay(date: Date) {
+  const next = startOfDay(date);
+  next.setDate(next.getDate() + 1);
+  next.setMilliseconds(next.getMilliseconds() - 1);
+  return next;
 }
 
-interface RevenueOrder {
-  totalAmount: number;
-  orderDate: string;
+function startOfMonth(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
 }
 
-interface OrderWithStatus {
-  _id: string;
-  status: string;
-  totalPrice?: number;
-  products?: OrderProduct[];
+function getDateKey(date: Date) {
+  return date.toISOString().slice(0, 10);
 }
 
-interface RecentOrder {
-  orderNumber: string;
-  status: string;
-  orderDate: string;
-  totalPrice?: number;
-}
-interface StatusOrder {
-  status: string;
+function formatDayLabel(date: Date) {
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+  }).format(date);
 }
 
-interface PaymentMethodOrder {
-  paymentMethod: string;
+function isRevenueOrder(order: AnalyticsOrder) {
+  if (!order.totalPrice || order.status === "cancelled") return false;
+  if (!order.paymentStatus) return true;
+  return order.paymentStatus === "paid";
+}
+
+function sumRevenue(orders: AnalyticsOrder[]) {
+  return orders.reduce(
+    (sum, order) => (isRevenueOrder(order) ? sum + (order.totalPrice || 0) : sum),
+    0
+  );
+}
+
+function countStatus(orders: AnalyticsOrder[], status: string) {
+  return orders.filter((order) => order.status === status).length;
+}
+
+function normalizeOrderDate(order: AnalyticsOrder) {
+  if (!order.orderDate) return null;
+  const date = new Date(order.orderDate);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function buildDailyMetrics(orders: AnalyticsOrder[], today: Date) {
+  const start = startOfDay(today);
+  start.setDate(start.getDate() - 29);
+
+  const metrics = new Map<string, DailyMetric>();
+
+  for (let offset = 0; offset < 30; offset += 1) {
+    const date = new Date(start);
+    date.setDate(start.getDate() + offset);
+    const key = getDateKey(date);
+    metrics.set(key, {
+      date: key,
+      label: formatDayLabel(date),
+      revenue: 0,
+      orders: 0,
+    });
+  }
+
+  for (const order of orders) {
+    const date = normalizeOrderDate(order);
+    if (!date || date < start || date > endOfDay(today)) continue;
+
+    const key = getDateKey(date);
+    const metric = metrics.get(key);
+    if (!metric) continue;
+
+    metric.orders += 1;
+    if (isRevenueOrder(order)) {
+      metric.revenue += order.totalPrice || 0;
+    }
+  }
+
+  return Array.from(metrics.values()).map((metric) => ({
+    ...metric,
+    revenue: Number(metric.revenue.toFixed(2)),
+  }));
+}
+
+function buildTopProducts(orders: AnalyticsOrder[]) {
+  const productMap = new Map<
+    string,
+    {
+      productId: string;
+      name: string;
+      unitsSold: number;
+      revenue: number;
+      slug?: string;
+      image?: unknown;
+    }
+  >();
+
+  for (const order of orders) {
+    if (!isRevenueOrder(order)) continue;
+
+    for (const item of order.products || []) {
+      const product = item.product;
+      const productId = product?._id || product?.name || "unknown";
+      const quantity = item.quantity || 0;
+      const unitPrice = product?.price || 0;
+
+      if (!quantity) continue;
+
+      const existing =
+        productMap.get(productId) ||
+        {
+          productId,
+          name: product?.name || "Unknown product",
+          unitsSold: 0,
+          revenue: 0,
+          slug: product?.slug?.current,
+          image: product?.images?.[0],
+        };
+
+      existing.unitsSold += quantity;
+      existing.revenue += unitPrice * quantity;
+      productMap.set(productId, existing);
+    }
+  }
+
+  return Array.from(productMap.values())
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 10)
+    .map((product, index) => ({
+      ...product,
+      rank: index + 1,
+      revenue: Number(product.revenue.toFixed(2)),
+    }));
+}
+
+function buildRecentOrders(orders: AnalyticsOrder[]) {
+  return [...orders]
+    .sort((a, b) => {
+      const aDate = normalizeOrderDate(a)?.getTime() || 0;
+      const bDate = normalizeOrderDate(b)?.getTime() || 0;
+      return bDate - aDate;
+    })
+    .slice(0, 10)
+    .map((order) => ({
+      id: order._id,
+      orderNumber: order.orderNumber || order._id.slice(0, 8),
+      customerName: order.customerName || "Customer",
+      email: order.email || "",
+      totalPrice: order.totalPrice || 0,
+      currency: order.currency || "INR",
+      status: order.status || "pending",
+      paymentStatus: order.paymentStatus || "pending",
+      orderDate: order.orderDate || "",
+      itemCount: (order.products || []).reduce(
+        (sum, item) => sum + (item.quantity || 0),
+        0
+      ),
+    }));
+}
+
+function calculateChange(current: number, previous: number) {
+  if (previous === 0) return current > 0 ? 100 : 0;
+  return Number((((current - previous) / previous) * 100).toFixed(1));
 }
 
 export async function GET(req: NextRequest) {
   try {
-    // Get authenticated user
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized - Not logged in" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get current user details to check admin status
     const clerk = await clerkClient();
     const currentUser = await clerk.users.getUser(userId);
     const userEmail = currentUser.primaryEmailAddress?.emailAddress;
 
-    // Check if current user is admin
     if (!userEmail || !isUserAdmin(userEmail)) {
       return NextResponse.json(
         { error: "Forbidden - Admin access required" },
@@ -74,242 +236,237 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const { searchParams } = new URL(req.url);
-    const period = searchParams.get("period") || "30d"; // days
-    const type = searchParams.get("type") || "overview";
+    const today = new Date();
+    const todayStart = startOfDay(today);
+    const todayEnd = endOfDay(today);
+    const yesterdayStart = new Date(todayStart);
+    yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+    const yesterdayEnd = endOfDay(yesterdayStart);
+    const monthStart = startOfMonth(today);
+    const previousMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const previousMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59, 999);
+    const chartStart = new Date(todayStart);
+    chartStart.setDate(chartStart.getDate() - 29);
 
-    // Calculate date ranges
-    const currentDate = new Date();
-    const startDate = new Date();
-    let periodDays = 30;
-
-    if (period === "7d") {
-      periodDays = 7;
-    } else if (period === "30d") {
-      periodDays = 30;
-    } else if (period === "90d") {
-      periodDays = 90;
-    } else if (period === "365d") {
-      periodDays = 365;
-    }
-
-    startDate.setDate(currentDate.getDate() - periodDays);
-
-    // Previous period for comparison
-    const prevStartDate = new Date();
-    prevStartDate.setDate(startDate.getDate() - periodDays);
-
-    if (type === "overview") {
-      // Overview analytics
-      const [
-        currentPeriodOrders,
-        previousPeriodOrders,
-        totalProducts,
-        totalUsers,
-        recentOrders,
-        ordersByStatus,
-        topProducts,
-      ] = await Promise.all([
-        // Current period orders
-        client.fetch(
-          `*[_type == "order" && dateTime(orderDate) >= dateTime($startDate) && dateTime(orderDate) <= dateTime($currentDate)] {
-          _id,
-          totalPrice,
-          status,
-          orderDate,
-          customerName,
-          email,
-          products[] {
-            name,
-            quantity,
-            price
-          }
-        }`,
-          {
-            startDate: startDate.toISOString(),
-            currentDate: currentDate.toISOString(),
-          }
-        ),
-
-        // Previous period orders for comparison
-        client.fetch(
-          `*[_type == "order" && dateTime(orderDate) >= dateTime($prevStartDate) && dateTime(orderDate) < dateTime($startDate)] {
-          _id,
-          totalPrice,
-          status
-        }`,
-          {
-            prevStartDate: prevStartDate.toISOString(),
-            startDate: startDate.toISOString(),
-          }
-        ),
-
-        // Total products
-        client.fetch(`count(*[_type == "product"])`),
-
-        // Get users count from Clerk
-        (async () => {
-          try {
-            return await clerk.users.getCount();
-          } catch (error) {
-            console.error("Error fetching users count:", error);
-            return 0;
-          }
-        })(),
-
-        // Recent orders
-        client.fetch(
-          `*[_type == "order" && dateTime(orderDate) >= dateTime($startDate)] | order(orderDate desc) [0...10] {
+    const [
+      orders,
+      lowStockProducts,
+      lowStockCount,
+      outOfStockCount,
+      totalProducts,
+      totalCustomers,
+      totalReviews,
+      pendingReviews,
+      totalCoupons,
+      activeCoupons,
+      totalSubscribers,
+      aiStylistUsage,
+    ] = await Promise.all([
+      backendClient.fetch<AnalyticsOrder[]>(
+        `*[_type == "order"]{
           _id,
           orderNumber,
           customerName,
+          email,
           totalPrice,
+          currency,
           status,
-          orderDate
-        }`,
-          { startDate: startDate.toISOString() }
-        ),
-
-        // Orders by status
-        client.fetch(
-          `*[_type == "order" && dateTime(orderDate) >= dateTime($startDate)] {
-          status
-        }`,
-          { startDate: startDate.toISOString() }
-        ),
-
-        // Top products analysis
-        client.fetch(
-          `*[_type == "order" && dateTime(orderDate) >= dateTime($startDate)] {
-          products[] {
-            name,
+          paymentStatus,
+          paymentMethod,
+          orderDate,
+          products[]{
             quantity,
-            price
+            product->{
+              _id,
+              name,
+              price,
+              slug,
+              images
+            }
           }
+        }`
+      ),
+      backendClient.fetch<LowStockProduct[]>(
+        `*[_type == "product" && defined(stock) && stock <= $threshold] | order(stock asc, name asc)[0...20]{
+          _id,
+          name,
+          stock,
+          price,
+          slug
         }`,
-          { startDate: startDate.toISOString() }
-        ),
-      ]);
+        { threshold: LOW_STOCK_THRESHOLD }
+      ),
+      backendClient.fetch<number>(
+        `count(*[_type == "product" && defined(stock) && stock <= $threshold])`,
+        { threshold: LOW_STOCK_THRESHOLD }
+      ),
+      backendClient.fetch<number>(
+        `count(*[_type == "product" && defined(stock) && stock <= 0])`
+      ),
+      backendClient.fetch<number>(`count(*[_type == "product"])`),
+      clerk.users.getCount().catch(() => 0),
+      backendClient.fetch<number>(`count(*[_type == "review"])`),
+      backendClient.fetch<number>(`count(*[_type == "review" && status == "pending"])`),
+      backendClient.fetch<number>(`count(*[_type == "coupon"])`),
+      backendClient.fetch<number>(`count(*[_type == "coupon" && isActive == true])`),
+      backendClient.fetch<number>(`count(*[_type == "subscription" && status == "active"])`),
+      backendClient.fetch<number>(
+        `count(*[_type == "analyticsEvent" && eventName match "ai*"])`
+      ).catch(() => 0),
+    ]);
 
-      // Calculate current period stats
-      const currentRevenue = currentPeriodOrders
-        .filter((order: OrderWithStatus) => order.status === "delivered")
-        .reduce(
-          (sum: number, order: OrderWithStatus) =>
-            sum + (order.totalPrice || 0),
-          0
-        );
+    const orderDateInRange = (order: AnalyticsOrder, start: Date, end: Date) => {
+      const date = normalizeOrderDate(order);
+      return Boolean(date && date >= start && date <= end);
+    };
 
-      const previousRevenue = previousPeriodOrders
-        .filter((order: OrderWithStatus) => order.status === "delivered")
-        .reduce(
-          (sum: number, order: OrderWithStatus) =>
-            sum + (order.totalPrice || 0),
-          0
-        );
-
-      // Calculate percentage changes
-      const calculateChange = (current: number, previous: number) => {
-        if (previous === 0) return current > 0 ? 100 : 0;
-        return ((current - previous) / previous) * 100;
-      };
-
-      // Order status breakdown
-      const statusCounts: Record<string, number> = {};
-      ordersByStatus.forEach((order: OrderWithStatus) => {
-        statusCounts[order.status] = (statusCounts[order.status] || 0) + 1;
-      });
-
-      // Process top products
-      const productSales: Record<
-        string,
-        { name: string; sales: number; revenue: number }
-      > = {};
-
-      topProducts.forEach((order: OrderWithStatus) => {
-        order.products?.forEach((product: OrderProduct) => {
-          const key = product.name || "Unknown Product";
-          if (!productSales[key]) {
-            productSales[key] = { name: key, sales: 0, revenue: 0 };
-          }
-          productSales[key].sales += product.quantity || 0;
-          productSales[key].revenue +=
-            (product.price || 0) * (product.quantity || 0);
-        });
-      });
-
-      const topProductsList = Object.values(productSales)
-        .sort((a, b) => b.revenue - a.revenue)
-        .slice(0, 5);
-
-      // Create recent activity
-      const recentActivity = recentOrders
-        .slice(0, 8)
-        .map((order: RecentOrder) => ({
-          action: `Order ${order.orderNumber} ${order.status}`,
-          time: new Date(order.orderDate).toLocaleDateString(),
-          value: `$${order.totalPrice?.toLocaleString() || 0}`,
-        }));
-
-      // Return analytics data in the format expected by the component
-      const result = {
-        revenue: {
-          total: currentRevenue,
-          change: Number(
-            calculateChange(currentRevenue, previousRevenue).toFixed(1)
-          ),
-          trend: [], // Could add daily revenue data here
-        },
-        orders: {
-          total: currentPeriodOrders.length,
-          change: Number(
-            calculateChange(
-              currentPeriodOrders.length,
-              previousPeriodOrders.length
-            ).toFixed(1)
-          ),
-          pending: statusCounts["pending"] || 0,
-          completed: statusCounts["delivered"] || 0,
-          cancelled: statusCounts["cancelled"] || 0,
-        },
-        customers: {
-          total: totalUsers,
-          change: 5.2, // Placeholder since we don't have historical user data
-          active: Math.floor(totalUsers * 0.8), // Estimated
-          new: Math.floor(totalUsers * 0.1), // Estimated
-        },
-        products: {
-          total: totalProducts,
-          change: 2.1, // Placeholder
-          lowStock: 0, // Would need inventory data
-          outOfStock: 0, // Would need inventory data
-        },
-        topProducts: topProductsList,
-        recentActivity: recentActivity,
-      };
-
-      return NextResponse.json(result);
-    } else if (type === "sales") {
-      // Sales analytics - simplified for now
-      return NextResponse.json({
-        salesByCategory: [],
-        salesByBrand: [],
-        monthlySales: [],
-      });
-    } else if (type === "customers") {
-      // Customer analytics - simplified for now
-      return NextResponse.json({
-        topCustomers: [],
-        customerOrders: [],
-      });
-    }
-
-    return NextResponse.json(
-      { error: "Invalid analytics type" },
-      { status: 400 }
+    const todayOrders = orders.filter((order) =>
+      orderDateInRange(order, todayStart, todayEnd)
     );
+    const yesterdayOrders = orders.filter((order) =>
+      orderDateInRange(order, yesterdayStart, yesterdayEnd)
+    );
+    const monthOrders = orders.filter((order) =>
+      orderDateInRange(order, monthStart, todayEnd)
+    );
+    const previousMonthOrders = orders.filter((order) =>
+      orderDateInRange(order, previousMonthStart, previousMonthEnd)
+    );
+    const last30DayOrders = orders.filter((order) =>
+      orderDateInRange(order, chartStart, todayEnd)
+    );
+
+    const revenueToday = sumRevenue(todayOrders);
+    const revenueYesterday = sumRevenue(yesterdayOrders);
+    const revenueThisMonth = sumRevenue(monthOrders);
+    const revenuePreviousMonth = sumRevenue(previousMonthOrders);
+    const totalRevenue = sumRevenue(orders);
+
+    const deliveredOrders = countStatus(orders, "delivered");
+    const pendingOrders = orders.filter((order) =>
+      ["pending", "confirmed", "processing", "shipped"].includes(
+        order.status || "pending"
+      )
+    ).length;
+    const cancelledOrders = countStatus(orders, "cancelled");
+    const dailyMetrics = buildDailyMetrics(orders, today);
+    const topProducts = buildTopProducts(orders);
+    const recentOrders = buildRecentOrders(orders);
+
+    const result = {
+      generatedAt: new Date().toISOString(),
+      currency: "INR",
+      cards: {
+        revenueToday: Number(revenueToday.toFixed(2)),
+        revenueThisMonth: Number(revenueThisMonth.toFixed(2)),
+        totalOrders: orders.length,
+        totalCustomers,
+        totalProducts,
+        totalReviews,
+        pendingReviews,
+        totalCoupons,
+        activeCoupons,
+        totalSubscribers,
+        pendingOrders,
+        deliveredOrders,
+        cancelledOrders,
+        lowStockProducts: lowStockCount,
+        aiStylistUsage,
+      },
+      changes: {
+        revenueToday: calculateChange(revenueToday, revenueYesterday),
+        revenueThisMonth: calculateChange(
+          revenueThisMonth,
+          revenuePreviousMonth
+        ),
+      },
+      charts: {
+        revenueLast30Days: dailyMetrics.map((metric) => ({
+          date: metric.date,
+          label: metric.label,
+          revenue: metric.revenue,
+        })),
+        ordersLast30Days: dailyMetrics.map((metric) => ({
+          date: metric.date,
+          label: metric.label,
+          orders: metric.orders,
+        })),
+      },
+      tables: {
+        topSellingProducts: topProducts,
+        recentOrders,
+        lowStockProducts: lowStockProducts.map((product) => ({
+          id: product._id,
+          name: product.name || "Untitled product",
+          stock: product.stock || 0,
+          price: product.price || 0,
+          slug: product.slug?.current,
+        })),
+        quickActions: {
+          lowStockProducts: lowStockProducts.slice(0, 5).map((product) => ({
+            id: product._id,
+            title: product.name || "Untitled product",
+            description: `${product.stock || 0} in stock`,
+            href: `/admin/products?search=${encodeURIComponent(product.name || "")}`,
+            action: "Restock",
+          })),
+          pendingOrders: recentOrders
+            .filter((order) => ["pending", "confirmed", "processing"].includes(order.status))
+            .slice(0, 5)
+            .map((order) => ({
+              id: order.id,
+              title: order.orderNumber,
+              description: `${order.customerName} - ₹${order.totalPrice}`,
+              href: "/admin/orders",
+              action: "Open Order",
+            })),
+        },
+      },
+      revenue: {
+        total: Number(totalRevenue.toFixed(2)),
+        change: calculateChange(revenueThisMonth, revenuePreviousMonth),
+        trend: dailyMetrics.map((metric) => metric.revenue),
+      },
+      orders: {
+        total: orders.length,
+        change: calculateChange(monthOrders.length, previousMonthOrders.length),
+        pending: pendingOrders,
+        completed: deliveredOrders,
+        cancelled: cancelledOrders,
+      },
+      products: {
+        total: totalProducts,
+        change: 0,
+        lowStock: lowStockCount,
+        outOfStock: outOfStockCount,
+      },
+      customers: {
+        total: totalCustomers,
+        change: 0,
+        active: totalCustomers,
+        new: 0,
+      },
+      topProducts: topProducts.map((product) => ({
+        name: product.name,
+        sales: product.unitsSold,
+        revenue: product.revenue,
+      })),
+      recentActivity: recentOrders.map((order) => ({
+        action: `Order ${order.orderNumber} ${order.status}`,
+        time: order.orderDate,
+        value: order.totalPrice,
+      })),
+    };
+
+    return NextResponse.json(result, {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        Pragma: "no-cache",
+        Expires: "0",
+      },
+    });
   } catch (error) {
-    console.error("Error fetching analytics:", error);
+    console.error("Error fetching admin analytics:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

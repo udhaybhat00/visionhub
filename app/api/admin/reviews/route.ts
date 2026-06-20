@@ -3,7 +3,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { writeClient } from "@/sanity/lib/client";
 import { isUserAdmin } from "@/lib/adminUtils";
 
-// PATCH - Approve or reject a review
+// PATCH - Approve, reject, or update a review reply/admin note
 export async function PATCH(request: NextRequest) {
   try {
     const { userId } = await auth();
@@ -35,9 +35,9 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    if (!["approve", "reject"].includes(action)) {
+    if (!["approve", "reject", "reply"].includes(action)) {
       return NextResponse.json(
-        { error: "Invalid action. Must be 'approve' or 'reject'" },
+        { error: "Invalid action. Must be 'approve', 'reject', or 'reply'" },
         { status: 400 }
       );
     }
@@ -62,23 +62,34 @@ export async function PATCH(request: NextRequest) {
     }
 
     const now = new Date().toISOString();
-    const newStatus = action === "approve" ? "approved" : "rejected";
+    const newStatus =
+      action === "approve"
+        ? "approved"
+        : action === "reject"
+          ? "rejected"
+          : undefined;
 
     // Update the review status
-    await writeClient
-      .patch(reviewId)
-      .set({
-        status: newStatus,
-        updatedAt: now,
-        ...(action === "approve"
-          ? {
-              approvedAt: now,
-              approvedBy: userEmail,
-            }
-          : {}),
-        ...(adminNotes ? { adminNotes } : {}),
-      })
-      .commit();
+    const reviewPatch = writeClient.patch(reviewId).set({
+      updatedAt: now,
+      ...(newStatus ? { status: newStatus } : {}),
+      ...(action === "approve"
+        ? {
+            approvedAt: now,
+            approvedBy: userEmail,
+          }
+        : {}),
+      ...(adminNotes !== undefined ? { adminNotes } : {}),
+    });
+
+    await reviewPatch.commit();
+
+    if (action === "reply") {
+      return NextResponse.json({
+        success: true,
+        message: "Review reply saved",
+      });
+    }
 
     // If approved, update product rating statistics
     if (action === "approve" && review.product) {
@@ -150,6 +161,53 @@ export async function PATCH(request: NextRequest) {
     console.error("Error updating review:", error);
     return NextResponse.json(
       { error: "Failed to update review" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const clerk = await clerkClient();
+    const currentUser = await clerk.users.getUser(userId);
+    const userEmail = currentUser.primaryEmailAddress?.emailAddress;
+
+    if (!userEmail || !isUserAdmin(userEmail)) {
+      return NextResponse.json(
+        { error: "Forbidden - Admin access required" },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
+    const reviewIds: string[] = body.reviewIds || (body.reviewId ? [body.reviewId] : []);
+
+    if (reviewIds.length === 0) {
+      return NextResponse.json(
+        { error: "Review ID is required" },
+        { status: 400 }
+      );
+    }
+
+    for (const reviewId of reviewIds) {
+      await writeClient.delete(reviewId);
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Review deleted",
+      count: reviewIds.length,
+    });
+  } catch (error) {
+    console.error("Error deleting review:", error);
+    return NextResponse.json(
+      { error: "Failed to delete review" },
       { status: 500 }
     );
   }

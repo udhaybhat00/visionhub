@@ -1,11 +1,5 @@
-import AccountRequestsClient from "@/components/admin/AccountRequestsClient";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Account Requests - Admin Panel",
-  description: "Manage premium and business account applications",
-};
+import { redirect } from "next/navigation";
 
 export default function AccountRequestsPage() {
-  return <AccountRequestsClient />;
+  redirect("/admin");
 }

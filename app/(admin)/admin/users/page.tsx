@@ -1,7 +1,5 @@
-import AdminUsers from "@/components/admin/AdminUsers";
+import { redirect } from "next/navigation";
 
-const AdminUsersPage = () => {
-  return <AdminUsers />;
-};
-
-export default AdminUsersPage;
+export default function AdminUsersPage() {
+  redirect("/admin");
+}
