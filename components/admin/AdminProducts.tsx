@@ -292,7 +292,7 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
                           <TableCell>
                             <div className="flex items-center gap-3">
                               {/* Product Image */}
-                              <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                              <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 p-1">
                                 {product.images && product.images[0] ? (
                                   <Image
                                     src={urlFor(product.images[0])
@@ -302,7 +302,7 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
                                     alt={product.name || "Product"}
                                     width={48}
                                     height={48}
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-contain"
                                   />
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -383,7 +383,7 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
                   <div className="p-4 space-y-4">
                     {/* Product Header */}
                     <div className="flex items-start gap-3">
-                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 p-1">
                         {product.images && product.images[0] ? (
                           <Image
                             src={urlFor(product.images[0])
@@ -393,7 +393,7 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
                             alt={product.name || "Product"}
                             width={64}
                             height={64}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -530,7 +530,7 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
                   <div className="space-y-4">
                     {/* Main Image Display */}
                     <div className="relative w-full">
-                      <div className="aspect-square max-w-sm mx-auto rounded-lg overflow-hidden bg-gray-100 border border-gray-200 shadow-lg relative">
+                      <div className="aspect-square max-w-sm mx-auto rounded-lg overflow-hidden bg-gray-100 border border-gray-200 shadow-lg relative p-4">
                         {imageLoading && (
                           <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
@@ -546,7 +546,7 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
                           }`}
                           width={400}
                           height={400}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain"
                           priority
                           onLoadStart={() => setImageLoading(true)}
                           onLoad={() => setImageLoading(false)}
@@ -585,7 +585,7 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
                             <button
                               key={image._key || index}
                               onClick={() => goToImage(index)}
-                              className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                              className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 p-1 bg-white transition-all duration-200 ${
                                 index === currentImageIndex
                                   ? "border-blue-500 shadow-md"
                                   : "border-gray-200 hover:border-gray-300"
@@ -598,7 +598,7 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
                                 }`}
                                 width={64}
                                 height={64}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-contain"
                               />
                             </button>
                           ))}

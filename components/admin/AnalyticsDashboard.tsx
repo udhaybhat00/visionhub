@@ -203,7 +203,7 @@ const AnalyticsDashboard: React.FC = () => {
                     <img
                       src={product.imageUrl}
                       alt={product.name}
-                      className="w-12 h-12 rounded-lg object-cover"
+                      className="w-12 h-12 rounded-lg object-contain bg-white p-1 border"
                     />
                   )}
 

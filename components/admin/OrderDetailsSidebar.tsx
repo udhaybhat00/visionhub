@@ -927,7 +927,7 @@ const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
                           <img
                             src={product.image}
                             alt={product.name}
-                            className="w-16 h-16 object-cover rounded-md border shadow-sm"
+                            className="w-16 h-16 object-contain rounded-md border bg-white p-1 shadow-sm"
                           />
                         )}
                         <div className="flex-1 min-w-0">
