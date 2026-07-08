@@ -150,7 +150,7 @@ const ContactPage = () => {
             <h1 className="text-5xl lg:text-6xl font-bold mb-6">Contact VisionHub</h1>
             <p className="text-xl lg:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed">
              Need help choosing the perfect eyewear? Have questions about
-sunglasses, eyeglasses, contact lenses, or your order? The VisionHub
+sunglasses, computer glasses, prescription frames, sports eyewear, or your order? The VisionHub
 team is here to assist you with expert guidance and support.
             </p>
           </motion.div>

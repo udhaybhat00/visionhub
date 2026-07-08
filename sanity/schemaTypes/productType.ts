@@ -136,6 +136,13 @@ defineField({
       validation: (Rule) => Rule.min(0),
     }),
     defineField({
+      name: "sortOrder",
+      title: "Display Order",
+      type: "number",
+      description: "Lower numbers appear first in product lists.",
+      validation: (Rule) => Rule.min(0),
+    }),
+    defineField({
       name: "brand",
       title: "Brand",
       type: "reference",
@@ -161,9 +168,10 @@ defineField({
       options: {
         list: [
           { title: "Sunglasses", value: "sunglasses" },
-{ title: "Eyeglasses", value: "eyeglasses" },
-{ title: "Contact Lenses", value: "contact-lenses" },
-{ title: "Accessories", value: "accessories" },
+          { title: "Computer Glasses", value: "computer-glasses" },
+          { title: "Prescription", value: "prescription" },
+          { title: "Premium", value: "premium" },
+          { title: "Sports", value: "sports" },
         ],
       },
     }),

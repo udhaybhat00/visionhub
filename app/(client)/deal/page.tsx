@@ -4,7 +4,7 @@ import Title from "@/components/Title";
 import DealCountdown from "@/components/DealCountdown";
 import DynamicBreadcrumb from "@/components/DynamicBreadcrumb";
 import { DEAL_PRODUCTSResult, Product } from "@/sanity.types";
-import { getDealProducts, getCategories } from "@/sanity/queries";
+import { getDealProducts } from "@/sanity/queries";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,7 +21,7 @@ import {
 import Link from "next/link";
 
 const DealPage = async () => {
-  const [products] = await Promise.all([getDealProducts(), getCategories()]);
+  const products = (await getDealProducts()) as DEAL_PRODUCTSResult;
 
   // Calculate deal statistics
   const totalProducts = products?.length || 0;

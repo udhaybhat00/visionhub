@@ -515,10 +515,10 @@ stored, or used, our support team will be happy to assist you.
                 <p className="text-sm text-light-text mt-6">
                   Email us directly at{" "}
                   <a
-                    href="mailto:shivam@gmail.com"
+                    href="mailto:support@visionhub.in"
                     className="text-shop_light_green hover:underline"
                   >
-                    shivam@gmail.com
+                    support@visionhub.in
                   </a>
                 </p>
               </CardContent>

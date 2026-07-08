@@ -30,23 +30,22 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://visionhub.vercel.app"),
   title: {
     template: "%s | VisionHub - Premium Eyewear",
-default: "VisionHub - Premium Eyewear & Sunglasses Store",
+    default: "VisionHub - Premium Eyewear & Sunglasses Store",
   },
   description:
-    "Discover premium sunglasses, eyeglasses, contact lenses and eyewear accessories at VisionHub. Stylish frames, UV protection, prescription glasses and fast delivery across India.",
+    "Discover premium sunglasses, computer glasses, prescription frames, sports eyewear, and eyewear accessories at VisionHub. Stylish frames, UV protection, and fast delivery across India.",
   keywords: [
-  "eyewear",
-  "sunglasses",
-  "eyeglasses",
-  "power glasses",
-  "prescription glasses",
-  "computer glasses",
-  "contact lenses",
-  "UV protection",
-  "VisionHub",
-  "eyewear india",
-  "premium eyewear",
-],
+    "eyewear",
+    "sunglasses",
+    "computer glasses",
+    "blue light glasses",
+    "prescription glasses",
+    "sports eyewear",
+    "UV protection",
+    "VisionHub",
+    "eyewear india",
+    "premium eyewear",
+  ],
   authors: [{ name: "VisionHub" }],
   creator: "VisionHub",
   publisher: "VisionHub",
@@ -62,7 +61,7 @@ default: "VisionHub - Premium Eyewear & Sunglasses Store",
     siteName: "VisionHub",
     title: "VisionHub - Premium Eyewear & Sunglasses Store",
     description:
-      "Discover premium sunglasses, eyeglasses, prescription eyewear, contact lenses, and accessories at VisionHub. Stylish designs, UV protection, and quality vision solutions.",
+      "Discover premium sunglasses, computer glasses, prescription frames, sports eyewear, and accessories at VisionHub. Stylish designs, UV protection, and quality vision solutions.",
     images: [
       {
         url: "/og-image.jpg",
@@ -76,7 +75,7 @@ default: "VisionHub - Premium Eyewear & Sunglasses Store",
     card: "summary_large_image",
     title: "VisionHub - Premium Eyewear & Sunglasses Store",
     description:
-      "Discover premium sunglasses, eyeglasses, prescription eyewear, contact lenses, and accessories at VisionHub. Stylish designs, UV protection, and quality vision solutions.",
+      "Discover premium sunglasses, computer glasses, prescription frames, sports eyewear, and accessories at VisionHub. Stylish designs, UV protection, and quality vision solutions.",
     images: ["/og-image.jpg"],
     creator: "@VisionHub",
   },
@@ -96,7 +95,8 @@ default: "VisionHub - Premium Eyewear & Sunglasses Store",
     // Add other verification codes as needed
   },
   alternates: {
-canonical: "https://visionhub.vercel.app"  },
+    canonical: "https://visionhub.vercel.app",
+  },
 };
 
 const RootLayout = async ({ children }: { children: ReactNode }) => {

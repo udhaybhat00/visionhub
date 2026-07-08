@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { Product, Category } from "@/sanity.types";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageUrl, urlFor } from "@/sanity/lib/image";
 
 const BASE_URL = "https://visionhub.vercel.app";
 
@@ -15,7 +15,7 @@ export function generateProductMetadata(product: any): Metadata {
       product.price ? `Price: $${product.price}` : ""
     }`;
   const imageUrl = product.images?.[0]
-    ? urlFor(product.images[0]).url()
+    ? productImageUrl(product.images[0], 1200, 1200)
     : "/og-image.jpg";
   const url = `${BASE_URL}/product/${product.slug?.current}`;
 
@@ -118,7 +118,9 @@ export function generateCategoryMetadata(
  * Generate Product Schema (JSON-LD) for rich snippets
  */
 export function generateProductSchema(product: any) {
-  const imageUrl = product.images?.[0] ? urlFor(product.images[0]).url() : "";
+  const imageUrl = product.images?.[0]
+    ? productImageUrl(product.images[0], 1200, 1200)
+    : "";
 
   // Extract brand name if it's populated
   const brandName =
@@ -192,19 +194,17 @@ export function generateOrganizationSchema() {
     url: BASE_URL,
     logo: `${BASE_URL}/logo.png`,
     description:
-      "Your trusted online shopping destination for quality items and exceptional customer service.",
+      "Your trusted online destination for premium eyewear, sunglasses, computer glasses, prescription frames, sports eyewear, and accessories.",
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: "+1-555-123-4567",
+      telephone: "+91 XXXXXXXXXX",
       contactType: "customer service",
-      areaServed: "US",
+      areaServed: "IN",
       availableLanguage: "en",
     },
     sameAs: [
       "https://facebook.com/VisionHub",
-      "https://twitter.com/VisionHub",
       "https://instagram.com/VisionHub",
-      "https://linkedin.com/company/VisionHub",
     ],
   };
 }

@@ -23,7 +23,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageUrl } from "@/sanity/lib/image";
 import PriceFormatter from "./PriceFormatter";
 import { format } from "date-fns";
 import { ORDER_STATUSES, PAYMENT_STATUSES } from "@/lib/orderStatus";
@@ -471,10 +471,10 @@ const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ order }) => {
                       {item.product.image && (
                         <div className="relative w-16 h-16 shrink-0">
                           <Image
-                            src={urlFor(item.product.image).url()}
+                            src={productImageUrl(item.product.image, 160, 160)}
                             alt={item.product.name}
                             fill
-                            className="object-cover rounded-md"
+                            className="object-contain rounded-md bg-gray-50 p-1"
                           />
                         </div>
                       )}

@@ -30,7 +30,7 @@ import PriceFormatter from "@/components/PriceFormatter";
 import AddToCartButton from "@/components/AddToCartButton";
 import useCartStore from "@/store";
 import { client } from "@/sanity/lib/client";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageUrl } from "@/sanity/lib/image";
 
 type FrameFit = {
   left: number;
@@ -63,7 +63,7 @@ type DragState = {
   offsetY: number;
 };
 
-const productQuery = defineQuery(`*[_type=="product"] | order(name asc)[0...24]{
+const productQuery = defineQuery(`*[_type=="product"] | order(coalesce(sortOrder, 999999) asc, name asc)[0...24]{
   ...,
   "averageRating": math::avg(*[_type == "review" && product._ref == ^._id && status == "approved"].rating),
   "totalReviews": count(*[_type == "review" && product._ref == ^._id && status == "approved"])
@@ -193,7 +193,9 @@ export default function AiStylistPage() {
     };
   }, [isLiveCamera]);
 
-  const frameImage = selectedProduct?.images?.[0] ? urlFor(selectedProduct.images[0]).url() : "";
+  const frameImage = selectedProduct?.images?.[0]
+    ? productImageUrl(selectedProduct.images[0], 900, 900)
+    : "";
   const tryOnProducts = useMemo(() => {
     if (!selectedProduct) return products;
     return [
@@ -736,7 +738,7 @@ function CameraBottomControls({
         <button type="button" onClick={onOpenProducts} className="flex w-full items-center gap-3 text-left">
           <div className="relative h-12 w-12 overflow-hidden rounded-xl bg-white/15">
             {selectedProduct?.images?.[0] ? (
-              <Image src={urlFor(selectedProduct.images[0]).url()} alt={selectedProduct.name || "Frame"} fill className="object-contain p-2" />
+              <Image src={productImageUrl(selectedProduct.images[0], 160, 160)} alt={selectedProduct.name || "Frame"} fill className="object-contain p-2" />
             ) : (
               <ShoppingBag className="m-3 h-6 w-6" />
             )}
@@ -872,7 +874,9 @@ function ProductTryOnCard({
   buyNow: (product: Product) => void;
   compact?: boolean;
 }) {
-  const productImage = product.images?.[0] ? urlFor(product.images[0]).url() : "";
+  const productImage = product.images?.[0]
+    ? productImageUrl(product.images[0], 700, 700)
+    : "";
   const transparentProductImage = useTransparentFrameImage(productImage);
   const totalReviews = product.totalReviews || 0;
   const averageRating = totalReviews > 0 ? product.averageRating : null;

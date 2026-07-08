@@ -104,6 +104,7 @@ export interface Product {
   price: number;
   discount?: number;
   stock: number;
+  sortOrder?: number;
   category?: {
     _id: string;
     name: string;
@@ -121,7 +122,7 @@ export interface Product {
     };
   };
   status: "new" | "hot" | "sale";
-  variant?: "gadget" | "appliances" | "refrigerators" | "others";
+  variant?: "sunglasses" | "computer-glasses" | "prescription" | "premium" | "sports";
   featured: boolean;
   isFeatured?: boolean;
   images?: Array<{

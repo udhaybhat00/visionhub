@@ -277,7 +277,7 @@ export function renderOrderConfirmationEmail(
       const image = item.image
         ? `<img src="${escapeHtml(item.image)}" width="72" alt="${escapeHtml(
             item.name
-          )}" style="display:block;width:72px;max-width:72px;height:auto;border-radius:6px;border:1px solid ${colors.border};background:${colors.soft};">`
+          )}" style="display:block;width:72px;max-width:72px;height:72px;object-fit:contain;border-radius:6px;border:1px solid ${colors.border};background:${colors.soft};">`
         : `<div style="width:72px;height:72px;border-radius:6px;border:1px solid ${colors.border};background:${colors.soft};font-family:Arial,sans-serif;font-size:11px;line-height:72px;color:${colors.muted};text-align:center;">Image</div>`;
 
       return `
@@ -415,7 +415,7 @@ export function renderNewsletterWelcomeEmail(email: string): RenderedEmail {
         <td class="mobile-stack" width="50%" valign="top" style="padding:0 8px 16px 0;">
           <div style="border:1px solid ${colors.border};border-radius:8px;padding:16px;background:${colors.soft};">
             <h3 style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:15px;line-height:20px;color:${colors.ink};">Early access</h3>
-            <p style="margin:0;font-family:Arial,sans-serif;font-size:13px;line-height:20px;color:${colors.muted};">See new sunglasses, eyeglasses, and accessories before broad promotions.</p>
+            <p style="margin:0;font-family:Arial,sans-serif;font-size:13px;line-height:20px;color:${colors.muted};">See new sunglasses, computer glasses, and accessories before broad promotions.</p>
           </div>
         </td>
         <td class="mobile-stack" width="50%" valign="top" style="padding:0 0 16px 8px;">

@@ -12,7 +12,6 @@ import {
   ShoppingBag,
   CreditCard,
   Truck,
-  RotateCcw,
   Shield,
   BookOpen,
   Video,
@@ -62,13 +61,13 @@ const HelpPage = () => {
     {
       title: "Payments & Billing",
       icon: CreditCard,
-      description: "Payment methods, billing, and refunds",
+      description: "Payment methods, billing, and security",
       color: "from-light-blue to-dark-blue",
       links: [
         { title: "Accepted Payment Methods", href: "/faq#payment-1" },
         { title: "Payment Security", href: "/faq#payment-2" },
         { title: "When You&apos;ll Be Charged", href: "/faq#payment-3" },
-        { title: "Refunds & Returns", href: "/faq#payment-4" },
+        { title: "Invoice & Billing Help", href: "/faq#payment-4" },
       ],
     },
     {

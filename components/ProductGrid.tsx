@@ -28,6 +28,7 @@ import { Separator } from "@/components/ui/separator";
 
 type ViewMode = "grid-2" | "grid-3" | "grid-4" | "grid-5" | "list";
 type SortOption =
+  | "manual"
   | "name-asc"
   | "name-desc"
   | "price-asc"
@@ -39,10 +40,10 @@ const ProductGrid = () => {
   const [filteredProducts, setFilteredProducts] =
     useState<ALL_PRODUCTS_QUERYResult>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedTab, setSelectedTab] = useState(productType[0]?.title || "");
+  const [selectedTab, setSelectedTab] = useState(productType[0]?.value || "");
   const [viewMode, setViewMode] =
   useState<ViewMode>("grid-4");
-  const [sortBy, setSortBy] = useState<SortOption>("name-asc");
+  const [sortBy, setSortBy] = useState<SortOption>("manual");
   const [showFilters, setShowFilters] = useState(false);
   const [productsPerPage] = useState(20);
   const [priceRange, setPriceRange] = useState([0, 1000]);
@@ -64,12 +65,17 @@ const ProductGrid = () => {
   const query = `*[_type == "product" && variant == $variant] | order(${getSortQuery(
     sortBy
   )}){
-  ...,"categories": categories[]->title
+  ...,
+  "categories": categories[]->title,
+  "averageRating": coalesce(math::avg(*[_type == "review" && product._ref == ^._id && status == "approved"].rating), 0),
+  "totalReviews": count(*[_type == "review" && product._ref == ^._id && status == "approved"])
 }`;
-  const params = { variant: selectedTab.toLowerCase() };
+  const params = { variant: selectedTab };
 
   function getSortQuery(sort: SortOption): string {
     switch (sort) {
+      case "manual":
+        return "coalesce(sortOrder, 999999) asc, name asc";
       case "name-asc":
         return "name asc";
       case "name-desc":
@@ -81,7 +87,7 @@ const ProductGrid = () => {
       case "newest":
         return "_createdAt desc";
       default:
-        return "name asc";
+        return "coalesce(sortOrder, 999999) asc, name asc";
     }
   }
 
@@ -171,7 +177,7 @@ if (gender !== "all") {
       case "grid-2":
   return "grid-cols-2 gap-3 sm:grid-cols-2";
       case "grid-3":
-        return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5";
+        return "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5";
       case "grid-4":
         return "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4";
       case "grid-5":
@@ -218,8 +224,8 @@ if (gender !== "all") {
           </h2>
           <div className="h-1 w-12 bg-gradient-to-l from-shop_light_green to-shop_dark_green rounded-full"></div>
         </div>
-        <p className="text-light-color text-sm sm:text-lg max-w-2xl mx-auto">
-         Showing {filteredProducts.length} premium products
+          <p className="text-light-color text-sm sm:text-lg max-w-2xl mx-auto">
+        Premium eyewear crafted for style and performance
         </p>
       </div>
 
@@ -289,6 +295,7 @@ if (gender !== "all") {
                   <SelectValue placeholder="Sort by..." />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="manual">Manual Order</SelectItem>
                   <SelectItem value="name-asc">Name (A-Z)</SelectItem>
                   <SelectItem value="name-desc">Name (Z-A)</SelectItem>
                   <SelectItem value="price-asc">Price (Low to High)</SelectItem>
@@ -324,22 +331,23 @@ if (gender !== "all") {
               className="overflow-hidden"
             >
               <Separator className="my-6" />
-              <Card className="border-shop_light_green/20 bg-gradient-to-br from-white via-shop_light_bg/30 to-shop_light_pink/20">
-                <CardContent className="p-6">
+              <Card className="rounded-lg border-slate-200 bg-slate-50/80 shadow-none">
+                <CardContent className="p-4 md:p-6">
                   <div className="mb-6">
-                    <h3 className="text-lg font-bold text-dark-color flex items-center gap-2 mb-2">
-                      Filter & Sort Products
+                    <h3 className="mb-2 flex items-center gap-2 text-lg font-extrabold text-slate-950">
+                      Filter frames
                     </h3>
-                    <p className="text-sm text-light-color">
-                      Find the perfect eyewear for your style
+                    <p className="text-sm leading-6 text-slate-500">
+                      Narrow the collection by price, stock, and fit audience.
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                     {/* Price Range Filter */}
-                    <div className="space-y-4 p-4 bg-white rounded-xl border border-shop_light_green/10 shadow-sm">
-                      <Label className="text-sm font-bold text-dark-color flex items-center gap-2">
-                        💰 Price Range
+                    <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                      <Label className="flex items-center gap-2 text-sm font-extrabold text-slate-950">
+                        <IndianRupee className="h-4 w-4 text-shop_light_green" />
+                        Price Range
                       </Label>
                       <div className="space-y-4">
                         <div className="px-2">
@@ -368,10 +376,10 @@ if (gender !== "all") {
     priceRange[1],
   ])
 }
-                              className="h-9 border-gray-200 focus:border-shop_light_green"
+                              className="h-9 rounded-lg border-slate-300 focus:border-shop_light_green"
                             />
                           </div>
-                          <div className="text-light-color font-bold pt-5">
+                          <div className="pt-5 font-bold text-slate-400">
                             -
                           </div>
                           <div className="flex-1">
@@ -391,12 +399,12 @@ if (gender !== "all") {
 ),
                                 ])
                               }
-                              className="h-9 border-gray-200 focus:border-shop_light_green"
+                              className="h-9 rounded-lg border-slate-300 focus:border-shop_light_green"
                             />
                           </div>
                         </div>
                         <div className="text-center">
-                          <Badge className="bg-shop_light_green/20 text-shop_dark_green border-shop_light_green/30">
+                          <Badge className="rounded-lg border-shop_light_green/30 bg-shop_light_green/15 text-shop_dark_green">
                             ₹{Math.floor(priceRange[0])} - ₹{Math.floor(priceRange[1])}
                           </Badge>
                         </div>
@@ -404,15 +412,16 @@ if (gender !== "all") {
                     </div>
 
                     {/* Stock Status Filter */}
-                    <div className="space-y-4 p-4 bg-white rounded-xl border border-shop_light_green/10 shadow-sm">
-                      <Label className="text-sm font-bold text-dark-color flex items-center gap-2">
-                        📦 Stock Status
+                    <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                      <Label className="flex items-center gap-2 text-sm font-extrabold text-slate-950">
+                        <PackageCheck className="h-4 w-4 text-shop_light_green" />
+                        Stock Status
                       </Label>
                       <Select
                         value={stockStatus}
                         onValueChange={setStockStatus}
                       >
-                        <SelectTrigger className="border-gray-200 focus:border-shop_light_green h-10">
+                        <SelectTrigger className="h-10 rounded-lg border-slate-300 focus:border-shop_light_green">
                           <SelectValue placeholder="Select status..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -440,28 +449,29 @@ if (gender !== "all") {
                         <div className="text-center">
                           <Badge
                             variant="outline"
-                            className="w-fit border-shop_light_green/30"
+                            className="w-fit rounded-lg border-shop_light_green/30"
                           >
                             {stockStatus === "in-stock"
-                              ? "✅ In Stock Only"
-                              : "❌ Out of Stock Only"}
+                              ? "In Stock Only"
+                              : "Out of Stock Only"}
                           </Badge>
                         </div>
                       )}
                     </div>
 
                     {/* Quality Filter */}
-                  <div className="space-y-4 p-4 bg-white rounded-xl border border-shop_light_green/10 shadow-sm">
-  <Label className="text-sm font-bold text-dark-color flex items-center gap-2">
-    👤 Gender
+                  <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+  <Label className="flex items-center gap-2 text-sm font-extrabold text-slate-950">
+    <UserRound className="h-4 w-4 text-shop_light_green" />
+    Fit Audience
   </Label>
 
   <Select
     value={gender}
     onValueChange={setGender}
   >
-    <SelectTrigger className="border-gray-200 focus:border-shop_light_green h-10">
-      <SelectValue placeholder="Select gender..." />
+    <SelectTrigger className="h-10 rounded-lg border-slate-300 focus:border-shop_light_green">
+      <SelectValue placeholder="Select audience..." />
     </SelectTrigger>
 
     <SelectContent>
@@ -487,18 +497,18 @@ if (gender !== "all") {
     <div className="text-center">
       <Badge
         variant="outline"
-        className="border-shop_light_green/30"
+        className="rounded-lg border-shop_light_green/30"
       >
-        👤 {gender}
+        {gender}
       </Badge>
     </div>
   )}
 </div>
 
                     {/* Action Buttons */}
-                    <div className="flex flex-col gap-3 justify-end p-4 bg-gradient-to-br from-shop_light_pink/20 to-shop_light_bg/30 rounded-xl border border-shop_light_green/10">
+                    <div className="flex flex-col justify-end gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                       <div className="text-center mb-2">
-                        <Label className="text-sm font-bold text-dark-color">
+                        <Label className="text-sm font-extrabold text-slate-950">
                           Quick Actions
                         </Label>
                       </div>
@@ -510,7 +520,7 @@ if (gender !== "all") {
 </Button>
                       <Button
                         variant="outline"
-                        className="w-full border-shop_light_green/30 hover:border-shop_light_green hover:bg-shop_light_green/10 text-shop_dark_green hoverEffect"
+                        className="w-full rounded-lg border-shop_light_green/30 text-shop_dark_green hover:border-shop_light_green hover:bg-shop_light_green/10"
                         onClick={() => {
                           setPriceRange([0, maxPrice]);
 setStockStatus("all");
@@ -518,7 +528,8 @@ setGender("all");
 
                         }}
                       >
-                        🗑️ Clear Filters
+                        <RotateCcw className="mr-2 h-4 w-4" />
+                        Clear Filters
                       </Button>
                     </div>
                   </div>
@@ -528,15 +539,15 @@ setGender("all");
   priceRange[1] < maxPrice ||
   (stockStatus && stockStatus !== "all") ||
   gender !== "all") && (
-                    <div className="mt-6 pt-4 border-t border-gray-100">
+                    <div className="mt-6 border-t border-slate-200 pt-4">
                       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                        <span className="text-sm font-medium text-dark-color">
+                        <span className="text-sm font-semibold text-slate-700">
                           Active Filters:
                         </span>
                         {(priceRange[0] > 0 || priceRange[1] < maxPrice) && (
                           <Badge
                             variant="secondary"
-                            className="bg-shop_light_pink text-shop_dark_green"
+                            className="rounded-lg bg-slate-100 text-slate-800"
                           >
                             ₹{Math.floor(priceRange[0])} - ₹{Math.floor(priceRange[1])}
                           </Badge>
@@ -544,7 +555,7 @@ setGender("all");
                         {stockStatus && stockStatus !== "all" && (
                           <Badge
                             variant="secondary"
-                            className="bg-shop_light_pink text-shop_dark_green"
+                            className="rounded-lg bg-slate-100 text-slate-800"
                           >
                             Stock:{" "}
                             {stockStatus === "in-stock"
@@ -555,7 +566,7 @@ setGender("all");
                         {gender !== "all" && (
   <Badge
     variant="secondary"
-    className="bg-shop_light_pink text-shop_dark_green"
+    className="rounded-lg bg-slate-100 text-slate-800"
   >
     Gender: {gender}
   </Badge>

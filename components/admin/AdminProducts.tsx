@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageUrl } from "@/sanity/lib/image";
 import { Card } from "@/components/ui/card";
 import {
   Table,
@@ -295,10 +295,7 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
                               <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 p-1">
                                 {product.images && product.images[0] ? (
                                   <Image
-                                    src={urlFor(product.images[0])
-                                      .width(48)
-                                      .height(48)
-                                      .url()}
+                                    src={productImageUrl(product.images[0], 96, 96)}
                                     alt={product.name || "Product"}
                                     width={48}
                                     height={48}
@@ -386,10 +383,7 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
                       <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 p-1">
                         {product.images && product.images[0] ? (
                           <Image
-                            src={urlFor(product.images[0])
-                              .width(64)
-                              .height(64)
-                              .url()}
+                            src={productImageUrl(product.images[0], 128, 128)}
                             alt={product.name || "Product"}
                             width={64}
                             height={64}
@@ -537,10 +531,11 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
                           </div>
                         )}
                         <Image
-                          src={urlFor(selectedProduct.images[currentImageIndex])
-                            .width(400)
-                            .height(400)
-                            .url()}
+                          src={productImageUrl(
+                            selectedProduct.images[currentImageIndex],
+                            800,
+                            800
+                          )}
                           alt={`${selectedProduct.name} - Image ${
                             currentImageIndex + 1
                           }`}
@@ -592,7 +587,7 @@ const AdminProducts: React.FC<AdminProductsProps> = ({
                               }`}
                             >
                               <Image
-                                src={urlFor(image).width(64).height(64).url()}
+                                src={productImageUrl(image, 128, 128)}
                                 alt={`${selectedProduct.name} - Thumbnail ${
                                   index + 1
                                 }`}

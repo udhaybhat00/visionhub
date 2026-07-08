@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { client } from "@/sanity/lib/client";
 import Stripe from "stripe";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageUrl } from "@/sanity/lib/image";
 import { ORDER_STATUSES, PAYMENT_STATUSES } from "@/lib/orderStatus";
 
 export async function POST(
@@ -95,10 +95,7 @@ export async function POST(
           item.product.images.length > 0
         ) {
           try {
-            const imageUrl = urlFor(item.product.images[0])
-              .width(800)
-              .height(600)
-              .url();
+            const imageUrl = productImageUrl(item.product.images[0], 800, 600);
             if (imageUrl) {
               productImages = [imageUrl];
             }

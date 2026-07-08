@@ -24,7 +24,7 @@ import {
 import useCartStore, { CartItem } from "@/store";
 import PriceFormatter from "@/components/PriceFormatter";
 import Image from "next/image";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageUrl } from "@/sanity/lib/image";
 import { toast } from "sonner";
 import { PAYMENT_METHODS, PaymentMethod } from "@/lib/orderStatus";
 import { OrderAddressSelector } from "@/components/checkout/OrderAddressSelector";
@@ -476,11 +476,11 @@ const [couponDiscount, setCouponDiscount] = useState(0);
                 className="flex gap-3 rounded-2xl border border-gray-100 p-3"
               >
                 <Image
-                  src={item.product.images?.[0] ? urlFor(item.product.images[0]).url() : "/placeholder.jpg"}
+                  src={item.product.images?.[0] ? productImageUrl(item.product.images[0], 180, 180) : "/placeholder.jpg"}
                   alt={item.product.name || "Product"}
                   width={72}
                   height={72}
-                  className="h-[72px] w-[72px] rounded-xl object-cover"
+                  className="h-[72px] w-[72px] rounded-xl bg-gray-50 object-contain p-1"
                 />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-gray-950">{item.product.name}</p>
@@ -514,9 +514,9 @@ const [couponDiscount, setCouponDiscount] = useState(0);
   );
 
   return (
-    <div className="pb-28 lg:pb-0">
+    <div className="pb-28 xl:pb-0">
       <CheckoutProgress />
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_420px]">
+      <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_420px]">
         <div className="space-y-6">
           <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
             <Card className="rounded-[28px] border-gray-100 bg-white shadow-sm">
@@ -570,7 +570,7 @@ const [couponDiscount, setCouponDiscount] = useState(0);
                     </div>
                   ))}
                 </div>
-                <Button onClick={handleRazorpayPayment} disabled={isPlacingOrder || !selectedAddress || cart.length === 0} className="hidden h-[52px] w-full rounded-full bg-gray-950 text-base font-semibold hover:bg-black lg:flex">
+                <Button onClick={handleRazorpayPayment} disabled={isPlacingOrder || !selectedAddress || cart.length === 0} className="hidden h-[52px] w-full rounded-full bg-gray-950 text-base font-semibold hover:bg-black xl:flex">
                   {isPlacingOrder && actionType === "pay" ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing</> : <>Pay Securely <PriceFormatter amount={total} className="ml-2 text-white" /></>}
                 </Button>
               </CardContent>
@@ -589,11 +589,11 @@ const [couponDiscount, setCouponDiscount] = useState(0);
           <AiStylistCTA compact />
         </div>
 
-        <aside className="hidden lg:block">
+        <aside className="hidden xl:block">
           <div className="sticky top-6">{summary}</div>
         </aside>
 
-        <div className="lg:hidden">
+        <div className="xl:hidden">
           <button onClick={() => setIsSummaryOpen(!isSummaryOpen)} className="mb-3 flex w-full items-center justify-between rounded-2xl border border-gray-100 bg-white p-4 font-semibold shadow-sm">
             Order summary <ChevronDown className={`h-4 w-4 transition ${isSummaryOpen ? "rotate-180" : ""}`} />
           </button>
@@ -601,7 +601,7 @@ const [couponDiscount, setCouponDiscount] = useState(0);
         </div>
       </div>
 
-      <div className="fixed inset-x-0 bottom-[72px] z-50 border-t border-gray-100 bg-white/95 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-16px_40px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
+      <div className="fixed inset-x-0 bottom-[72px] z-50 border-t border-gray-100 bg-white/95 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-16px_40px_rgba(15,23,42,0.12)] backdrop-blur md:bottom-0 xl:hidden">
         <Button onClick={handleRazorpayPayment} disabled={isPlacingOrder || !selectedAddress || cart.length === 0} className="h-[52px] w-full rounded-full bg-gray-950 text-base font-semibold hover:bg-black">
           {isPlacingOrder && actionType === "pay" ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing</> : <>Pay Securely <PriceFormatter amount={total} className="ml-2 text-white" /></>}
         </Button>

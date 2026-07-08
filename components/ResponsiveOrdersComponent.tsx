@@ -9,7 +9,7 @@ import { Badge } from "./ui/badge";
 import { ORDER_STATUSES, PAYMENT_STATUSES } from "@/lib/orderStatus";
 import Link from "next/link";
 import Image from "next/image";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageUrl } from "@/sanity/lib/image";
 import PriceFormatter from "./PriceFormatter";
 import { MY_ORDERS_QUERYResult } from "@/sanity.types";
 import DirectPaymentModal from "./DirectPaymentModal";
@@ -50,10 +50,10 @@ const ResponsiveOrdersComponent = ({
               >
                 {imageUrl ? (
                   <Image
-                    src={urlFor(imageUrl).url()}
+                    src={productImageUrl(imageUrl, 112, 112)}
                     alt={item.product?.name || "Product"}
                     fill
-                    className="object-cover"
+                    className="object-contain p-1"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-200 flex items-center justify-center">

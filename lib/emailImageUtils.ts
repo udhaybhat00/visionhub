@@ -1,4 +1,4 @@
-import { urlFor } from "@/sanity/lib/image";
+import { productImageUrl } from "@/sanity/lib/image";
 
 interface SanityImageAsset {
   _ref: string;
@@ -48,12 +48,7 @@ export function getEmailImageUrl(
       !Array.isArray(imageData) &&
       ("_type" in imageData || "asset" in imageData)
     ) {
-      const imageUrl = urlFor(imageData)
-        .width(width)
-        .height(height)
-        .format("jpg")
-        .quality(80)
-        .url();
+      const imageUrl = productImageUrl(imageData, width, height);
 
       return imageUrl;
     }
