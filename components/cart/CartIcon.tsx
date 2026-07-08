@@ -9,18 +9,22 @@ const CartIcon = () => {
   const displayCount = itemCount > 9 ? "9+" : itemCount;
 
   return (
-    <Link href={"/cart"} className="group relative">
-      <ShoppingBag className="group-hover:text-shop_light_green hoverEffect" />
+    <Link
+      href={"/cart"}
+      className="group relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white text-gray-700 shadow-sm transition-all hover:border-shop_orange hover:bg-shop_light_bg hover:text-shop_dark_green"
+      aria-label="Shopping cart"
+    >
+      <ShoppingBag className="h-5 w-5 transition-colors" />
       {itemCount > 0 ? (
         <span
-          className={`absolute -top-1 -right-1 bg-shop_btn_dark_green text-white rounded-full text-xs font-semibold flex items-center justify-center min-w-[14px] h-[14px] ${
+          className={`absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-shop_btn_dark_green text-[10px] font-semibold text-white ${
             itemCount > 9 ? "px-1" : ""
           }`}
         >
           {displayCount}
         </span>
       ) : (
-        <span className="absolute -top-1 -right-1 bg-shop_btn_dark_green text-white rounded-full text-xs font-semibold flex items-center justify-center min-w-[14px]">
+        <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-shop_btn_dark_green text-[10px] font-semibold text-white">
           0
         </span>
       )}

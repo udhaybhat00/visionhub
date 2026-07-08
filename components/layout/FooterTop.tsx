@@ -27,7 +27,7 @@ const data: ContactItemData[] = [
   },
   {
     title: "Working Hours",
-    subtitle: contactConfig.businessHours.weekday,
+    subtitle: `${contactConfig.businessHours.weekday}, ${contactConfig.businessHours.weekend}`,
     icon: (
       <Clock className="h-6 w-6 text-gray-600 group-hover:text-primary transition-colors" />
     ),

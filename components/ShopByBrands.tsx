@@ -1,32 +1,30 @@
 import Container from "./Container";
 import { getAllBrands } from "@/sanity/queries";
-import Title from "./Title";
 import Link from "next/link";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
-import { GitCompareArrows, Headset, ShieldCheck, Truck } from "lucide-react";
-import { BadgeCheck } from "lucide-react";
+import { ArrowRight, BadgeCheck, Headset, ShieldCheck, Truck } from "lucide-react";
 
-const extraData = [
+const assurances = [
   {
-    title: "Free Delivery",
-    description: "Free shipping across India",
-    icon: <Truck size={45} />,
-  },
-{
-  title: "Quality Checked",
-  description: "Every frame is inspected before dispatch",
-  icon: <BadgeCheck size={45} />,
-},
-  {
-    title: "Eye Care Support",
-    description: "Expert assistance for eyewear selection",
-    icon: <Headset size={45} />,
+    title: "Quality Checked",
+    description: "Every frame is inspected before dispatch.",
+    icon: BadgeCheck,
   },
   {
-    title: "100% Genuine",
-    description: "Authentic eyewear from trusted brands",
-    icon: <ShieldCheck size={45} />,
+    title: "Secure Delivery",
+    description: "Protective packaging and tracked shipping.",
+    icon: Truck,
+  },
+  {
+    title: "Fit Guidance",
+    description: "Support for frame shape, size, and lens choices.",
+    icon: Headset,
+  },
+  {
+    title: "Authentic Products",
+    description: "Eyewear sourced from trusted brand partners.",
+    icon: ShieldCheck,
   },
 ];
 
@@ -34,129 +32,78 @@ const ShopByBrands = async () => {
   const brands = await getAllBrands();
 
   return (
-    <Container className="mt-16 lg:mt-24">
-      {/* Header Section */}
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-3 mb-4">
-          <div className="h-1 w-12 bg-gradient-to-r from-shop_orange to-shop_light_orange rounded-full"></div>
-          <Title className="text-3xl lg:text-4xl font-bold text-dark-color">
-            Premium Eyewear Brands
-          </Title>
-          <div className="h-1 w-12 bg-gradient-to-l from-shop_orange to-shop_light_orange rounded-full"></div>
-        </div>
-        <p className="text-light-color text-lg max-w-2xl mx-auto">
-          Explore world-class eyewear brands trusted by millions.
-        </p>
-        <Link
-          href={"/shop"}
-          className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-shop_light_pink text-shop_dark_green font-semibold rounded-full hover:bg-shop_orange hover:text-white border-2 border-shop_orange hoverEffect"
-        >
-          View All Brands
-          <svg
-            className="w-4 h-4 hoverEffect group-hover:translate-x-1"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+    <Container className="py-12 lg:py-16">
+      <section className="grid gap-8 border-t border-slate-200 pt-10 lg:grid-cols-[0.75fr_1.25fr]">
+        <div>
+          <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-shop_light_green">
+            Brands And Service
+          </p>
+          <h2 className="mt-3 max-w-md text-3xl font-extrabold leading-tight text-slate-950 lg:text-4xl">
+            Eyewear selected for fit, finish, and trust.
+          </h2>
+          <p className="mt-4 max-w-md text-base leading-7 text-slate-600">
+            Browse verified eyewear brands and buy with the practical details a
+            frame shopper needs: size, lens type, material, stock, and delivery.
+          </p>
+          <Link
+            href="/brands"
+            className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-slate-950 hover:text-shop_dark_green"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17 8l4 4m0 0l-4 4m4-4H3"
-            />
-          </svg>
-        </Link>
-      </div>
+            Explore brands
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
 
-      {/* Brands Grid */}
-      <div className="bg-gradient-to-br from-shop_light_bg via-white to-shop_light_pink p-8 lg:p-12 rounded-3xl shadow-xl border border-shop_light_green/20 mb-16">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6">
-          {brands?.map((brand, index) => (
-            <Link
-              key={brand?._id}
-              href={{
-                pathname: "/shop",
-                query: { brand: brand?.slug?.current },
-              }}
-              className="group bg-white rounded-2xl p-6 flex items-center justify-center aspect-square hover:shadow-2xl shadow-lg border border-gray-100 hover:border-shop_orange hoverEffect transform hover:-translate-y-2"
-              style={{ animationDelay: `${index * 0.05}s` }}
-            >
-              {brand?.image && (
-                <div className="relative w-full h-full flex items-center justify-center">
-                  <Image
-                    src={urlFor(brand?.image).url()}
-                    alt={`${brand?.title || "Brand"} logo`}
-                    width={120}
-                    height={80}
-                    className="max-w-full max-h-full object-contain group-hover:scale-110 hoverEffect filter group-hover:brightness-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-shop_orange/5 to-transparent opacity-0 group-hover:opacity-100 hoverEffect rounded-xl"></div>
+        <div className="grid gap-6">
+          {brands?.length > 0 && (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              {brands.slice(0, 12).map((brand) => (
+                <Link
+                  key={brand?._id}
+                  href={{
+                    pathname: "/shop",
+                    query: { brand: brand?.slug?.current },
+                  }}
+                  className="flex aspect-[3/2] items-center justify-center rounded-lg border border-slate-200 bg-white p-4 transition-colors hover:border-shop_light_green"
+                >
+                  {brand?.image ? (
+                    <Image
+                      src={urlFor(brand.image).width(220).height(140).url()}
+                      alt={`${brand?.title || "Eyewear brand"} logo`}
+                      width={220}
+                      height={140}
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  ) : (
+                    <span className="text-sm font-bold text-slate-500">
+                      {brand?.title}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </div>
+          )}
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {assurances.map((item) => (
+              <div
+                key={item.title}
+                className="rounded-lg border border-slate-200 bg-white p-4"
+              >
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-slate-50 text-shop_orange">
+                  <item.icon className="h-5 w-5" />
                 </div>
-              )}
-            </Link>
-          ))}
-        </div>
-
-        {/* Brand Grid Footer */}
-        <div className="text-center mt-8 pt-6 border-t border-shop_light_green/20">
-          <p className="text-dark-text text-sm">
-            <span className="font-semibold text-shop_orange">
-              {brands?.length}+
-            </span>{" "}
-            trusted brands and counting
-          </p>
-        </div>
-      </div>
-
-      {/* Features Section */}
-      <div className="bg-white rounded-3xl shadow-xl border border-shop_light_green/10 p-8 lg:p-12">
-        <div className="text-center mb-10">
-          <h3 className="text-2xl lg:text-3xl font-bold text-dark-color mb-3">
-            Why Choose VisionHub?
-          </h3>
-          <p className="text-light-color text-lg">
-            Premium eyewear, trusted brands, and unmatched customer service.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {extraData?.map((item, index) => (
-            <div
-              key={index}
-              className="group text-center p-6 rounded-2xl bg-gradient-to-br from-shop_light_bg to-white border border-shop_light_green/10 hover:border-shop_orange/30 hover:shadow-lg hoverEffect"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              {/* Icon Container */}
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-shop_light_pink to-shop_light_orange/20 text-shop_orange group-hover:from-shop_orange group-hover:to-shop_light_orange group-hover:text-white group-hover:scale-110 hoverEffect mb-4">
-                <span className="transform group-hover:scale-110 hoverEffect">
-                  {item?.icon}
-                </span>
-              </div>
-
-              {/* Content */}
-              <div>
-                <h4 className="text-lg font-bold text-dark-color group-hover:text-shop_dark_green hoverEffect mb-2">
-                  {item?.title}
-                </h4>
-                <p className="text-light-color text-sm leading-relaxed">
-                  {item?.description}
+                <h3 className="text-base font-extrabold text-slate-950">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-slate-500">
+                  {item.description}
                 </p>
               </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Features Footer */}
-        <div className="text-center mt-10 pt-8 border-t border-shop_light_green/20">
-          <div className="inline-flex items-center gap-4 px-8 py-4 bg-gradient-to-r from-shop_light_pink to-shop_light_bg rounded-2xl border border-shop_orange/20">
-            <div className="w-2 h-2 bg-shop_orange rounded-full animate-pulse"></div>
-            <span className="text-dark-text font-medium">
-              See Better. Look Better. Live Better.
-            </span>
-            <div className="w-2 h-2 bg-shop_orange rounded-full animate-pulse"></div>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
     </Container>
   );
 };

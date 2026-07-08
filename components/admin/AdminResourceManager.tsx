@@ -14,6 +14,7 @@ import {
   Edit,
   Eye,
   FileText,
+  GripVertical,
   ImageIcon,
   Loader2,
   MoreHorizontal,
@@ -437,6 +438,10 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
     );
   }
 
+  return <AdminResourceManagerContent config={config} />;
+}
+
+function AdminResourceManagerContent({ config }: { config: AdminResourceConfig }) {
   const [documents, setDocuments] = useState<SanityDoc[]>([]);
   const [references, setReferences] = useState<ReferenceMap>({});
   const [pagination, setPagination] = useState(emptyPagination);
@@ -458,6 +463,9 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
   const [bulkStatus, setBulkStatus] = useState("");
   const [bulkCategory, setBulkCategory] = useState("");
   const [bulkStock, setBulkStock] = useState("");
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const [reordering, setReordering] = useState(false);
   const [slugCheck, setSlugCheck] = useState<{
     sourceField: string;
     value: string;
@@ -530,6 +538,7 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
   }, [fetchDocuments, page]);
 
   const selectedAll = selectedIds.length === documents.length && documents.length > 0;
+  const tableColumnCount = config.columns.length + 2 + (isProductResource ? 1 : 0);
 
   const toggleSelectAll = () => {
     setSelectedIds(selectedAll ? [] : documents.map((document) => document._id));
@@ -541,6 +550,77 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
         ? current.filter((selectedId) => selectedId !== id)
         : [...current, id]
     );
+  };
+
+  const moveDocument = (fromId: string, toId: string) => {
+    const fromIndex = documents.findIndex((document) => document._id === fromId);
+    const toIndex = documents.findIndex((document) => document._id === toId);
+
+    if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) {
+      return documents;
+    }
+
+    const nextDocuments = [...documents];
+    const [movedDocument] = nextDocuments.splice(fromIndex, 1);
+    nextDocuments.splice(toIndex, 0, movedDocument);
+    return nextDocuments;
+  };
+
+  const persistProductOrder = async (orderedDocuments: SanityDoc[]) => {
+    if (!isProductResource || orderedDocuments.length === 0) return;
+
+    setReordering(true);
+    try {
+      const startOrder = page * limit;
+      const items = orderedDocuments.map((document, index) => ({
+        id: document._id,
+        sortOrder: startOrder + index + 1,
+      }));
+
+      const response = await fetch(`/api/admin/resources/${config.key}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reorder: true,
+          ids: items.map((item) => item.id),
+          items,
+        }),
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result?.error || "Failed to save product order");
+      }
+
+      toast.success("Product order saved");
+      await fetchDocuments(page);
+    } catch (orderError) {
+      toast.error(orderError instanceof Error ? orderError.message : "Failed to save product order");
+      await fetchDocuments(page);
+    } finally {
+      setReordering(false);
+    }
+  };
+
+  const finishReorder = async (targetId: string) => {
+    if (!draggedId || draggedId === targetId || !isProductResource) return;
+
+    const orderedDocuments = moveDocument(draggedId, targetId);
+    if (orderedDocuments === documents) return;
+
+    const startOrder = page * limit;
+    setDocuments(
+      orderedDocuments.map((document, index) => ({
+        ...document,
+        sortOrder: startOrder + index + 1,
+      }))
+    );
+    await persistProductOrder(orderedDocuments);
+  };
+
+  const resetDragState = () => {
+    setDraggedId(null);
+    setDragOverId(null);
   };
 
   const openCreate = () => {
@@ -1458,10 +1538,26 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
             </div>
           )}
 
+          {isProductResource && (
+            <div className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+              <GripVertical className="h-4 w-4 text-slate-400" />
+              Drag products to reorder. Lower display order appears first.
+              {reordering && (
+                <span className="inline-flex items-center gap-1 font-medium text-slate-800">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Saving order
+                </span>
+              )}
+            </div>
+          )}
+
           <div className="hidden overflow-hidden rounded-lg border border-slate-200 md:block">
             <Table>
               <TableHeader>
                 <TableRow className="bg-slate-50">
+                  {isProductResource && (
+                    <TableHead className="w-12" aria-label="Reorder" />
+                  )}
                   <TableHead className="w-12">
                     <Checkbox checked={selectedAll} onCheckedChange={toggleSelectAll} />
                   </TableHead>
@@ -1475,20 +1571,55 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
                 {loading ? (
                   Array.from({ length: 6 }).map((_, index) => (
                     <TableRow key={index}>
-                      <TableCell colSpan={config.columns.length + 2}>
+                      <TableCell colSpan={tableColumnCount}>
                         <div className="h-10 animate-pulse rounded bg-slate-100" />
                       </TableCell>
                     </TableRow>
                   ))
                 ) : documents.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={config.columns.length + 2} className="py-12 text-center text-slate-500">
+                    <TableCell colSpan={tableColumnCount} className="py-12 text-center text-slate-500">
                       No {config.title.toLowerCase()} found.
                     </TableCell>
                   </TableRow>
                 ) : (
                   documents.map((document) => (
-                    <TableRow key={document._id} className="hover:bg-slate-50/70">
+                    <TableRow
+                      key={document._id}
+                      draggable={isProductResource && !reordering}
+                      onDragStart={(event) => {
+                        if (!isProductResource || reordering) return;
+                        setDraggedId(document._id);
+                        event.dataTransfer.effectAllowed = "move";
+                        event.dataTransfer.setData("text/plain", document._id);
+                      }}
+                      onDragOver={(event) => {
+                        if (!isProductResource || !draggedId || draggedId === document._id) return;
+                        event.preventDefault();
+                        event.dataTransfer.dropEffect = "move";
+                        setDragOverId(document._id);
+                      }}
+                      onDragLeave={() => {
+                        if (dragOverId === document._id) setDragOverId(null);
+                      }}
+                      onDrop={async (event) => {
+                        event.preventDefault();
+                        await finishReorder(document._id);
+                        resetDragState();
+                      }}
+                      onDragEnd={resetDragState}
+                      className={cn(
+                        "hover:bg-slate-50/70",
+                        isProductResource && "cursor-grab active:cursor-grabbing",
+                        draggedId === document._id && "opacity-50",
+                        dragOverId === document._id && "bg-shop_light_green/10"
+                      )}
+                    >
+                      {isProductResource && (
+                        <TableCell>
+                          <GripVertical className="h-4 w-4 text-slate-400" />
+                        </TableCell>
+                      )}
                       <TableCell>
                         <Checkbox
                           checked={selectedIds.includes(document._id)}
@@ -1560,10 +1691,43 @@ export default function AdminResourceManager({ resourceKey }: AdminResourceManag
                 const imageUrl = getImageUrl(getPrimaryImageValue(config, document));
 
                 return (
-                <Card key={document._id} className="rounded-lg border-slate-200 shadow-sm">
+                <Card
+                  key={document._id}
+                  draggable={isProductResource && !reordering}
+                  onDragStart={(event) => {
+                    if (!isProductResource || reordering) return;
+                    setDraggedId(document._id);
+                    event.dataTransfer.effectAllowed = "move";
+                    event.dataTransfer.setData("text/plain", document._id);
+                  }}
+                  onDragOver={(event) => {
+                    if (!isProductResource || !draggedId || draggedId === document._id) return;
+                    event.preventDefault();
+                    event.dataTransfer.dropEffect = "move";
+                    setDragOverId(document._id);
+                  }}
+                  onDragLeave={() => {
+                    if (dragOverId === document._id) setDragOverId(null);
+                  }}
+                  onDrop={async (event) => {
+                    event.preventDefault();
+                    await finishReorder(document._id);
+                    resetDragState();
+                  }}
+                  onDragEnd={resetDragState}
+                  className={cn(
+                    "rounded-lg border-slate-200 shadow-sm",
+                    isProductResource && "cursor-grab active:cursor-grabbing",
+                    draggedId === document._id && "opacity-50",
+                    dragOverId === document._id && "border-shop_light_green bg-shop_light_green/10"
+                  )}
+                >
                   <CardContent className="space-y-3 p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex min-w-0 items-start gap-3">
+                        {isProductResource && (
+                          <GripVertical className="mt-1 h-4 w-4 shrink-0 text-slate-400" />
+                        )}
                         <Checkbox
                           checked={selectedIds.includes(document._id)}
                           onCheckedChange={() => toggleSelect(document._id)}

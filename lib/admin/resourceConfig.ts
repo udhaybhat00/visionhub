@@ -112,9 +112,10 @@ export const statusOptions = {
   ],
   variant: [
     { label: "Sunglasses", value: "sunglasses" },
-    { label: "Eyeglasses", value: "eyeglasses" },
-    { label: "Contact Lenses", value: "contact-lenses" },
-    { label: "Accessories", value: "accessories" },
+    { label: "Computer Glasses", value: "computer-glasses" },
+    { label: "Prescription", value: "prescription" },
+    { label: "Premium", value: "premium" },
+    { label: "Sports", value: "sports" },
   ],
   order: [
     { label: "Pending", value: "pending" },
@@ -200,7 +201,7 @@ export const adminResourceConfigs: Record<string, AdminResourceConfig> = {
       "Create, edit, archive, delete, price, discount, stock, categories, brands, and product images from the product schema.",
     documentType: "product",
     icon: Package,
-    listOrder: "_updatedAt desc",
+    listOrder: "coalesce(sortOrder, 999999) asc, name asc",
     searchFields: ["name", "description", "variant", "status"],
     createEnabled: true,
     deleteEnabled: true,
@@ -216,6 +217,7 @@ export const adminResourceConfigs: Record<string, AdminResourceConfig> = {
     }`,
     columns: [
       { key: "image", label: "", type: "image", path: "images.0" },
+      { key: "sortOrder", label: "Order", type: "number" },
       { key: "name", label: "Product", type: "text" },
       { key: "brandTitle", label: "Brand", type: "text" },
       { key: "price", label: "Price", type: "currency" },
@@ -277,6 +279,7 @@ export const adminResourceConfigs: Record<string, AdminResourceConfig> = {
       { name: "price", label: "Price", type: "number", required: true },
       { name: "discount", label: "Discount", type: "number", required: true },
       { name: "stock", label: "Stock", type: "number" },
+      { name: "sortOrder", label: "Display Order", type: "number", description: "Lower numbers appear first in product lists." },
       { name: "categories", label: "Categories", type: "referenceArray", referenceTo: "category" },
       { name: "brand", label: "Brand", type: "reference", referenceTo: "brand" },
       { name: "status", label: "Product Status", type: "select", options: statusOptions.product },

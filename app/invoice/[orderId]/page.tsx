@@ -117,7 +117,7 @@ export default async function InvoicePage({
 
 <p>GSTIN: Not Applicable</p>
 
-<p>Email: shivam@gmail.com</p>
+<p>Email: support@visionhub.in</p>
 
 <p>Website: www.visionhub.in</p>
 

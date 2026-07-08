@@ -39,6 +39,7 @@ interface Props {
 }
 
 type SortOption =
+  | "manual"
   | "name-asc"
   | "name-desc"
   | "price-low"
@@ -53,7 +54,7 @@ const ProductCatalog = ({ initialProducts, categories, brands }: Props) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
-  const [sortBy, setSortBy] = useState<SortOption>("name-asc");
+  const [sortBy, setSortBy] = useState<SortOption>("manual");
   const [viewMode, setViewMode] = useState<"grid" | "large">("grid");
   const [showFilters, setShowFilters] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState({
@@ -106,6 +107,11 @@ const ProductCatalog = ({ initialProducts, categories, brands }: Props) => {
     // Sort products
     filtered.sort((a, b) => {
       switch (sortBy) {
+        case "manual":
+          return (
+            (a.sortOrder ?? 999999) - (b.sortOrder ?? 999999) ||
+            (a.name || "").localeCompare(b.name || "")
+          );
         case "name-asc":
           return (a.name || "").localeCompare(b.name || "");
         case "name-desc":
@@ -139,7 +145,7 @@ const ProductCatalog = ({ initialProducts, categories, brands }: Props) => {
     setSelectedCategories([]);
     setSelectedBrands([]);
     setPriceRange([0, maxPrice]);
-    setSortBy("name-asc");
+    setSortBy("manual");
   };
 
   // Get active filter count
@@ -193,6 +199,7 @@ const ProductCatalog = ({ initialProducts, categories, brands }: Props) => {
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="manual">Manual Order</SelectItem>
                 <SelectItem value="name-asc">Name A-Z</SelectItem>
                 <SelectItem value="name-desc">Name Z-A</SelectItem>
                 <SelectItem value="price-low">Price Low to High</SelectItem>
@@ -243,7 +250,7 @@ const ProductCatalog = ({ initialProducts, categories, brands }: Props) => {
 
         {/* Active Filters */}
         {activeFilterCount > 0 && (
-          <div className="flex items-center gap-2 mt-4 pt-4 border-t">
+          <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t">
             <span className="text-sm font-medium text-gray-600">
               Active filters:
             </span>
@@ -301,7 +308,7 @@ const ProductCatalog = ({ initialProducts, categories, brands }: Props) => {
         )}
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex flex-col gap-6 xl:flex-row">
         {/* Filter Sidebar */}
         <AnimatePresence>
           {showFilters && (
@@ -309,7 +316,7 @@ const ProductCatalog = ({ initialProducts, categories, brands }: Props) => {
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -50 }}
-              className="w-80 bg-white rounded-lg border shadow-sm p-6 h-fit sticky top-4"
+              className="w-full bg-white rounded-lg border shadow-sm p-6 h-fit xl:sticky xl:top-4 xl:w-80"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-lg">Filters</h3>
@@ -454,7 +461,7 @@ const ProductCatalog = ({ initialProducts, categories, brands }: Props) => {
             <div
               className={`grid gap-4 ${
                 viewMode === "grid"
-                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                  ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
                   : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
               }`}
             >
@@ -477,7 +484,7 @@ const ProductCatalog = ({ initialProducts, categories, brands }: Props) => {
             <div
               className={`grid gap-4 ${
                 viewMode === "grid"
-                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                  ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
                   : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
               }`}
             >

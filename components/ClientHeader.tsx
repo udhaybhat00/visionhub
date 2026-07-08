@@ -54,124 +54,60 @@ const ClientHeader = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 py-2 sm:py-3 lg:py-4 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
-      <Container className="h-full">
-        <div className="flex items-center h-full min-h-[3rem] sm:min-h-[3.5rem] lg:min-h-[4rem]">
-          {/* Left Section: Mobile Menu + Logo */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+    <header className="sticky top-0 z-40 border-b border-black/[0.06] bg-white/90 shadow-[0_8px_30px_rgba(15,15,15,0.04)] backdrop-blur-xl">
+      <Container className="h-full xl:max-w-[1480px] xl:px-6">
+        <div className="flex h-16 items-center sm:h-[4.5rem] xl:h-20">
+          <div className="flex flex-shrink-0 items-center gap-2 sm:gap-3">
             <MobileMenu />
             <Logo />
           </div>
 
-          {/* Center Section: Navigation Menu (Desktop Only) */}
-          <div className="hidden lg:flex items-center justify-center flex-1 mx-8">
+          <div className="hidden flex-1 items-center justify-center px-6 xl:flex 2xl:px-10">
             <HeaderMenu />
           </div>
 
-          {/* Right Section: Search + Actions */}
-          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 ml-auto">
-                  
-{/* Mobile Profile */}
-<div className="md:hidden flex items-center">
-  <ClerkLoaded>
-    <SignedIn>
-      <UserDropdown />
-    </SignedIn>
-
-    <SignedOut>
-  <Link
-    href={getSignInUrl()}
-className="
-  flex items-center justify-center
-  w-8 h-8 min-[430px]:w-10
-  h-8 min-[430px]:h-10
-  rounded-full
-  border border-gray-200
-  text-shop_dark_green
-  hover:bg-gray-50
-  transition-all
-"
-  >
-    <User className="w-4 h-4 min-[430px]:w-5 min-[430px]:h-5" />
-  </Link>
-</SignedOut>
-  </ClerkLoaded>
-</div>
-            {/* Search Bar */}
-            <div className="flex-shrink-0 md:flex">
-  <SearchBar />
-</div>
- 
-
-            {/* Desktop Actions */}
-            <div className="hidden lg:flex items-center gap-4">
-              <CartIcon />
-              <FavoriteButton />
-
+          <div className="ml-auto flex items-center gap-2 sm:gap-3 2xl:gap-4">
+            <div className="flex items-center md:hidden">
               <ClerkLoaded>
                 <SignedIn>
                   <UserDropdown />
                 </SignedIn>
 
                 <SignedOut>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-        <Link
-  href={getSignInUrl()}
-  className="
-  px-5 py-2
-  rounded-full
-  border border-gray-200
-  bg-white
-  text-gray-700
-  text-sm font-semibold
-  hover:border-shop_orange
-  hover:text-shop_orange
-  transition-all
-  "
->
-  Sign In
-</Link>
-               <Link
-  href={getSignUpUrl()}
-  className="
-  px-5 py-2
-  rounded-full
-  bg-shop_orange
-  text-white
-  text-sm font-semibold
-  shadow-sm
-  hover:shadow-md
-  hover:scale-105
-  transition-all
-  "
->
-  Sign Up
-</Link>
-                  </div>
+                  <Link
+                    href={getSignInUrl()}
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 text-shop_dark_green transition-all hover:border-shop_orange hover:bg-shop_light_bg min-[430px]:h-10 min-[430px]:w-10"
+                  >
+                    <User className="h-4 w-4 min-[430px]:h-5 min-[430px]:w-5" />
+                  </Link>
                 </SignedOut>
               </ClerkLoaded>
             </div>
 
-            {/* Tablet Actions (Medium screens) */}
-            <div className="hidden md:flex lg:hidden items-center gap-2">
+            <div className="flex-shrink-0 md:flex">
+              <SearchBar />
+            </div>
+
+            <div className="hidden items-center gap-2 xl:flex 2xl:gap-3">
               <CartIcon />
-              <FavoriteButton />
+              <FavoriteButton variant="header" />
 
               <ClerkLoaded>
                 <SignedIn>
                   <UserDropdown />
                 </SignedIn>
+
                 <SignedOut>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-shrink-0 items-center gap-2">
                     <Link
                       href={getSignInUrl()}
-                      className="text-sm font-semibold hover:text-shop_light_green hoverEffect px-2 py-1 transition-colors duration-200"
+                      className="rounded-full border border-black/10 bg-white px-5 py-2 text-sm font-semibold text-gray-700 transition-all hover:border-shop_orange hover:bg-shop_light_bg hover:text-shop_dark_green"
                     >
                       Sign In
                     </Link>
                     <Link
                       href={getSignUpUrl()}
-                      className="bg-shop_dark_green hover:bg-shop_light_green text-white px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200"
+                      className="rounded-full bg-shop_dark_green px-5 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-shop_orange hover:shadow-md"
                     >
                       Sign Up
                     </Link>
@@ -180,8 +116,32 @@ className="
               </ClerkLoaded>
             </div>
 
-           <div className="hidden md:hidden">
-</div>
+            <div className="hidden items-center gap-2 md:flex xl:hidden">
+              <CartIcon />
+              <FavoriteButton variant="header" />
+
+              <ClerkLoaded>
+                <SignedIn>
+                  <UserDropdown />
+                </SignedIn>
+                <SignedOut>
+                  <div className="hidden min-[820px]:flex items-center gap-2">
+                    <Link
+                      href={getSignInUrl()}
+                      className="px-2 py-1 text-sm font-semibold transition-colors duration-200 hover:text-shop_light_green"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href={getSignUpUrl()}
+                      className="rounded-full bg-shop_dark_green px-3 py-1.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-shop_orange"
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                </SignedOut>
+              </ClerkLoaded>
+            </div>
           </div>
         </div>
       </Container>

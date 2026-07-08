@@ -35,8 +35,11 @@ export async function GET(req: NextRequest) {
     const offset = parseInt(searchParams.get("offset") || "0");
     const category = searchParams.get("category") || "";
     const search = searchParams.get("search") || "";
-    const sortBy = searchParams.get("sortBy") || "_createdAt";
+    const sortBy = searchParams.get("sortBy");
     const sortOrder = searchParams.get("sortOrder") || "desc";
+    const orderClause = sortBy
+      ? `${sortBy} ${sortOrder}`
+      : "coalesce(sortOrder, 999999) asc, name asc";
 
     console.log("API Params - category:", category, "search:", search);
 
@@ -74,6 +77,7 @@ export async function GET(req: NextRequest) {
           },
           status,
           variant,
+          sortOrder,
           isFeatured
         }
       `;
@@ -130,13 +134,14 @@ export async function GET(req: NextRequest) {
         filterConditions.length > 0
           ? ` && (${filterConditions.join(" && ")})`
           : ""
-      }] | order(${sortBy} ${sortOrder}) [${offset}...${offset + limit}] {
+      }] | order(${orderClause}) [${offset}...${offset + limit}] {
         _id,
         _createdAt,
         name,
         description,
         price,
         stock,
+        sortOrder,
         images[]{
           asset->{
             _id,
@@ -159,6 +164,7 @@ export async function GET(req: NextRequest) {
           "name": title
         },
         "featured": isFeatured,
+        variant,
         status
       }
     `;

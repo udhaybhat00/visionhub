@@ -621,6 +621,7 @@ export type Product = {
     [internalGroqTypeReferenceTo]?: "category";
   }>;
   stock?: number;
+  sortOrder?: number;
   brand?: {
     _ref: string;
     _type: "reference";
@@ -628,7 +629,7 @@ export type Product = {
     [internalGroqTypeReferenceTo]?: "brand";
   };
   status?: "new" | "hot" | "sale";
-  variant?: "sunglasses" | "eyeglasses" | "contact-lenses" | "accessories";
+  variant?: "sunglasses" | "computer-glasses" | "prescription" | "premium" | "sports";
   isFeatured?: boolean;
   averageRating?: number;
   totalReviews?: number;
@@ -856,6 +857,7 @@ export type QueryResult = Array<{
         [internalGroqTypeReferenceTo]?: "category";
       }>;
       stock?: number;
+      sortOrder?: number;
       brand?: {
         _ref: string;
         _type: "reference";
@@ -863,7 +865,7 @@ export type QueryResult = Array<{
         [internalGroqTypeReferenceTo]?: "brand";
       };
       status?: "hot" | "new" | "sale";
-      variant?: "accessories" | "contact-lenses" | "eyeglasses" | "sunglasses";
+      variant?: "computer-glasses" | "premium" | "prescription" | "sports" | "sunglasses";
       isFeatured?: boolean;
       averageRating?: number;
       totalReviews?: number;
@@ -952,7 +954,7 @@ export type QueryResult = Array<{
 
 // Source: ./sanity/helpers/index.ts
 // Variable: PRODUCT_BY_CATEGORY_QUERY
-// Query: *[_type == 'product' && references(*[_type == "category" && slug.current == $categorySlug]._id)] | order(name asc)
+// Query: *[_type == 'product' && references(*[_type == "category" && slug.current == $categorySlug]._id)] | order(coalesce(sortOrder, 999999) asc, name asc)
 export type PRODUCT_BY_CATEGORY_QUERYResult = Array<{
   _id: string;
   _type: "product";
@@ -998,6 +1000,7 @@ export type PRODUCT_BY_CATEGORY_QUERYResult = Array<{
     [internalGroqTypeReferenceTo]?: "category";
   }>;
   stock?: number;
+  sortOrder?: number;
   brand?: {
     _ref: string;
     _type: "reference";
@@ -1005,7 +1008,7 @@ export type PRODUCT_BY_CATEGORY_QUERYResult = Array<{
     [internalGroqTypeReferenceTo]?: "brand";
   };
   status?: "hot" | "new" | "sale";
-  variant?: "accessories" | "contact-lenses" | "eyeglasses" | "sunglasses";
+  variant?: "computer-glasses" | "premium" | "prescription" | "sports" | "sunglasses";
   isFeatured?: boolean;
   averageRating?: number;
   totalReviews?: number;
@@ -1191,7 +1194,7 @@ export type FEATURED_CATEGORY_QUERYResult = Array<{
   };
 }>;
 // Variable: ALL_PRODUCTS_QUERY
-// Query: *[_type=="product"] | order(name asc)
+// Query: *[_type=="product"] | order(coalesce(sortOrder, 999999) asc, name asc)
 export type ALL_PRODUCTS_QUERYResult = Array<{
   _id: string;
   _type: "product";
@@ -1237,6 +1240,7 @@ export type ALL_PRODUCTS_QUERYResult = Array<{
     [internalGroqTypeReferenceTo]?: "category";
   }>;
   stock?: number;
+  sortOrder?: number;
   brand?: {
     _ref: string;
     _type: "reference";
@@ -1244,7 +1248,7 @@ export type ALL_PRODUCTS_QUERYResult = Array<{
     [internalGroqTypeReferenceTo]?: "brand";
   };
   status?: "hot" | "new" | "sale";
-  variant?: "accessories" | "contact-lenses" | "eyeglasses" | "sunglasses";
+  variant?: "computer-glasses" | "premium" | "prescription" | "sports" | "sunglasses";
   isFeatured?: boolean;
   averageRating?: number;
   totalReviews?: number;
@@ -1257,7 +1261,7 @@ export type ALL_PRODUCTS_QUERYResult = Array<{
   };
 }>;
 // Variable: DEAL_PRODUCTS
-// Query: *[_type == 'product' && status == 'hot'] | order(name asc){  ...,"categories": categories[]->title}
+// Query: *[_type == 'product' && status == 'hot'] | order(coalesce(sortOrder, 999999) asc, name asc){  ...,"categories": categories[]->title}
 export type DEAL_PRODUCTSResult = Array<{
   _id: string;
   _type: "product";
@@ -1297,6 +1301,7 @@ export type DEAL_PRODUCTSResult = Array<{
   prescriptionAvailable?: boolean;
   categories: Array<string | null> | null;
   stock?: number;
+  sortOrder?: number;
   brand?: {
     _ref: string;
     _type: "reference";
@@ -1304,7 +1309,7 @@ export type DEAL_PRODUCTSResult = Array<{
     [internalGroqTypeReferenceTo]?: "brand";
   };
   status: "hot";
-  variant?: "accessories" | "contact-lenses" | "eyeglasses" | "sunglasses";
+  variant?: "computer-glasses" | "premium" | "prescription" | "sports" | "sunglasses";
   isFeatured?: boolean;
   averageRating?: number;
   totalReviews?: number;
@@ -1317,7 +1322,7 @@ export type DEAL_PRODUCTSResult = Array<{
   };
 }>;
 // Variable: FEATURE_PRODUCTS
-// Query: *[_type == 'product' && isFeatured == true] | order(name asc){  ...,"categories": categories[]->title}
+// Query: *[_type == 'product' && isFeatured == true] | order(coalesce(sortOrder, 999999) asc, name asc){  ...,"categories": categories[]->title}
 export type FEATURE_PRODUCTSResult = Array<{
   _id: string;
   _type: "product";
@@ -1357,6 +1362,7 @@ export type FEATURE_PRODUCTSResult = Array<{
   prescriptionAvailable?: boolean;
   categories: Array<string | null> | null;
   stock?: number;
+  sortOrder?: number;
   brand?: {
     _ref: string;
     _type: "reference";
@@ -1364,7 +1370,7 @@ export type FEATURE_PRODUCTSResult = Array<{
     [internalGroqTypeReferenceTo]?: "brand";
   };
   status?: "hot" | "new" | "sale";
-  variant?: "accessories" | "contact-lenses" | "eyeglasses" | "sunglasses";
+  variant?: "computer-glasses" | "premium" | "prescription" | "sports" | "sunglasses";
   isFeatured: true;
   averageRating?: number;
   totalReviews?: number;
@@ -1628,7 +1634,7 @@ export type ADMIN_CATEGORIES_QUERYResult = Array<{
   featured: boolean | null;
 }>;
 // Variable: PRODUCT_BY_SLUG_QUERY
-// Query: *[_type == "product" && slug.current == $slug] | order(name asc) [0]{    ...,    "averageRating": math::avg(*[_type == "review" && product._ref == ^._id && status == "approved"].rating),    "totalReviews": count(*[_type == "review" && product._ref == ^._id && status == "approved"])  }
+// Query: *[_type == "product" && slug.current == $slug] | order(coalesce(sortOrder, 999999) asc, name asc) [0]{    ...,    "averageRating": coalesce(math::avg(*[_type == "review" && product._ref == ^._id && status == "approved"].rating), 0),    "totalReviews": count(*[_type == "review" && product._ref == ^._id && status == "approved"])  }
 export type PRODUCT_BY_SLUG_QUERYResult = {
   _id: string;
   _type: "product";
@@ -1674,6 +1680,7 @@ export type PRODUCT_BY_SLUG_QUERYResult = {
     [internalGroqTypeReferenceTo]?: "category";
   }>;
   stock?: number;
+  sortOrder?: number;
   brand?: {
     _ref: string;
     _type: "reference";
@@ -1681,7 +1688,7 @@ export type PRODUCT_BY_SLUG_QUERYResult = {
     [internalGroqTypeReferenceTo]?: "brand";
   };
   status?: "hot" | "new" | "sale";
-  variant?: "accessories" | "contact-lenses" | "eyeglasses" | "sunglasses";
+  variant?: "computer-glasses" | "premium" | "prescription" | "sports" | "sunglasses";
   isFeatured?: boolean;
   averageRating: number | null;
   totalReviews: number;
@@ -1694,7 +1701,7 @@ export type PRODUCT_BY_SLUG_QUERYResult = {
   };
 } | null;
 // Variable: RELATED_PRODUCTS_QUERY
-// Query: *[_type == "product" && count((categories[]._ref)[@ in $categoryIds]) > 0 && slug.current != $currentSlug] | order(name asc) [0...$limit]{    _id,    name,    slug,    price,    discount,    stock,    images,    categories[]->{      _id,      title,      slug    }  }
+// Query: *[_type == "product" && count((categories[]._ref)[@ in $categoryIds]) > 0 && slug.current != $currentSlug] | order(coalesce(sortOrder, 999999) asc, name asc) [0...$limit]{    _id,    name,    slug,    price,    discount,    stock,    sortOrder,    images,    "averageRating": coalesce(math::avg(*[_type == "review" && product._ref == ^._id && status == "approved"].rating), 0),    "totalReviews": count(*[_type == "review" && product._ref == ^._id && status == "approved"]),    categories[]->{      _id,      title,      slug    }  }
 export type RELATED_PRODUCTS_QUERYResult = Array<{
   _id: string;
   name: string | null;
@@ -1702,6 +1709,7 @@ export type RELATED_PRODUCTS_QUERYResult = Array<{
   price: number | null;
   discount: number | null;
   stock: number | null;
+  sortOrder: number | null;
   images: Array<{
     asset?: {
       _ref: string;
@@ -1715,6 +1723,8 @@ export type RELATED_PRODUCTS_QUERYResult = Array<{
     _type: "image";
     _key: string;
   }> | null;
+  averageRating: number | null;
+  totalReviews: number;
   categories: Array<{
     _id: string;
     title: string | null;
@@ -1732,15 +1742,15 @@ import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
     "*[_type == 'order' && clerkUserId == $userId] | order(orderDate desc){\n  ...,products[]{\n    ...,product->\n  }\n}": QueryResult;
-    "*[_type == 'product' && references(*[_type == \"category\" && slug.current == $categorySlug]._id)] | order(name asc)": PRODUCT_BY_CATEGORY_QUERYResult;
+    "*[_type == 'product' && references(*[_type == \"category\" && slug.current == $categorySlug]._id)] | order(coalesce(sortOrder, 999999) asc, name asc)": PRODUCT_BY_CATEGORY_QUERYResult;
     "*[_type == 'sale'] | order(name asc)": SALE_QUERYResult;
     "*[_type == 'order' && clerkUserId == $userId] | order(orderDate desc)[$start...$end]{\n    ...,\n    paymentStatus,\n    paymentMethod,\n    products[]{\n      ...,\n      product->{\n        _id,\n        name,\n        slug,\n        image,\n        images,\n        price,\n        currency\n      }\n    }\n  }": MY_ORDERS_QUERYResult;
     "count(*[_type == 'order' && clerkUserId == $userId])": COUNT_QUERYResult;
     "*[_type == 'banner'] | order(publishedAt desc)": BANNER_QUERYResult;
     "*[_type == 'category' && featured == true] | order(name desc)": FEATURED_CATEGORY_QUERYResult;
-    "*[_type==\"product\"] | order(name asc)": ALL_PRODUCTS_QUERYResult;
-    "*[_type == 'product' && status == 'hot'] | order(name asc){\n  ...,\"categories\": categories[]->title\n}": DEAL_PRODUCTSResult;
-    "*[_type == 'product' && isFeatured == true] | order(name asc){\n  ...,\"categories\": categories[]->title\n}": FEATURE_PRODUCTSResult;
+    "*[_type==\"product\"] | order(coalesce(sortOrder, 999999) asc, name asc)": ALL_PRODUCTS_QUERYResult;
+    "*[_type == 'product' && status == 'hot'] | order(coalesce(sortOrder, 999999) asc, name asc){\n  ...,\"categories\": categories[]->title\n}": DEAL_PRODUCTSResult;
+    "*[_type == 'product' && isFeatured == true] | order(coalesce(sortOrder, 999999) asc, name asc){\n  ...,\"categories\": categories[]->title\n}": FEATURE_PRODUCTSResult;
     "*[_type=='brand'] | order(name asc) ": BRANDS_QUERYResult;
     " *[_type == 'blog' && isLatest == true]|order(name asc){\n    ...,\n    blogcategories[]->{\n    title\n  }\n  }": LATEST_BLOG_QUERYResult;
     "*[_type == 'blog'] | order(publishedAt desc)[0...$quantity]{\n  ...,  \n     blogcategories[]->{\n    title\n}\n    }\n  ": GET_ALL_BLOGResult;
@@ -1750,8 +1760,8 @@ declare module "@sanity/client" {
     "*[_type==\"address\"] | order(publishedAt desc)": ADDRESS_QUERYResult;
     "*[_type == 'category'] | order(name asc) [0...$quantity]": ALLCATEGORIES_QUERYResult;
     "*[_type == 'category'] | order(title asc) {\n    _id,\n    title,\n    slug,\n    description,\n    featured\n  }": ADMIN_CATEGORIES_QUERYResult;
-    "*[_type == \"product\" && slug.current == $slug] | order(name asc) [0]{\n    ...,\n    \"averageRating\": math::avg(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"].rating),\n    \"totalReviews\": count(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"])\n  }": PRODUCT_BY_SLUG_QUERYResult;
-    "*[_type == \"product\" && count((categories[]._ref)[@ in $categoryIds]) > 0 && slug.current != $currentSlug] | order(name asc) [0...$limit]{\n    _id,\n    name,\n    slug,\n    price,\n    discount,\n    stock,\n    images,\n    categories[]->{\n      _id,\n      title,\n      slug\n    }\n  }": RELATED_PRODUCTS_QUERYResult;
+    "*[_type == \"product\" && slug.current == $slug] | order(coalesce(sortOrder, 999999) asc, name asc) [0]{\n    ...,\n    \"averageRating\": coalesce(math::avg(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"].rating), 0),\n    \"totalReviews\": count(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"])\n  }": PRODUCT_BY_SLUG_QUERYResult;
+    "*[_type == \"product\" && count((categories[]._ref)[@ in $categoryIds]) > 0 && slug.current != $currentSlug] | order(coalesce(sortOrder, 999999) asc, name asc) [0...$limit]{\n    _id,\n    name,\n    slug,\n    price,\n    discount,\n    stock,\n    sortOrder,\n    images,\n    \"averageRating\": coalesce(math::avg(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"].rating), 0),\n    \"totalReviews\": count(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"]),\n    categories[]->{\n      _id,\n      title,\n      slug\n    }\n  }": RELATED_PRODUCTS_QUERYResult;
     "*[_type == \"product\" && slug.current == $slug]{\n\"brandName\": brand->title\n}": BRAND_QUERYResult;
   }
 }

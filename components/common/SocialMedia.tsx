@@ -1,9 +1,9 @@
 import {
   Youtube,
-  Mail,
   Instagram,
   Facebook,
 } from "lucide-react";
+import { contactConfig } from "@/config/contact";
 
 import {
   Tooltip,
@@ -20,30 +20,24 @@ interface Props {
   tooltipClassName?: string;
 }
 
-const socialLink = [
-  {
-    title: "YouTube",
-    href: "https://youtube.com/@shivam",
-     color: "text-red-500 border-red-500 hover:bg-red-600 hover:text-white",
-    icon: <Youtube className="w-5 h-5" />,
-  },
-  {
-    title: "Gmail",
-    href: "mailto:shivam@gmail.com",
-    color: "text-green-500 border-green-500 hover:bg-green-600 hover:text-white",
-    icon: <Mail className="w-5 h-5" />,
-  },
+const socialLinks = [
   {
     title: "Instagram",
-    href: "https://instagram.com/shivam",
-     color: "text-pink-500 border-pink-500 hover:bg-pink-600 hover:text-white",
+    href: contactConfig.socialMedia.instagram,
+    color: "text-pink-500 border-pink-500 hover:bg-pink-600 hover:text-white",
     icon: <Instagram className="w-5 h-5" />,
   },
   {
     title: "Facebook",
-    href: "https://facebook.com/shivam",
+    href: contactConfig.socialMedia.facebook,
     color: "text-blue-500 border-blue-500 hover:bg-blue-600 hover:text-white",
     icon: <Facebook className="w-5 h-5" />,
+  },
+  {
+    title: "YouTube",
+    href: contactConfig.socialMedia.youtube,
+    color: "text-red-500 border-red-500 hover:bg-red-600 hover:text-white",
+    icon: <Youtube className="w-5 h-5" />,
   },
 ];
 
@@ -60,25 +54,34 @@ const SocialMedia = ({
           className
         )}
       >
-        {socialLink.map((item) => (
+        {socialLinks.map((item) => (
           <Tooltip key={item.title}>
             <TooltipTrigger asChild>
-              <a
-                href={item.href}
-                target="_blank"
-                rel="noopener noreferrer"
-      className={cn(
-
-  "p-2 border rounded-full transition-all duration-300",
-
-  item.color,
-
-  iconClassName
-
-)}
-              >
-                {item.icon}
-              </a>
+              {item.href ? (
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    "p-2 border rounded-full transition-all duration-300",
+                    item.color,
+                    iconClassName
+                  )}
+                >
+                  {item.icon}
+                </a>
+              ) : (
+                <span
+                  aria-disabled="true"
+                  className={cn(
+                    "p-2 border rounded-full transition-all duration-300",
+                    item.color,
+                    iconClassName
+                  )}
+                >
+                  {item.icon}
+                </span>
+              )}
             </TooltipTrigger>
 
             <TooltipContent

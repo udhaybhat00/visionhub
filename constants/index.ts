@@ -1,36 +1,65 @@
-export const headerData = [
-  { title: "Home", href: "/" },
-  { title: "Eyeglasses", href: "/shop?type=eyeglasses" },
+type NavigationItem = {
+  title: string;
+  href: string;
+};
+
+type HeaderNavigationItem = NavigationItem & {
+  children?: NavigationItem[];
+};
+
+export const collectionNavigationData: NavigationItem[] = [
   { title: "Sunglasses", href: "/shop?type=sunglasses" },
-  { title: "Brands", href: "/brands" },
+  { title: "Computer Glasses", href: "/shop?type=computer-glasses" },
+  { title: "Prescription", href: "/shop?type=prescription" },
+  { title: "Premium", href: "/shop?type=premium" },
+  { title: "Sports", href: "/shop?type=sports" },
+  { title: "Accessories", href: "/category/accessories" },
+];
+
+export const headerData: HeaderNavigationItem[] = [
+  { title: "Home", href: "/" },
+  {
+    title: "Collections",
+    href: "/category",
+    children: collectionNavigationData,
+  },
+  { title: "Journal", href: "/blog" },
+  { title: "About", href: "/about" },
   { title: "Contact", href: "/contact" },
 ];
 
 export const productType = [
   { title: "Sunglasses", value: "sunglasses" },
-  { title: "Eyeglasses", value: "eyeglasses" },
-  { title: "Contact Lenses", value: "contact-lenses" },
-  { title: "Accessories", value: "accessories" },
+  { title: "Computer Glasses", value: "computer-glasses" },
+  { title: "Prescription", value: "prescription" },
+  { title: "Premium", value: "premium" },
+  { title: "Sports", value: "sports" },
 ];
 
 export const quickLinksData = [
-  { title: "About us", href: "/about" },
-  { title: "Contact us", href: "/contact" },
-  { title: "Terms & Conditions", href: "/terms" },
+  { title: "About Us", href: "/about" },
+  { title: "Contact Us", href: "/contact" },
   { title: "Privacy Policy", href: "/privacy" },
+  { title: "Terms & Conditions", href: "/terms" },
   { title: "FAQs", href: "/faqs" },
   { title: "Help", href: "/help" },
 ];
 
 export const categoriesData = [
-  { title: "Men's Sunglasses", href: "mens-sunglasses" },
-  { title: "Women's Sunglasses", href: "womens-sunglasses" },
-  { title: "Power Glasses", href: "power-glasses" },
+  { title: "Sunglasses", href: "sunglasses" },
   { title: "Computer Glasses", href: "computer-glasses" },
-  { title: "Contact Lenses", href: "contact-lenses" },
-  { title: "Sports Glasses", href: "sports-glasses" },
-  { title: "Kids Glasses", href: "kids-glasses" },
+  { title: "Blue Light Glasses", href: "blue-light-glasses" },
+  { title: "Prescription Glasses", href: "prescription-glasses" },
+  { title: "Sports Eyewear", href: "sports-eyewear" },
   { title: "Accessories", href: "accessories" },
+];
+
+export const visionHubCollectionsData = [
+  { title: "VisionHub", href: "/brands/visionhub" },
+  { title: "VisionHub Luxe", href: "/brands/visionhub-luxe" },
+  { title: "VisionHub Air", href: "/brands/visionhub-air" },
+  { title: "VisionHub Blue", href: "/brands/visionhub-blue" },
+  { title: "VisionHub Active", href: "/brands/visionhub-active" },
 ];
 
 // Enhanced user account menu items
@@ -49,8 +78,8 @@ export const supportData = [
   { title: "Help Center", href: "/help" },
   { title: "Customer Service", href: "/support" },
   { title: "Track Your Order", href: "/track-order" },
-  { title: "Return Policy", href: "/returns" },
   { title: "Shipping Info", href: "/shipping" },
+  { title: "Care Guide", href: "/help" },
   { title: "Size Guide", href: "/size-guide" },
 ];
 export const faqsData = [
@@ -80,9 +109,9 @@ answer:
 "We accept secure online payments through supported payment gateways, including major cards, UPI, and other available payment options.",
 },
 {
-question: "Do you offer returns or exchanges?",
+question: "What if my product arrives damaged?",
 answer:
-"Currently, VisionHub does not offer returns or exchanges unless required by applicable law or if a product arrives damaged during shipping.",
+"Contact our support team with order details and clear photos of the package and product so we can review the issue quickly.",
 },
 {
 question: "How long does shipping take?",
@@ -100,4 +129,3 @@ answer:
 "You can reach our support team through the Contact Us page, email, or available communication channels during business hours.",
 },
 ];
-

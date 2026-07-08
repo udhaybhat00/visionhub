@@ -4453,6 +4453,13 @@
         },
         "optional": true
       },
+      "sortOrder": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "number"
+        },
+        "optional": true
+      },
       "brand": {
         "type": "objectAttribute",
         "value": {
@@ -4515,15 +4522,19 @@
             },
             {
               "type": "string",
-              "value": "eyeglasses"
+              "value": "computer-glasses"
             },
             {
               "type": "string",
-              "value": "contact-lenses"
+              "value": "prescription"
             },
             {
               "type": "string",
-              "value": "accessories"
+              "value": "premium"
+            },
+            {
+              "type": "string",
+              "value": "sports"
             }
           ]
         },

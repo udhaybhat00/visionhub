@@ -15,10 +15,10 @@ const HomeTabbar = ({ selectedTab, onTabSelect }: Props) => {
       <div className="flex gap-2 min-w-max">
         {productType?.map((item) => (
           <button
-            onClick={() => onTabSelect(item?.title)}
-            key={item?.title}
+            onClick={() => onTabSelect(item?.value)}
+            key={item?.value}
             className={`whitespace-nowrap flex-shrink-0 border border-shop_light_green/30 px-3 py-2 md:px-6 md:py-2 rounded-full text-sm hover:bg-shop_light_green hover:border-shop_light_green hover:text-white transition-all duration-300 ${
-              selectedTab === item?.title
+              selectedTab === item?.value
                 ? "bg-shop_light_green text-white border-shop_light_green"
                 : "bg-shop_light_green/10"
             }`}

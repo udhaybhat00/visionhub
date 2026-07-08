@@ -4,7 +4,7 @@ import {
   SanityImageCrop,
   SanityImageHotspot,
 } from "@/sanity.types";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageUrl } from "@/sanity/lib/image";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
@@ -41,9 +41,9 @@ const ImageView = ({ images = [], isStock }: Props) => {
     () =>
       images.map((image) => ({
         key: image._key,
-        display: urlFor(image).url(),
-        full: urlFor(image).width(1800).fit("max").url(),
-        thumb: urlFor(image).width(220).fit("max").url(),
+        display: productImageUrl(image, 1100, 1100),
+        full: productImageUrl(image, 1800, 1800),
+        thumb: productImageUrl(image, 220, 220),
       })),
     [images]
   );
@@ -131,7 +131,7 @@ const ImageView = ({ images = [], isStock }: Props) => {
 
   return (
     <div className="w-full">
-      <div className="flex flex-col gap-3 md:flex-row-reverse md:items-start">
+      <div className="flex flex-col gap-3 min-[900px]:flex-row-reverse min-[900px]:items-start">
         <div className="relative min-w-0 flex-1">
           <AnimatePresence mode="wait">
             <motion.div
@@ -140,12 +140,12 @@ const ImageView = ({ images = [], isStock }: Props) => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="group relative h-[340px] w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-[0_10px_28px_rgba(15,15,15,0.06)] md:sticky md:top-24 md:h-[520px]"
+              className="group relative h-[340px] w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-[0_10px_28px_rgba(15,15,15,0.06)] md:h-[440px] min-[900px]:sticky min-[900px]:top-24 min-[900px]:h-[520px]"
             >
               <button
                 type="button"
                 onClick={() => openViewer(activeIndex)}
-                className="relative flex h-full w-full cursor-zoom-in items-center justify-center bg-[radial-gradient(circle_at_center,#ffffff_0%,#f8fafc_72%,#f1f5f9_100%)] px-3 py-5 md:px-8"
+                className="relative flex h-full w-full cursor-zoom-in items-center justify-center bg-[radial-gradient(circle_at_center,#ffffff_0%,#f8fafc_72%,#f1f5f9_100%)] px-3 py-5 min-[900px]:px-8"
                 aria-label="Open product image gallery"
               >
                 <Image
@@ -183,7 +183,7 @@ const ImageView = ({ images = [], isStock }: Props) => {
           </AnimatePresence>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-1 md:max-h-[520px] md:w-[74px] md:flex-col md:overflow-y-auto md:overflow-x-hidden md:pb-0 md:pr-1">
+        <div className="flex gap-2 overflow-x-auto pb-1 min-[900px]:max-h-[520px] min-[900px]:w-[74px] min-[900px]:flex-col min-[900px]:overflow-y-auto min-[900px]:overflow-x-hidden min-[900px]:pb-0 min-[900px]:pr-1">
           {images.map((image, index) => (
             <button
               key={image._key}

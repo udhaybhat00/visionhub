@@ -6,7 +6,7 @@ import { StarIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/sanity.types";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageUrl } from "@/sanity/lib/image";
 import AddToCartButton from "./AddToCartButton";
 import FavoriteButton from "./FavoriteButton";
 
@@ -33,7 +33,7 @@ const RelatedProducts = memo(({ relatedProducts }: RelatedProductsProps) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {relatedProducts.map((product: Product) => {
           const imageUrl = product?.images?.[0]
-            ? urlFor(product.images[0]).url()
+            ? productImageUrl(product.images[0], 500, 500)
             : null;
           const originalPrice =
             product?.discount && product?.price

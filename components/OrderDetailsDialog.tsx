@@ -11,7 +11,7 @@ import {
 import PriceFormatter from "./PriceFormatter";
 import { MY_ORDERS_QUERYResult } from "@/sanity.types";
 import Image from "next/image";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageUrl } from "@/sanity/lib/image";
 import { Button } from "./ui/button";
 
 interface OrderDetailsDialogProps {
@@ -106,11 +106,11 @@ const OrderDetailsDialog: FC<OrderDetailsDialogProps> = ({
                 <TableCell className="flex items-center gap-2">
                   {product?.product?.images && (
                     <Image
-                      src={urlFor(product?.product?.images[0]).url()}
+                      src={productImageUrl(product?.product?.images[0], 120, 120)}
                       alt="productImage"
                       width={50}
                       height={50}
-                      className="border rounded-sm"
+                      className="border rounded-sm object-contain bg-gray-50 p-1"
                     />
                   )}
 

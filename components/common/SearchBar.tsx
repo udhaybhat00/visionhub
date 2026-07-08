@@ -1,113 +1,205 @@
 "use client";
-import { Loader2, Search, X, TrendingUp, Clock, Star, Mic } from "lucide-react";
-import { useCallback, useEffect, useState, useRef } from "react";
+
+import {
+  ArrowRight,
+  Clock,
+  Loader2,
+  Mic,
+  Search,
+  Star,
+  Tag,
+  TrendingUp,
+  X,
+} from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { client } from "@/sanity/lib/client";
 import { Input } from "../ui/input";
-import AddToCartButton from "../AddToCartButton";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageUrl } from "@/sanity/lib/image";
 import { Product } from "@/sanity.types";
 import PriceView from "../PriceView";
 import Image from "next/image";
 import Link from "next/link";
-import Logo from "./Logo";
 import { useOutsideClick } from "@/hooks";
+
+type SearchProduct = Product & {
+  brandTitle?: string;
+  categoryTitles?: string[];
+  averageRating?: number;
+  totalReviews?: number;
+};
+
+const POPULAR_SEARCHES = [
+  "Premium frames",
+  "Sunglasses",
+  "Computer glasses",
+  "Prescription",
+  "UV400",
+  "Sports eyewear",
+];
+
+const COLLECTION_LINKS = [
+  {
+    title: "Sunglasses",
+    href: "/shop?type=sunglasses",
+    description: "UV protection for everyday wear",
+  },
+  {
+    title: "Computer Glasses",
+    href: "/shop?type=computer-glasses",
+    description: "Blue-light comfort for screens",
+  },
+  {
+    title: "Premium",
+    href: "/shop?type=premium",
+    description: "Elevated frames and finishes",
+  },
+];
+
+const productProjection = `{
+  ...,
+  "brandTitle": brand->title,
+  "categoryTitles": categories[]->title,
+  "averageRating": coalesce(math::avg(*[_type == "review" && product._ref == ^._id && status == "approved"].rating), 0),
+  "totalReviews": count(*[_type == "review" && product._ref == ^._id && status == "approved"])
+}`;
+
+const formatLabel = (value?: string) =>
+  value
+    ? value
+        .split("-")
+        .filter(Boolean)
+        .map((item) => item.charAt(0).toUpperCase() + item.slice(1))
+        .join(" ")
+    : "Eyewear";
+
+const getProductHref = (product: SearchProduct) =>
+  product?.slug?.current ? `/product/${product.slug.current}` : "/shop";
 
 const SearchBar = () => {
   const [search, setSearch] = useState("");
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<SearchProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const [featuredProduct, setFeaturedProduct] = useState([]);
+  const [featuredProduct, setFeaturedProduct] = useState<SearchProduct[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [isMac, setIsMac] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const modalRef = useOutsideClick<HTMLDivElement>(() => setShowSearch(false));
-  const [isListening, setIsListening] = useState(false);
 
-  // Detect if user is on Mac
+  const trimmedSearch = search.trim();
+  const canSearch = trimmedSearch.length >= 2;
+
   useEffect(() => {
-    setIsMac(navigator.platform.toUpperCase().indexOf("MAC") >= 0);
+    setIsMac(navigator.platform.toUpperCase().includes("MAC"));
   }, []);
 
   useEffect(() => {
-  const stored = localStorage.getItem("recentSearches");
+    try {
+      const stored = localStorage.getItem("recentSearches");
+      const parsed = stored ? JSON.parse(stored) : [];
 
-  if (stored) {
-    setRecentSearches(JSON.parse(stored));
-  }
-}, []);
+      if (Array.isArray(parsed)) {
+        setRecentSearches(
+          parsed.filter((item) => typeof item === "string").slice(0, 6)
+        );
+      }
+    } catch {
+      localStorage.removeItem("recentSearches");
+    }
+  }, []);
 
-const saveRecentSearch = (term: string) => {
-  if (!term.trim()) return;
+  const saveRecentSearch = useCallback((term: string) => {
+    const normalizedTerm = term.trim();
 
-  const updated = [
-    term,
-    ...recentSearches.filter((item) => item !== term),
-  ].slice(0, 5);
+    if (!normalizedTerm) return;
 
-  setRecentSearches(updated);
+    setRecentSearches((currentSearches) => {
+      const updatedSearches = [
+        normalizedTerm,
+        ...currentSearches.filter(
+          (item) => item.toLowerCase() !== normalizedTerm.toLowerCase()
+        ),
+      ].slice(0, 6);
 
-  localStorage.setItem(
-    "recentSearches",
-    JSON.stringify(updated)
+      localStorage.setItem("recentSearches", JSON.stringify(updatedSearches));
+
+      return updatedSearches;
+    });
+  }, []);
+
+  const handleSearch = useCallback(
+    (term = search) => {
+      const normalizedTerm = term.trim();
+
+      if (normalizedTerm.length < 2) return;
+
+      saveRecentSearch(normalizedTerm);
+    },
+    [saveRecentSearch, search]
   );
-};
 
-const handleSearch = () => {
-  const term = search.trim();
-
-  if (!term || term.length < 3) return;
-
-  saveRecentSearch(term);
-};
-
-const startVoiceSearch = () => {
-  const SpeechRecognition =
-    (window as any).SpeechRecognition ||
-    (window as any).webkitSpeechRecognition;
-
-  if (!SpeechRecognition) {
-    alert("Voice search is not supported in this browser");
-    return;
-  }
-
-  const recognition = new SpeechRecognition();
-
-  recognition.lang = "en-US";
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
-
-  setIsListening(true);
-
-  recognition.start();
-
- recognition.onresult = (event: any) => {
-  const transcript = event.results[0][0].transcript;
-
-  setSearch(transcript);
-
-  if (transcript.length > 2) {
-    saveRecentSearch(transcript);
-  }
-
-  setTimeout(() => {
-    handleSearch();
-  }, 100);
-};
-
-  recognition.onerror = () => {
+  const closeSearch = useCallback(() => {
+    setShowSearch(false);
     setIsListening(false);
-  };
+  }, []);
 
-  recognition.onend = () => {
-    setIsListening(false);
+  const openSearch = useCallback(() => {
+    setShowSearch(true);
+  }, []);
+
+  const handleTermSelect = useCallback(
+    (term: string) => {
+      setSearch(term);
+      saveRecentSearch(term);
+    },
+    [saveRecentSearch]
+  );
+
+  const clearSearch = useCallback(() => {
+    setSearch("");
+    setProducts([]);
+    inputRef.current?.focus();
+  }, []);
+
+  const startVoiceSearch = () => {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    setIsListening(true);
+    recognition.start();
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+
+      setSearch(transcript);
+      handleSearch(transcript);
+    };
+
+    recognition.onerror = () => {
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
   };
-};
 
   const fetchFeaturedProducts = useCallback(async () => {
     try {
-      const query = `*[_type == "product" && isFeatured == true] | order(name asc)`;
-      const response = await client.fetch(query);
+      const query = `*[_type == "product" && isFeatured == true] | order(coalesce(sortOrder, 999999) asc, name asc)[0...6] ${productProjection}`;
+      const response = await client.fetch<SearchProduct[]>(query);
       setFeaturedProduct(response);
     } catch (error) {
       console.error("Error fetching featured products:", error);
@@ -115,484 +207,449 @@ const startVoiceSearch = () => {
   }, []);
 
   useEffect(() => {
-    if (showSearch === true) {
-      fetchFeaturedProducts();
-      // Focus input when modal opens
-      const timeoutId = setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
+    if (!showSearch) return;
 
-      return () => clearTimeout(timeoutId); // Cleanup timeout
-    }
-  }, [showSearch, fetchFeaturedProducts]);
+    fetchFeaturedProducts();
 
-  // Handle escape key to close modal and Ctrl+K to open modal
+    const timeoutId = window.setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [fetchFeaturedProducts, showSearch]);
+
   useEffect(() => {
-    const handleKeydown = (e: KeyboardEvent) => {
-      // Handle Escape key to close modal
-      if (e.key === "Escape" && showSearch) {
-        setShowSearch(false);
+    const handleKeydown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && showSearch) {
+        closeSearch();
         return;
       }
 
-      // Handle Ctrl+K (or Cmd+K on Mac) to open search modal
-      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
-        e.preventDefault(); // Prevent browser's default search behavior
-        setShowSearch(true);
-        return;
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        openSearch();
       }
     };
 
-    // Always listen for global keyboard shortcuts
     document.addEventListener("keydown", handleKeydown);
-
-    // Handle body scroll lock only when modal is open
-    if (showSearch) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
+    document.body.style.overflow = showSearch ? "hidden" : "";
 
     return () => {
       document.removeEventListener("keydown", handleKeydown);
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
     };
-  }, [showSearch]);
+  }, [closeSearch, openSearch, showSearch]);
 
-  // Fetch products from Sanity based on search input
   const fetchProducts = useCallback(async () => {
-  if (!search.trim()) {
-  setProducts([]);
-  setLoading(false);
-  return;
-}
+    if (!canSearch) {
+      setProducts([]);
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
-    try {
-  const query = `
-*[
-  _type == "product" &&
-  name match $search
-] | order(name asc)
-`;
 
-const params = {
-  search: `*${search}*`,
-};
-      const response = await client.fetch(query, params);
+    try {
+      const query = `
+        *[
+          _type == "product" &&
+          (
+            name match $search ||
+            description match $search ||
+            variant match $search ||
+            frameShape match $search ||
+            lensType match $search ||
+            references(*[_type in ["brand", "category"] && title match $search]._id)
+          )
+        ] | order(coalesce(sortOrder, 999999) asc, name asc)[0...10] ${productProjection}
+      `;
+
+      const response = await client.fetch<SearchProduct[]>(query, {
+        search: `*${trimmedSearch}*`,
+      });
+
       setProducts(response);
     } catch (error) {
       console.error("Error fetching products:", error);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
-  }, [search]);
+  }, [canSearch, trimmedSearch]);
 
-  // Debounce input changes to reduce API calls
- useEffect(() => {
-  if (search.trim().length < 2) {
-    setProducts([]);
-    return;
-  }
+  useEffect(() => {
+    if (!canSearch) {
+      setProducts([]);
+      return;
+    }
 
-  const debounceTimer = setTimeout(() => {
-    fetchProducts();
-  }, 300);
+    const debounceTimer = window.setTimeout(() => {
+      fetchProducts();
+    }, 250);
 
-  return () => clearTimeout(debounceTimer);
-}, [search, fetchProducts]);
+    return () => window.clearTimeout(debounceTimer);
+  }, [canSearch, fetchProducts]);
+
+  const statusText = useMemo(() => {
+    if (!trimmedSearch) return "Trending searches and featured frames";
+    if (!canSearch) return "Keep typing to refine your search";
+    if (loading) return `Searching for "${trimmedSearch}"`;
+
+    return `${products.length} result${products.length === 1 ? "" : "s"} for "${trimmedSearch}"`;
+  }, [canSearch, loading, products.length, trimmedSearch]);
+
+  const renderSearchTermButton = (term: string) => (
+    <button
+      key={term}
+      type="button"
+      onClick={() => handleTermSelect(term)}
+      className="inline-flex h-9 items-center gap-2 rounded-full border border-black/10 bg-white px-3 text-sm font-medium text-gray-700 transition-all hover:border-shop_orange hover:bg-shop_light_bg hover:text-shop_dark_green"
+    >
+      <Search className="h-3.5 w-3.5 text-gray-400" />
+      <span className="max-w-[180px] truncate">{term}</span>
+    </button>
+  );
+
+  const renderProductCard = (product: SearchProduct, compact = false) => {
+    const productImage = product.images?.[0];
+    const categoryLabel =
+      product.categoryTitles?.[0] || formatLabel(product.variant);
+    const isInStock = (product.stock || 0) > 0;
+
+    return (
+      <Link
+        key={product._id}
+        href={getProductHref(product)}
+        onClick={() => {
+          handleSearch(trimmedSearch || product.name || "");
+          closeSearch();
+        }}
+        className={
+          compact
+            ? "group grid grid-cols-[72px_1fr] gap-3 rounded-lg border border-black/[0.06] bg-white p-3 transition-all hover:border-shop_orange/50 hover:shadow-md"
+            : "group grid grid-cols-[76px_1fr_auto] items-center gap-4 px-5 py-4 transition-all hover:bg-shop_light_bg"
+        }
+      >
+        <div className="relative flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-lg border border-black/[0.06] bg-gray-50">
+          {productImage?.asset ? (
+            <Image
+              width={96}
+              height={96}
+              src={productImageUrl(productImage, 160, 160)}
+              alt={product.name || "Eyewear product"}
+              className={`h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-105 ${
+                !isInStock ? "opacity-50 grayscale" : ""
+              }`}
+            />
+          ) : (
+            <Search className="h-6 w-6 text-gray-300" />
+          )}
+
+          {product.discount ? (
+            <span className="absolute right-1 top-1 rounded-full bg-shop_orange px-1.5 py-0.5 text-[10px] font-bold text-white">
+              -{product.discount}%
+            </span>
+          ) : null}
+        </div>
+
+        <div className="min-w-0">
+          <div className="mb-1 flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              {categoryLabel}
+            </span>
+            {product.status === "hot" ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-600">
+                <TrendingUp className="h-3 w-3" />
+                Hot
+              </span>
+            ) : null}
+            {product.status === "new" ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-600">
+                <Clock className="h-3 w-3" />
+                New
+              </span>
+            ) : null}
+            {product.isFeatured ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-yellow-50 px-2 py-0.5 text-[11px] font-semibold text-yellow-700">
+                <Star className="h-3 w-3" />
+                Featured
+              </span>
+            ) : null}
+          </div>
+
+          <h3 className="line-clamp-1 text-sm font-semibold text-gray-950 sm:text-base">
+            {product.name}
+          </h3>
+
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
+            {product.brandTitle ? <span>{product.brandTitle}</span> : null}
+            <span className={isInStock ? "text-emerald-600" : "text-red-500"}>
+              {isInStock ? "In stock" : "Out of stock"}
+            </span>
+            {product.totalReviews ? (
+              <span>{product.averageRating?.toFixed(1)} rating</span>
+            ) : null}
+          </div>
+
+          <PriceView
+            price={product.price}
+            discount={product.discount}
+            className="mt-2 text-sm"
+          />
+        </div>
+
+        {!compact ? (
+          <div className="hidden h-10 w-10 items-center justify-center rounded-full border border-black/10 text-gray-500 transition-all group-hover:border-shop_orange group-hover:bg-white group-hover:text-shop_dark_green sm:flex">
+            <ArrowRight className="h-4 w-4" />
+          </div>
+        ) : null}
+      </Link>
+    );
+  };
+
   return (
     <>
-      {/* Search Trigger Button - Modern Input Style */}
       <div className="flex">
-        {/* Desktop Version - Full Input Style */}
         <button
-          onClick={() => setShowSearch(true)}
-          className="group hidden sm:flex items-center gap-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-shop_light_green rounded-lg px-3 py-2 transition-all duration-200 min-w-[200px] md:min-w-[240px]"
+          type="button"
+          onClick={openSearch}
+          className="group hidden h-11 min-w-[230px] grid-cols-[auto_1fr_auto] items-center gap-3 rounded-full border border-black/10 bg-white px-4 shadow-[0_8px_24px_rgba(15,15,15,0.06)] ring-1 ring-black/[0.02] transition-all duration-200 hover:border-shop_orange/60 hover:bg-shop_light_bg md:w-[260px] xl:grid xl:w-[320px] 2xl:w-[380px]"
           aria-label={`Open search (${isMac ? "Cmd" : "Ctrl"}+K)`}
         >
-          {/* Search Icon */}
-          <Search className="w-4 h-4 min-[430px]:w-5 min-[430px]:h-5 text-gray-400 group-hover:text-shop_dark_green transition-colors duration-200" />
-
-          {/* Placeholder Text */}
-          <span className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors duration-200 flex-1 text-left">
-            Search for Eyeglasses, Sunglasses
+          <Search className="h-5 w-5 text-gray-400 transition-colors group-hover:text-shop_dark_green" />
+          <span className="truncate text-left text-sm font-medium text-gray-500 transition-colors group-hover:text-gray-800">
+            Search frames, lenses, brands
           </span>
-
-          {/* Keyboard Shortcut Badge */}
-          <div className="flex items-center gap-1 bg-white border border-gray-200 group-hover:border-gray-300 px-2 py-1 rounded text-xs text-gray-500 font-mono flex-shrink-0 transition-colors duration-200">
-            <span>{isMac ? "⌘" : "Ctrl"}</span>
-            <span>K</span>
-          </div>
+          <kbd className="hidden rounded-full border border-black/10 bg-gray-50 px-2 py-1 font-mono text-[11px] font-medium text-gray-500 transition-colors group-hover:border-shop_orange/40 sm:inline-flex">
+            {isMac ? "⌘" : "Ctrl"} K
+          </kbd>
         </button>
 
-        {/* Mobile Version - Icon Only */}
-      <button
-  onClick={() => setShowSearch(true)}
-  className="
-    group flex sm:hidden
-    items-center justify-center
-    p-2 min-[430px]:p-2.5
-    bg-gray-50 hover:bg-gray-100
-    border border-gray-200
-    hover:border-shop_btn_dark_green
-    rounded-lg
-    hoverEffect
-  "
->
-          <Search className="w-4 h-4 text-gray-400 group-hover:text-shop_dark_green transition-colors duration-200" />
+        <button
+          type="button"
+          onClick={openSearch}
+          className="group flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white text-gray-500 shadow-sm transition-all hover:border-shop_orange hover:bg-shop_light_bg hover:text-shop_dark_green xl:hidden"
+          aria-label="Open search"
+        >
+          <Search className="h-4 w-4 transition-colors" />
         </button>
       </div>
 
-      {/* Search Modal Overlay */}
       {showSearch && (
-        <div
-          className={`fixed inset-0 z-50
-
-    flex items-start justify-center
-
-    sm:pt-20 sm:px-4
-
-    search-modal-overlay ${
-            showSearch ? "animate-fadeIn" : "animate-fadeOut"
-          }`}
-        >
-          {/* Backdrop */}
-          <div className="absolute inset-0 w-full h-screen bg-black/60 backdrop-blur-sm" />
-
-          {/* Modal Content */}
-         <div
-  ref={modalRef}
-  className={`
-    relative
-    w-full
-    h-screen
-    sm:h-auto
-    sm:max-w-4xl
-    bg-white
-    flex
-    flex-col
-    sm:rounded-2xl
-  `}
->
-            {/* Header */}
-            <div className="sticky top-0 z-20 bg-gradient-to-r from-shop_dark_green to-shop_light_green p-6 text-white">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="bg-white/20 p-2 rounded-full">
-                    <Search className="w-5 h-5" />
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-xl font-bold">Search Products</h2>
-                    <div className="hidden sm:flex items-center gap-1 bg-white/10 px-2 py-1 rounded-md border border-white/20">
-                      <span className="text-xs font-mono">
-                        {isMac ? "Cmd" : "Ctrl"}
-                      </span>
-                      <span className="text-xs">+</span>
-                      <span className="text-xs font-mono">K</span>
-                    </div>
-                  </div>
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-0 backdrop-blur-md sm:px-4 sm:pt-20">
+          <div
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="site-search-title"
+            className="relative flex h-[100dvh] w-full flex-col overflow-hidden bg-white shadow-2xl sm:h-auto sm:max-h-[calc(100vh-7rem)] sm:max-w-4xl sm:rounded-2xl"
+          >
+            <div className="border-b border-black/[0.06] bg-white p-4 sm:p-5">
+              <div className="mb-4 flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-shop_orange">
+                    VisionHub Search
+                  </p>
+                  <h2
+                    id="site-search-title"
+                    className="mt-1 text-xl font-semibold text-gray-950"
+                  >
+                    Find the right frame
+                  </h2>
                 </div>
+
                 <button
-                  onClick={() => setShowSearch(false)}
-                  className="p-2 hover:bg-white/20 rounded-full transition-colors duration-200"
-                  aria-label="Close search (Escape)"
-                  title="Close (Escape)"
+                  type="button"
+                  onClick={closeSearch}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 text-gray-500 transition-all hover:border-shop_orange hover:bg-shop_light_bg hover:text-shop_dark_green"
+                  aria-label="Close search"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
 
-              {/* Search Input */}
               <form
-  className="relative"
-  onSubmit={(e) => {
-    e.preventDefault();
-    handleSearch();
-  }}
->
-  
-
-  
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  handleSearch();
+                }}
+              >
                 <div className="relative">
-               <Input
-  ref={inputRef}
-  placeholder="Search for Eyeglasses, Sunglasses and more..."
-  className="w-full pl-12 pr-24 py-4 text-lg bg-white/10 border-white/20 placeholder:text-white/70 text-white focus:bg-white/20 focus:border-white/40 rounded-xl"
-  value={search}
-onChange={(e) => {
-  setSearch(e.target.value);
-}}
-/>
-                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/70" />
+                  <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                  <Input
+                    ref={inputRef}
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    placeholder="Search sunglasses, computer glasses, UV400..."
+                    autoComplete="off"
+                    className="h-14 rounded-lg border-black/10 bg-gray-50 pl-12 pr-32 text-base font-medium text-gray-950 shadow-inner placeholder:text-gray-400 focus:border-shop_orange focus:bg-white focus:ring-shop_orange/20"
+                  />
 
-<button
-  type="button"
-  onClick={startVoiceSearch}
-  className="absolute right-12 top-1/2 -translate-y-1/2"
->
-  <Mic
-    className={`w-4 h-4 transition-all ${
-      isListening
-        ? "text-red-400 animate-pulse"
-        : "text-white/80 hover:text-white"
-    }`}
-  />
-</button>
+                  <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1.5">
+                    {search ? (
+                      <button
+                        type="button"
+                        onClick={clearSearch}
+                        className="flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                        aria-label="Clear search"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    ) : null}
 
-{search && (
                     <button
                       type="button"
-                      onClick={() => {
-  setSearch("");
-  setProducts([]);
-}}
-                      className="absolute right-24 top-1/2 -translate-y-1/2 p-1 hover:bg-white/20 rounded-full transition-colors duration-200"
+                      onClick={startVoiceSearch}
+                      className="flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                      aria-label="Voice search"
                     >
-                      <X className="w-4 h-4 text-white/70 hover:text-white" />
+                      <Mic
+                        className={`h-4 w-4 ${
+                          isListening ? "animate-pulse text-red-500" : ""
+                        }`}
+                      />
                     </button>
-                  )}
-                <button
-  type="button"
-  onClick={handleSearch}
-  className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 p-2.5 rounded-lg transition-all duration-200"
->
-                    <Search className="w-4 h-4 text-white" />
-                  </button>
+
+                    <button
+                      type="submit"
+                      className="flex h-9 w-9 items-center justify-center rounded-full bg-shop_dark_green text-white transition-all hover:bg-shop_orange"
+                      aria-label="Submit search"
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </form>
             </div>
-<div className="px-4 py-3 bg-gray-50 border-b">
- <p className="text-sm text-gray-600">
-  {search
-    ? `${products.length} result${
-        products.length !== 1 ? "s" : ""
-      } for "${search}"`
-    : "Start typing to search"}
-</p>
-</div>
-            {/* Content */}
+
+            <div className="flex items-center justify-between gap-3 border-b border-black/[0.06] bg-gray-50 px-5 py-3">
+              <p className="truncate text-sm font-medium text-gray-600">
+                {statusText}
+              </p>
+              {trimmedSearch ? (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="hidden text-sm font-semibold text-shop_dark_green hover:text-shop_orange sm:inline"
+                >
+                  Reset
+                </button>
+              ) : null}
+            </div>
+
             <div className="flex-1 overflow-y-auto">
               {loading ? (
-                <div className="flex flex-col items-center justify-center py-16 text-shop_dark_green">
-                  <Loader2 className="w-8 h-8 animate-spin mb-3" />
-                  <p className="text-lg font-semibold">Searching products...</p>
-                  <p className="text-sm text-gray-500">Please wait a moment</p>
-                </div>
-              ) : products?.length > 0 ? (
-                <div className="divide-y divide-gray-100">
-                  {products.map((product: Product) => (
+                <div className="space-y-3 p-5">
+                  {Array.from({ length: 5 }).map((_, index) => (
                     <div
-                      key={product?._id}
-                      className="p-4 hover:bg-gray-50 transition-colors duration-200 group"
+                      key={index}
+                      className="grid animate-pulse grid-cols-[76px_1fr] gap-4 rounded-lg border border-black/[0.06] p-3"
                     >
-                      <div className="flex items-center gap-4">
-                        <Link
-                          href={`/product/${product?.slug?.current}`}
-                            onClick={() => {
-
-    handleSearch();
-
-    setShowSearch(false);
-
-  }}
-                          className="relative h-24 w-24 sm:h-28 sm:w-28 flex-shrink-0 overflow-hidden rounded-xl bg-gray-50 border border-gray-100"
-                        >
-                          {product?.images && (
-                            <Image
-                              width={80}
-                              height={80}
-                              src={urlFor(product?.images[0]).url()}
-                              alt={product.name || "Product"}
-                              className={`object-contain w-full h-full p-2 group-hover:scale-105 transition-transform duration-300 ${
-                                product?.stock === 0
-                                  ? "opacity-50 grayscale"
-                                  : ""
-                              }`}
-                            />
-                          )}
-                          {product?.discount && product.discount > 0 && (
-                            <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full font-semibold">
-                              -{product.discount}%
-                            </div>
-                          )}
-                        </Link>
-
-                        <div className="flex-1 min-w-0">
-                          <Link
-                            href={`/product/${product?.slug?.current}`}
-                              onClick={() => {
-
-    handleSearch();
-
-    setShowSearch(false);
-
-  }}
-                            className="block group-hover:text-shop_dark_green transition-colors duration-200"
-                          >
-                            <h3 className="font-semibold text-base sm:text-lg line-clamp-1 mb-1">
-                              {product.name}
-                            </h3>
-                          </Link>
-
-                          <div className="flex items-center justify-between">
-                            <PriceView
-                              price={product?.price}
-                              discount={product?.discount}
-                              className="text-sm sm:text-base"
-                            />
-
-                            <div className="flex items-center gap-2">
-                    <span
-  className={`text-sm font-medium ${
-    product?.stock === 0
-      ? "text-red-500"
-      : "text-green-600"
-  }`}
->
-  {product?.stock === 0 ? "Out of Stock" : "In Stock"}
-</span>
-                            </div>
-                          </div>
-
-                          {/* Product Status Badges */}
-                          <div className="flex items-center gap-2 mt-2">
-                            {product?.status === "hot" && (
-                              <span className="inline-flex items-center gap-1 bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full font-medium">
-                                <TrendingUp className="w-3 h-3" />
-                                Hot Deal
-                              </span>
-                            )}
-                            {product?.status === "new" && (
-                              <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">
-                                <Clock className="w-3 h-3" />
-                                New Arrival
-                              </span>
-                            )}
-                            {product?.isFeatured && (
-                              <span className="inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full font-medium">
-                                <Star className="w-3 h-3" />
-                                Featured
-                              </span>
-                            )}
-                          </div>
-                        </div>
+                      <div className="h-[72px] w-[72px] rounded-lg bg-gray-100" />
+                      <div className="space-y-3 py-1">
+                        <div className="h-3 w-24 rounded-full bg-gray-100" />
+                        <div className="h-4 w-2/3 rounded-full bg-gray-100" />
+                        <div className="h-3 w-1/2 rounded-full bg-gray-100" />
+                        <div className="h-4 w-24 rounded-full bg-gray-100" />
                       </div>
                     </div>
                   ))}
+                  <div className="flex items-center justify-center gap-2 py-4 text-sm font-medium text-gray-500">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Searching products
+                  </div>
+                </div>
+              ) : canSearch && products.length > 0 ? (
+                <div className="divide-y divide-black/[0.06]">
+                  {products.map((product) => renderProductCard(product))}
+                </div>
+              ) : canSearch ? (
+                <div className="p-6 text-center sm:p-8">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-gray-500">
+                    <Search className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-4 text-lg font-semibold text-gray-950">
+                    No matching products
+                  </h3>
+                  <p className="mx-auto mt-2 max-w-md text-sm text-gray-500">
+                    Try another style, frame shape, brand, or category.
+                  </p>
+                  <div className="mt-5 flex flex-wrap justify-center gap-2">
+                    {POPULAR_SEARCHES.slice(0, 4).map(renderSearchTermButton)}
+                  </div>
                 </div>
               ) : (
-                <div className="py-12">
-                  {search === "" ? (
-                    <div className="text-center">
-                      <div className="bg-gray-50 rounded-2xl p-8 mx-6">
-                        <div className="flex items-center justify-center mb-4">
-                          <div className="bg-shop_dark_green/10 p-3 rounded-full">
-                            <Search className="w-8 h-8 text-shop_dark_green" />
-                          </div>
-                        </div>
-                        <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                          Discover Amazing Products
+                <div className="grid gap-6 p-5 sm:p-6">
+                  {recentSearches.length > 0 ? (
+                    <section>
+                      <div className="mb-3 flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-gray-950">
+                          Recent searches
                         </h3>
-                        <div className="text-gray-600 mb-6">
-                          <p>Search and explore thousands of products from</p>{" "}
-                          <Logo className="inline text-base font-bold text-shop_dark_green" />
-                        </div>
-
-                        {/* Featured Products Suggestions */}
-                       {featuredProduct?.length > 0 && (
-  <div>
-
-    {recentSearches.length > 0 && (
-      <div className="mb-6">
-      <div className="flex justify-between items-center mb-3">
-  <h4 className="text-sm font-semibold text-gray-700">
-    Recent Searches
-  </h4>
-
-  <button
-    onClick={() => {
-      localStorage.removeItem("recentSearches");
-      setRecentSearches([]);
-    }}
-    className="text-xs text-red-500 hover:text-red-600"
-  >
-    Clear
-  </button>
-</div>
-
-        <div className="flex flex-wrap gap-2">
-          {recentSearches.map((item) => (
-            <button
-              key={item}
-              onClick={() => {
-  setSearch(item);
-  saveRecentSearch(item);
-}}
-              className="bg-gray-100 hover:bg-shop_light_green hover:text-white px-3 py-2 rounded-full text-sm transition-all"
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-      </div>
-    )}
-
-    <h4 className="text-sm font-semibold text-gray-700 mb-3 text-left">
-      Popular Searches
-    </h4>
-                            <div className="flex flex-wrap gap-2">
-                              {featuredProduct
-                                .slice(0, 6)
-                                .map((item: Product) => (
-                                  <button
-                                    key={item?._id}
-                                  onClick={() => {
-  setSearch(item?.name as string);
-  saveRecentSearch(item?.name as string);
-}}
-                                    className="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-shop_light_green hover:bg-shop_light_green/5 px-3 py-2 rounded-full text-sm font-medium text-gray-700 hover:text-shop_dark_green transition-all duration-200"
-                                  >
-                                    <Search className="w-3 h-3" />
-                                    <span className="line-clamp-1">
-                                      {item?.name}
-                                    </span>
-                                  </button>
-                                ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <div className="bg-red-50 rounded-2xl p-8 mx-6">
-                        <div className="flex items-center justify-center mb-4">
-                          <div className="bg-red-100 p-3 rounded-full">
-                            <X className="w-8 h-8 text-red-500" />
-                          </div>
-                        </div>
-                        <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                          No Results Found
-                        </h3>
-                        <p className="text-gray-600 mb-4">
-                          Sorry, we couldn&apos;t find any products matching{" "}
-                          <span className="font-semibold text-red-600">
-                            &quot;{search}&quot;
-                          </span>
-                        </p>
                         <button
+                          type="button"
                           onClick={() => {
-  setSearch("");
-  setProducts([]);
-}}
-                          className="bg-shop_dark_green hover:bg-shop_light_green text-white px-6 py-2 rounded-full font-medium transition-colors duration-200"
+                            localStorage.removeItem("recentSearches");
+                            setRecentSearches([]);
+                          }}
+                          className="text-sm font-medium text-gray-500 hover:text-shop_orange"
                         >
-                          Clear Search
+                          Clear
                         </button>
                       </div>
+                      <div className="flex flex-wrap gap-2">
+                        {recentSearches.map(renderSearchTermButton)}
+                      </div>
+                    </section>
+                  ) : null}
+
+                  <section>
+                    <h3 className="mb-3 text-sm font-semibold text-gray-950">
+                      Popular searches
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {POPULAR_SEARCHES.map(renderSearchTermButton)}
                     </div>
-                  )}
+                  </section>
+
+                  <section>
+                    <h3 className="mb-3 text-sm font-semibold text-gray-950">
+                      Shop by need
+                    </h3>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      {COLLECTION_LINKS.map((collection) => (
+                        <Link
+                          key={collection.title}
+                          href={collection.href}
+                          onClick={closeSearch}
+                          className="group rounded-lg border border-black/[0.06] bg-white p-4 transition-all hover:border-shop_orange/50 hover:bg-shop_light_bg hover:shadow-md"
+                        >
+                          <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-shop_dark_green transition-colors group-hover:bg-shop_dark_green group-hover:text-white">
+                            <Tag className="h-4 w-4" />
+                          </div>
+                          <h4 className="font-semibold text-gray-950">
+                            {collection.title}
+                          </h4>
+                          <p className="mt-1 text-sm leading-5 text-gray-500">
+                            {collection.description}
+                          </p>
+                        </Link>
+                      ))}
+                    </div>
+                  </section>
+
+                  {featuredProduct.length > 0 ? (
+                    <section>
+                      <h3 className="mb-3 text-sm font-semibold text-gray-950">
+                        Popular picks
+                      </h3>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {featuredProduct
+                          .slice(0, 4)
+                          .map((product) => renderProductCard(product, true))}
+                      </div>
+                    </section>
+                  ) : null}
                 </div>
               )}
             </div>

@@ -12,9 +12,11 @@ import { trackWishlistAdd, trackWishlistRemove } from "@/lib/analytics";
 const FavoriteButton = ({
   showProduct = false,
   product,
+  variant = "default",
 }: {
   showProduct?: boolean;
   product?: Product;
+  variant?: "default" | "header";
 }) => {
   const { favoriteProduct, addToFavorite } = useCartStore();
   const [existingProduct, setExistingProduct] = useState<Product | null>(null);
@@ -63,12 +65,26 @@ const FavoriteButton = ({
       {!showProduct ? (
         <BreadcrumbLink
           href={"/wishlist"}
-          className="group relative hover:text-shop_light_green hoverEffect"
+          className={
+            variant === "header"
+              ? "group relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white text-gray-700 shadow-sm transition-all hover:border-shop_orange hover:bg-shop_light_bg hover:text-shop_dark_green"
+              : "group relative hover:text-shop_light_green hoverEffect"
+          }
         >
-          <Heart className="group-hover:text-shop_light_green hoverEffect mt-.5" />
+          <Heart
+            className={
+              variant === "header"
+                ? "h-5 w-5 transition-colors"
+                : "group-hover:text-shop_light_green hoverEffect mt-.5"
+            }
+          />
           {/* {isArray(favoriteProduct) && favoriteProduct.length > 0 && ( */}
           <span
-            className={`absolute -top-1 -right-1 bg-shop_btn_dark_green text-white rounded-full text-xs font-semibold flex items-center justify-center min-w-[14px] h-[14px] ${
+            className={`absolute -right-1 -top-1 flex ${
+              variant === "header"
+                ? "h-4 min-w-4 text-[10px]"
+                : "h-[14px] min-w-[14px] text-xs"
+            } items-center justify-center rounded-full bg-shop_btn_dark_green font-semibold text-white ${
               favoriteProduct.length > 9 ? "px-1" : ""
             }`}
           >

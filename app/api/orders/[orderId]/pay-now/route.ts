@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { writeClient } from "@/sanity/lib/client";
 import stripe from "@/lib/stripe";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageUrl } from "@/sanity/lib/image";
 
 export async function POST(
   request: NextRequest,
@@ -142,7 +142,7 @@ export async function POST(
               name: item.product.name,
               images:
                 item.product.images && item.product.images.length > 0
-                  ? [urlFor(item.product.images[0]).url()]
+                  ? [productImageUrl(item.product.images[0], 800, 600)]
                   : [],
             },
             unit_amount: Math.round((item.product.price || 0) * 100),

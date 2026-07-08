@@ -49,8 +49,11 @@ const Shop = ({ categories, brands }: Props) => {
         && (!defined($selectedType) || variant == $selectedType)
         && price >= $minPrice && price <= $maxPrice
       ] 
-      | order(name asc) {
-        ...,"categories": categories[]->title
+      | order(coalesce(sortOrder, 999999) asc, name asc) {
+        ...,
+        "categories": categories[]->title,
+        "averageRating": coalesce(math::avg(*[_type == "review" && product._ref == ^._id && status == "approved"].rating), 0),
+        "totalReviews": count(*[_type == "review" && product._ref == ^._id && status == "approved"])
       }
     `;
 
@@ -144,7 +147,7 @@ const Shop = ({ categories, brands }: Props) => {
         </div>
 
         {/* Mobile Filter Toggle */}
-        <div className="lg:hidden mb-4">
+        <div className="xl:hidden mb-4">
           <button
             onClick={() => setShowMobileFilters(!showMobileFilters)}
             className="inline-flex items-center justify-center w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-shop_dark_green transition-colors duration-200"
@@ -164,10 +167,10 @@ const Shop = ({ categories, brands }: Props) => {
         </div>
 
         {/* <div className="flex flex-col lg:flex-row gap-6" /> */}
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col xl:flex-row gap-6">
           {/* Mobile Filter Overlay */}
           {showMobileFilters && (
-            <div className="fixed inset-0 z-50 lg:hidden">
+            <div className="fixed inset-0 z-50 xl:hidden">
               <div
                 className="fixed inset-0 bg-black/50"
                 onClick={() => setShowMobileFilters(false)}
@@ -213,7 +216,7 @@ const Shop = ({ categories, brands }: Props) => {
           )}
 
           {/* Desktop Sidebar Filters */}
-          <div className="hidden lg:block lg:w-80 flex-shrink-0">
+          <div className="hidden xl:block xl:w-80 flex-shrink-0">
             <div className="sticky top-6 space-y-4">
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div className="p-4 bg-gray-50 border-b border-gray-200">
@@ -246,7 +249,7 @@ const Shop = ({ categories, brands }: Props) => {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="p-4 sm:p-6">
                 {loading ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                     {Array.from({ length: 8 }).map((_, index) => (
                       <div
                         key={index}
@@ -273,7 +276,7 @@ const Shop = ({ categories, brands }: Props) => {
                         Showing all available products
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                       {products?.map((product) => (
                         <ProductCard key={product?._id} product={product} />
                       ))}

@@ -3,27 +3,25 @@
 export const contactConfig = {
   company: {
     name: process.env.NEXT_PUBLIC_COMPANY_NAME || "VisionHub",
-    email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || "shivam@gmail.com",
-    phone: process.env.NEXT_PUBLIC_COMPANY_PHONE || "+91 123456789",
-    address:
-      process.env.NEXT_PUBLIC_COMPANY_ADDRESS ||
-      "VisionHub Eyewear",
-    city: process.env.NEXT_PUBLIC_COMPANY_CITY || "123 Shopping Street, Jammu, India",
+    email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || "support@visionhub.in",
+    phone: process.env.NEXT_PUBLIC_COMPANY_PHONE || "+91 XXXXXXXXXX",
+    address: process.env.NEXT_PUBLIC_COMPANY_ADDRESS || "VisionHub Eyewear",
+    city: process.env.NEXT_PUBLIC_COMPANY_CITY || "India",
     description:
       process.env.NEXT_PUBLIC_COMPANY_DESCRIPTION ||
-      "Your destination for premium eyewear, stylish sunglasses, prescription glasses, contact lenses, and accessories. We combine quality, comfort, and modern design to help you see and look your best every day.",
+      "VisionHub delivers premium eyewear designed for modern lifestyles. From blue light protection and prescription frames to luxury sunglasses and performance eyewear, VisionHub combines style, comfort, and innovation to help you see better every day.",
   },
   businessHours: {
     weekday:
       process.env.NEXT_PUBLIC_COMPANY_BUSINESS_HOURS_WEEKDAY ||
-      "Monday - Friday: 9AM - 6PM IST",
+      "Monday – Saturday",
     weekend:
       process.env.NEXT_PUBLIC_COMPANY_BUSINESS_HOURS_WEEKEND ||
-      "Saturday - Sunday: 10AM - 4PM IST",
+      "9:00 AM - 7:00 PM",
   },
   emails: {
-    support: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "shivam@gmail.com",
-    sales: process.env.NEXT_PUBLIC_SALES_EMAIL || "sales@VisionHub.com",
+    support: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@visionhub.in",
+    sales: process.env.NEXT_PUBLIC_SALES_EMAIL || "sales@visionhub.in",
   },
   responseTime: {
     standard:
@@ -34,15 +32,14 @@ export const contactConfig = {
       "2-4 hours during business hours",
   },
   socialMedia: {
-    facebook: process.env.NEXT_PUBLIC_FACEBOOK_URL || "#",
-    twitter: process.env.NEXT_PUBLIC_TWITTER_URL || "#",
-    instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL || "#",
-    linkedin: process.env.NEXT_PUBLIC_LINKEDIN_URL || "#",
+    instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL || "",
+    facebook: process.env.NEXT_PUBLIC_FACEBOOK_URL || "",
+    youtube: process.env.NEXT_PUBLIC_YOUTUBE_URL || "",
   },
   legal: {
     copyright:
       process.env.NEXT_PUBLIC_COPYRIGHT_TEXT ||
-      "© 2024 VisionHub. All rights reserved.",
+      "© 2026 VisionHub. Built for modern eyewear experiences.",
     privacyPolicy: process.env.NEXT_PUBLIC_PRIVACY_POLICY_URL || "/privacy",
     terms: process.env.NEXT_PUBLIC_TERMS_URL || "/terms",
   },

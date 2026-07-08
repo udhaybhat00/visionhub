@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageUrl } from "@/sanity/lib/image";
 // Removed unused imports
 
 export const POST = async (request: NextRequest) => {
@@ -47,10 +47,7 @@ export const POST = async (request: NextRequest) => {
         ) {
           try {
             // Convert first image to URL
-            const imageUrl = urlFor(item.product.images[0])
-              .width(800)
-              .height(600)
-              .url();
+            const imageUrl = productImageUrl(item.product.images[0], 800, 600);
             if (imageUrl) {
               productImages = [imageUrl];
             }

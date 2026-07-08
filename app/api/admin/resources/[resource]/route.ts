@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 import {
   AdminField,
@@ -537,6 +537,9 @@ export async function POST(
   });
 
   revalidatePath(`/admin/${resource}`);
+  if (resource === "products") {
+    revalidateTag("products", { expire: 0 });
+  }
 
   return NextResponse.json({ document: created }, { status: 201 });
 }
@@ -560,6 +563,32 @@ export async function PATCH(
 
   if (ids.length === 0) {
     return NextResponse.json({ error: "Document id is required" }, { status: 400 });
+  }
+
+  if (body.reorder === true && Array.isArray(body.items)) {
+    if (resource !== "products") {
+      return NextResponse.json({ error: "Reorder is only supported for products" }, { status: 400 });
+    }
+
+    const documents = [];
+    for (const item of body.items) {
+      if (!item?.id || typeof item.sortOrder !== "number") continue;
+
+      const document = await writeClient
+        .patch(String(item.id))
+        .set({ sortOrder: item.sortOrder })
+        .commit();
+      documents.push(document);
+    }
+
+    revalidatePath(`/admin/${resource}`);
+    revalidateTag("products", { expire: 0 });
+
+    return NextResponse.json({
+      success: true,
+      documents,
+      count: documents.length,
+    });
   }
 
   const data =
@@ -590,6 +619,9 @@ export async function PATCH(
   }
 
   revalidatePath(`/admin/${resource}`);
+  if (resource === "products") {
+    revalidateTag("products", { expire: 0 });
+  }
 
   return NextResponse.json({
     success: true,
@@ -628,6 +660,9 @@ export async function DELETE(
   }
 
   revalidatePath(`/admin/${resource}`);
+  if (resource === "products") {
+    revalidateTag("products", { expire: 0 });
+  }
 
   return NextResponse.json({
     success: true,

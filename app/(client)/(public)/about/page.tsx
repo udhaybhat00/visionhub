@@ -60,7 +60,7 @@ const AboutPage = () => {
     name: "Shivam Bhat",
     role: "Founder & CEO",
     description:
-      "Building VisionHub with a vision to provide premium eyewear, sunglasses, contact lenses, and eye-care essentials while delivering a seamless shopping experience.",
+      "Building VisionHub with a vision to provide premium sunglasses, computer glasses, prescription frames, sports eyewear, and eye-care essentials while delivering a seamless shopping experience.",
   },
 ];
 
@@ -82,7 +82,7 @@ const AboutPage = () => {
             </h1>
            <p className="text-xl lg:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed">
   VisionHub is your trusted destination for premium eyewear,
-  sunglasses, prescription glasses, contact lenses, and accessories.
+  sunglasses, computer glasses, prescription frames, sports eyewear, and accessories.
   We combine style, comfort, and quality to help you see clearly and
   look your best every day.
 </p>
@@ -134,7 +134,7 @@ const AboutPage = () => {
               <p className="text-lg text-dark-text mb-6 leading-relaxed">
                 VisionHub was created with a simple mission: to make premium eyewear
 accessible, stylish, and affordable. We carefully curate sunglasses,
-eyeglasses, contact lenses, and accessories from trusted brands to help
+computer glasses, prescription frames, sports eyewear, and accessories from trusted brands to help
 customers find the perfect fit for their lifestyle.
               </p>
               <p className="text-lg text-dark-text mb-8 leading-relaxed">
@@ -295,7 +295,7 @@ experience.
               Find Your Perfect Pair
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Explore our collection of premium sunglasses, eyeglasses, contact lenses, and accessories designed for style, comfort, and clear vision.
+              Explore our collection of premium sunglasses, computer glasses, prescription frames, sports eyewear, and accessories designed for style, comfort, and clear vision.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button

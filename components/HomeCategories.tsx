@@ -1,153 +1,134 @@
 import { Category } from "@/sanity.types";
 import Container from "./Container";
-import Title from "./Title";
 import Link from "next/link";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
+import { ArrowRight, Monitor, ShieldCheck, Sun, Trophy } from "lucide-react";
 
 interface Props {
   categories: Category[];
 }
 
+const needs = [
+  {
+    title: "Sun Protection",
+    description: "Polarized and UV-focused styles for daily outdoor use.",
+    href: "/shop?type=sunglasses",
+    icon: Sun,
+  },
+  {
+    title: "Screen Comfort",
+    description: "Computer glasses built for long workdays and study hours.",
+    href: "/shop?type=computer-glasses",
+    icon: Monitor,
+  },
+  {
+    title: "Prescription Ready",
+    description: "Frames selected for comfort, fit, and everyday wear.",
+    href: "/shop?type=prescription",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Active Eyewear",
+    description: "Secure-fit sports styles for movement and performance.",
+    href: "/shop?type=sports",
+    icon: Trophy,
+  },
+];
+
 const HomeCategories = ({ categories }: Props) => {
   return (
-    <Container className="mt-16 lg:mt-24">
-      {/* Header Section */}
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-3 mb-4">
-          <div className="h-1 w-12 bg-gradient-to-r from-shop_light_blue to-shop_dark_blue rounded-full"></div>
-          <Title className="text-3xl lg:text-4xl font-bold text-dark-color">
-            Eyewear Collections
-          </Title>
-          <div className="h-1 w-12 bg-gradient-to-l from-shop_light_blue to-shop_dark_blue rounded-full"></div>
-        </div>
-        <p className="text-light-color text-lg max-w-2xl mx-auto">
-          Explore premium eyewear collections designed for style, comfort, and vision.
-        </p>
-        <Link
-          href={"/category"}
-          className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-shop_light_pink text-shop_dark_green/80 font-semibold rounded-full hover:bg-shop_light_blue hover:text-shop_dark_green border-2 border-shop_light_blue hover:border-shop_dark_green hoverEffect"
-        >
-          Explore Collections
-          <svg
-            className="w-4 h-4 hoverEffect group-hover:translate-x-1"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+    <Container className="py-12 lg:py-16">
+      <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
+        <div>
+          <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-shop_light_green">
+            Shop By Need
+          </p>
+          <h2 className="mt-3 max-w-md text-3xl font-extrabold leading-tight text-slate-950 lg:text-4xl">
+            Start with how you use your eyewear.
+          </h2>
+          <p className="mt-4 max-w-md text-base leading-7 text-slate-600">
+            Choose by protection, screen comfort, prescription use, or active
+            fit. Every product page shows lens and frame details before you buy.
+          </p>
+          <Link
+            href="/category"
+            className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-slate-950 hover:text-shop_dark_green"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17 8l4 4m0 0l-4 4m4-4H3"
-            />
-          </svg>
-        </Link>
-      </div>
+            View all collections
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
 
-      {/* Categories Grid */}
-      <div className="bg-gradient-to-br from-white via-shop_light_bg to-shop_light_pink p-8 lg:p-12 rounded-3xl shadow-xl border border-shop_light_blue/20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {categories?.map((category, index) => (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {needs.map((item) => (
             <Link
-              key={category?._id}
-              href={`/category/${category?.slug?.current}`}
-              className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl border border-gray-100 hover:border-shop_light_blue hoverEffect transform hover:-translate-y-2 cursor-pointer block"
-              style={{ animationDelay: `${index * 0.1}s` }}
+              key={item.title}
+              href={item.href}
+              className="group rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-shop_light_green hover:shadow-md"
             >
-              {/* Image Container */}
-              <div className="flex justify-center mb-5">
-                {category?.image && (
-                  <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-gradient-to-br from-shop_light_pink to-shop_light_bg p-3 group-hover:shadow-lg hoverEffect">
-                    <Image
-                      src={urlFor(category?.image).url()}
-                      alt={`${category?.title} category`}
-                      width={80}
-                      height={80}
-                      className="w-full h-full object-contain group-hover:scale-110 hoverEffect"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-shop_light_blue/10 to-transparent opacity-0 group-hover:opacity-100 hoverEffect rounded-xl"></div>
-                  </div>
-                )}
+              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-slate-50 text-shop_dark_green">
+                <item.icon className="h-5 w-5" />
               </div>
-
-              {/* Content */}
-              <div className="text-center space-y-3">
-                <h3 className="text-lg font-bold text-dark-color group-hover:text-shop_dark_blue hoverEffect line-clamp-1">
-                  {category?.title}
-                </h3>
-
-                <div className="flex items-center justify-center gap-2">
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 bg-shop_light_blue rounded-full"></div>
-                    <span className="text-sm font-semibold text-shop_dark_blue">
-                      Explore
-                    </span>
-                  </div>
-                  <span className="text-sm text-light-color">
-                    this category
-                  </span>
-                </div>
-
-                {/* Decorative Bar */}
-                <div className="w-full bg-gray-100 rounded-full h-2 mt-3">
-                  <div
-                    className="bg-gradient-to-r from-shop_light_blue to-shop_dark_blue h-2 rounded-full hoverEffect"
-                    style={{ width: `${Math.random() * 60 + 40}%` }}
-                  ></div>
-                </div>
-
-                {/* View Collection Button */}
-               <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-shop_orange/10 text-shop_dark_green font-medium rounded-full group-hover:bg-shop_orange group-hover:text-black text-sm transition-all duration-300">
-  View Collection
-                  <svg
-                    className="w-3 h-3 hoverEffect group-hover:translate-x-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 8l4 4m0 0l-4 4m4-4H3"
-                    />
-                  </svg>
-                </div>
-              </div>
+              <h3 className="mt-5 text-lg font-extrabold text-slate-950">
+                {item.title}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                {item.description}
+              </p>
+              <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-shop_dark_green">
+                Shop styles
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </span>
             </Link>
           ))}
         </div>
+      </div>
 
-        {/* Categories Stats */}
-        <div className="flex flex-wrap items-center justify-center gap-8 mt-12 pt-8 border-t border-shop_light_blue/20">
-      <div className="text-center">
-  <div className="text-2xl font-bold text-shop_dark_blue">8+</div>
-  <div className="text-sm text-light-color">Collections</div>
-</div>
+      {categories?.length > 0 && (
+        <div className="mt-10 border-t border-slate-200 pt-8">
+          <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h3 className="text-2xl font-extrabold text-slate-950">
+                Browse Collections
+              </h3>
+              <p className="mt-1 text-sm text-slate-500">
+                Curated eyewear categories from the VisionHub catalog.
+              </p>
+            </div>
+          </div>
 
-<div className="text-center">
-  <div className="text-2xl font-bold text-shop_dark_blue">500+</div>
-  <div className="text-sm text-light-color">Eyewear Styles</div>
-</div>
-
-<div className="text-center">
-  <div className="text-2xl font-bold text-shop_dark_blue">24/7</div>
-  <div className="text-sm text-light-color">Support</div>
-</div>
-        </div>
-
-        {/* Bottom CTA */}
-        <div className="text-center mt-8">
-          <div className="inline-flex items-center gap-4 px-8 py-4 bg-gradient-to-r from-shop_light_pink to-shop_light_bg rounded-2xl border border-shop_light_blue/20">
-            <div className="w-2 h-2 bg-shop_light_blue rounded-full animate-pulse"></div>
-            <span className="text-dark-text font-medium">
-              Find the perfect pair for every look and lifestyle.
-            </span>
-            <div className="w-2 h-2 bg-shop_light_blue rounded-full animate-pulse"></div>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            {categories.slice(0, 8).map((category) => (
+              <Link
+                key={category?._id}
+                href={`/category/${category?.slug?.current}`}
+                className="group rounded-lg border border-slate-200 bg-white p-4 transition-colors hover:border-shop_light_green"
+              >
+                <div className="flex aspect-[4/3] items-center justify-center rounded-lg bg-slate-50 p-4">
+                  {category?.image ? (
+                    <Image
+                      src={urlFor(category.image).width(260).height(180).url()}
+                      alt={`${category?.title} eyewear collection`}
+                      width={260}
+                      height={180}
+                      className="h-full w-full object-contain transition-transform group-hover:scale-105"
+                    />
+                  ) : (
+                    <Sun className="h-8 w-8 text-slate-300" />
+                  )}
+                </div>
+                <div className="mt-4 flex items-center justify-between gap-3">
+                  <h4 className="min-w-0 truncate text-sm font-extrabold text-slate-950">
+                    {category?.title}
+                  </h4>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-slate-400 transition-colors group-hover:text-shop_dark_green" />
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
-      </div>
+      )}
     </Container>
   );
 };

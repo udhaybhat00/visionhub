@@ -56,8 +56,11 @@ const CategoryPageWrapper = ({ slug }: Props) => {
 
         // Fetch products for the current category
         const productsQuery = `
-          *[_type == "product" && references(*[_type == "category" && slug.current == $slug]._id)] {
+          *[_type == "product" && references(*[_type == "category" && slug.current == $slug]._id)]
+          | order(coalesce(sortOrder, 999999) asc, name asc) {
             ...,
+            "averageRating": coalesce(math::avg(*[_type == "review" && product._ref == ^._id && status == "approved"].rating), 0),
+            "totalReviews": count(*[_type == "review" && product._ref == ^._id && status == "approved"]),
             brand->{
               _id,
               title

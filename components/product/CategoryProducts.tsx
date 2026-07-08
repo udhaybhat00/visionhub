@@ -32,8 +32,11 @@ const CategoryProducts = ({ categories, slug, initialProducts }: Props) => {
       setLoading(true);
       try {
         const query = `
-      *[_type == "product" && references(*[_type == "category" && slug.current == $slug]._id)] {
+      *[_type == "product" && references(*[_type == "category" && slug.current == $slug]._id)]
+      | order(coalesce(sortOrder, 999999) asc, name asc) {
         ...,
+        "averageRating": coalesce(math::avg(*[_type == "review" && product._ref == ^._id && status == "approved"].rating), 0),
+        "totalReviews": count(*[_type == "review" && product._ref == ^._id && status == "approved"]),
         brand->{
           _id,
           title
@@ -61,18 +64,18 @@ const CategoryProducts = ({ categories, slug, initialProducts }: Props) => {
   };
 
   return (
-    <div className="py-5 flex flex-col md:flex-row items-start gap-5">
-      <div className="flex flex-col md:min-w-40 border rounded-lg overflow-hidden bg-white shadow-sm">
+    <div className="py-5 flex flex-col lg:flex-row items-start gap-5">
+      <div className="flex flex-col md:max-lg:flex-row md:max-lg:w-full md:max-lg:overflow-x-auto lg:min-w-40 border rounded-lg overflow-hidden bg-white shadow-sm">
         {categories?.map((item) => (
           <Button
             key={item?._id}
             onClick={() => handleCategoryChange(item?.slug?.current as string)}
-            className={`bg-transparent border-0 p-0 rounded-none text-dark-color shadow-none hover:bg-shop_light_green hover:text-white font-semibold transition-all duration-200 border-b last:border-b-0 capitalize ${
+            className={`bg-transparent border-0 p-0 rounded-none text-dark-color shadow-none hover:bg-shop_light_green hover:text-white font-semibold transition-all duration-200 border-b last:border-b-0 capitalize md:max-lg:flex-none ${
               item?.slug?.current === currentSlug &&
               "bg-shop_light_green text-white border-shop_light_green"
             }`}
           >
-            <p className="w-full text-left px-4 py-3">{item?.title}</p>
+            <p className="w-full text-left md:max-lg:whitespace-nowrap md:max-lg:text-center px-4 py-3">{item?.title}</p>
           </Button>
         ))}
       </div>
@@ -92,7 +95,7 @@ const CategoryProducts = ({ categories, slug, initialProducts }: Props) => {
               <div className="h-3 bg-gray-200 animate-pulse rounded w-32"></div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5">
               {Array.from({ length: 10 }).map((_, index) => (
                 <div
                   key={index}
@@ -138,7 +141,7 @@ const CategoryProducts = ({ categories, slug, initialProducts }: Props) => {
 
             {/* Products Grid */}
             <motion.div
-              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5"
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4, delay: 0.1 }}

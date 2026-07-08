@@ -16,7 +16,7 @@ import { Button } from "./ui/button";
 import { ORDER_STATUSES, PAYMENT_STATUSES } from "@/lib/orderStatus";
 import Link from "next/link";
 import Image from "next/image";
-import { urlFor } from "@/sanity/lib/image";
+import { productImageUrl } from "@/sanity/lib/image";
 
 const OrdersComponent = ({ orders }: { orders: MY_ORDERS_QUERYResult }) => {
   const [payingOrderId] = useState<string | null>(null);
@@ -48,10 +48,10 @@ const OrdersComponent = ({ orders }: { orders: MY_ORDERS_QUERYResult }) => {
               >
                 {imageUrl ? (
                   <Image
-                    src={urlFor(imageUrl).url()}
+                    src={productImageUrl(imageUrl, 96, 96)}
                     alt={item.product?.name || "Product"}
                     fill
-                    className="object-cover"
+                    className="object-contain p-1"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-200 flex items-center justify-center">

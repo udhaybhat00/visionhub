@@ -3,10 +3,11 @@ import LatestBlog from "@/components/LatestBlog";
 import HomeBanner from "@/components/HomeBanner";
 import ProductGrid from "@/components/ProductGrid";
 import ShopByBrands from "@/components/ShopByBrands";
-import ShopFeatures from "@/components/ShopFeatures";
 import AiStylistCTA from "@/components/AiStylistCTA";
 import { getCategories } from "@/sanity/queries";
 import { generateOrganizationSchema, generateWebsiteSchema } from "@/lib/seo";
+import HomeReviews from "@/components/HomeReviews";
+
 
 export default async function Home() {
   const categories = await getCategories(8);
@@ -32,11 +33,12 @@ export default async function Home() {
       />
 
       <HomeBanner />
-      <div className="pt-4 pb-10">
+      <div className="pb-10">
+        <HomeCategories categories={categories} />
         <AiStylistCTA />
         <ProductGrid />
-        <HomeCategories categories={categories} />
         <ShopByBrands />
+        <HomeReviews />
         <LatestBlog />
       </div>
     </div>

@@ -1,6 +1,10 @@
 import Link from "next/link";
 import Logo from "./common/Logo";
-import { categoriesData, quickLinksData } from "@/constants";
+import {
+  categoriesData,
+  quickLinksData,
+  visionHubCollectionsData,
+} from "@/constants";
 import { contactConfig } from "@/config/contact";
 import FooterTop from "./layout/FooterTop";
 import SocialMedia from "./common/SocialMedia";
@@ -10,20 +14,18 @@ const Footer = () => {
   return (
     <footer className="bg-white border-t">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Top section with contact info */}
         <FooterTop />
 
-        {/* Main footer content */}
-        <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 text-center md:text-left">
           <div className="space-y-4">
-            <div className="mb-2">
+            <div className="mb-2 flex justify-center md:justify-start">
               <Logo variant="sm" />
             </div>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-sm leading-6">
               {contactConfig.company.description}
             </p>
             <SocialMedia
-              className="text-dark-color/60"
+              className="justify-center text-dark-color/60 md:justify-start"
               iconClassName="border-dark-color/60 hover:border-shop_dark_green hover:text-shop_dark_green"
               tooltipClassName="bg-dark-color text-white"
             />
@@ -52,7 +54,7 @@ const Footer = () => {
                 <li key={item?.title}>
                   <Link
                     href={`/category/${item?.href}`}
-                    className="text-gray-600 hover:text-shop_dark_green text-sm font-medium hoverEffect capitalize"
+                    className="text-gray-600 hover:text-shop_dark_green text-sm font-medium hoverEffect"
                   >
                     {item?.title}
                   </Link>
@@ -62,27 +64,37 @@ const Footer = () => {
           </div>
 
           <div>
+            <h3 className="font-semibold text-gray-900 mb-4">
+              VisionHub Collections
+            </h3>
+            <ul className="space-y-3">
+              {visionHubCollectionsData.map((item) => (
+                <li key={item.title}>
+                  <Link
+                    href={item.href}
+                    className="text-gray-600 hover:text-shop_dark_green text-sm font-medium hoverEffect"
+                  >
+                    {item.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
             <h3 className="font-semibold text-gray-900 mb-4">Newsletter</h3>
-            <p className="text-gray-600 text-sm mb-4">
-              Subscribe to our newsletter to receive updates and exclusive
-              offers.
+            <p className="text-gray-600 text-sm mb-4 leading-6">
+              Get exclusive product launches, discounts, style guides, and
+              VisionHub updates delivered directly to your inbox.
             </p>
-            <NewsletterForm />
+            <div className="w-full">
+              <NewsletterForm />
+            </div>
           </div>
         </div>
 
-        {/* Bottom copyright section */}
         <div className="py-6 border-t text-center text-sm text-gray-600">
-          <p>
-            © {new Date().getFullYear()}{" "}
-            <span className="text-dark-color font-black tracking-wider uppercase hover:text-shop_dark_green hoverEffect group font-sans">
-              VISION
-              <span className="text-shop_dark_green group-hover:text-dark-color hoverEffect">
-                HUB
-              </span>
-            </span>
-            . All rights reserved.
-          </p>
+          <p>{contactConfig.legal.copyright}</p>
         </div>
       </div>
     </footer>

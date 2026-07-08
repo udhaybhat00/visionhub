@@ -74,11 +74,11 @@ id: "shipping",
 title: "Shipping Policy",
 icon: Truck,
 content: [
-"VisionHub delivers eyewear, sunglasses, contact lenses, and accessories through trusted delivery partners to eligible service locations.",
+"VisionHub delivers eyewear, sunglasses, computer glasses, prescription frames, sports eyewear, and accessories through trusted delivery partners to eligible service locations.",
 "Delivery timelines may vary depending on product availability, customer location, courier operations, and unforeseen circumstances.",
 "Customers will receive order confirmation and shipment updates whenever tracking information is available.",
 "VisionHub is not responsible for delays caused by natural disasters, transportation disruptions, strikes, government restrictions, or events beyond our reasonable control.",
-"At present, VisionHub does not offer returns or exchanges unless required by applicable law or if a product is received damaged due to shipping."
+"If a product arrives damaged due to shipping, customers should contact support with order details and clear photos for review."
 ],
 },
 {
@@ -146,7 +146,7 @@ content: [
               Terms & Conditions
             </h1>
             <p className="text-xl text-white/90 max-w-3xl mx-auto">
-              These Terms & Conditions govern your use of VisionHub and the purchase of eyewear, sunglasses, contact lenses, accessories, and related products through our platform. They
+              These Terms & Conditions govern your use of VisionHub and the purchase of eyewear, sunglasses, computer glasses, prescription frames, sports eyewear, accessories, and related products through our platform. They
               outline your rights and responsibilities as a VisionHub user.
             </p>
             <Badge className="mt-6 bg-white/20 text-white border-white/30">
@@ -283,10 +283,10 @@ content: [
                 <p className="text-sm text-light-text mt-6">
                   For immediate assistance, email us at{" "}
                   <a
-                    href="mailto:shivam@gmail.com"
+                    href="mailto:support@visionhub.in"
                     className="text-shop_light_green hover:underline"
                   >
-                    shivam@gmail.com
+                    support@visionhub.in
                   </a>
                 </p>
               </CardContent>

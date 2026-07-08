@@ -7,7 +7,7 @@ import Title from "./Title";
 import { StarIcon } from "@sanity/icons";
 import ProductSideMenu from "./ProductSideMenu";
 import { Flame } from "lucide-react";
-import { image } from "@/sanity/image";
+import { productImageUrl } from "@/sanity/image";
 
 const ProductCard = memo(({ product }: { product: Product }) => {
   return (
@@ -16,7 +16,7 @@ const ProductCard = memo(({ product }: { product: Product }) => {
         {product?.images && (
           <Link href={`/product/${product?.slug?.current}`}>
 <img
-  src={image(product.images[0]).url()}
+  src={productImageUrl(product.images[0], 700, 700)}
   className={`w-full h-full object-contain object-center p-4 transition-transform duration-500
   ${product?.stock !== 0 ? "group-hover:scale-105" : "opacity-50"}`}
   alt={product?.name || "Product Image"}
