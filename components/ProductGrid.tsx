@@ -7,7 +7,18 @@ import { client } from "@/sanity/lib/client";
 import HomeTabbar from "./HomeTabbar";
 import { productType } from "@/constants";
 import NoProductAvailable from "./product/NoProductAvailable";
-import { Grid3X3, LayoutGrid, List, Filter, SortAsc, Eye } from "lucide-react";
+import {
+  Grid3X3,
+  LayoutGrid,
+  List,
+  Filter,
+  SortAsc,
+  Eye,
+  IndianRupee,
+  PackageCheck,
+  UserRound,
+  RotateCcw,
+} from "lucide-react";
 import Container from "./Container";
 import { ALL_PRODUCTS_QUERYResult } from "@/sanity.types";
 import { Button } from "@/components/ui/button";
