@@ -165,9 +165,8 @@ export async function invalidateOrder(orderId: string, userId?: string) {
   if (userId) {
     revalidatePath("/user", "layout");
   }
-  // Invalidate admin/employee order views
+  // Invalidate admin order views
   revalidatePath("/admin", "layout");
-  revalidatePath("/employee", "layout");
 }
 
 /**
@@ -296,7 +295,6 @@ export async function invalidateOrderUpdate(
 ) {
   revalidatePath("/user/orders", "page");
   revalidatePath("/admin", "layout");
-  revalidatePath("/employee", "layout");
 
   // If products involved, invalidate their pages
   if (productSlugs && productSlugs.length > 0) {

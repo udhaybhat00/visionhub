@@ -1170,8 +1170,6 @@ export async function getOrdersForEmployee() {
         cashCollectedAt,
         paymentReceivedBy,
         paymentReceivedAt,
-        stripePaymentIntentId,
-        stripeCheckoutSessionId,
         paymentCompletedAt,
         statusHistory
       }`,
@@ -1208,9 +1206,9 @@ export async function getOrdersForAccounts() {
       return [];
     }
 
-    // Get orders with cash submitted to accounts, already received, or paid online via Stripe
+    // Get orders submitted to accounts, already received, or paid online.
     const orders = await backendClient.fetch(
-      `*[_type == "order" && (cashSubmittedToAccounts == true || paymentReceivedBy != null || stripePaymentIntentId != null)] | order(coalesce(cashSubmittedAt, paymentCompletedAt, orderDate) desc) {
+      `*[_type == "order" && (cashSubmittedToAccounts == true || paymentReceivedBy != null || (paymentMethod == "razorpay" && paymentStatus == "paid"))] | order(coalesce(cashSubmittedAt, paymentCompletedAt, orderDate) desc) {
         _id,
         orderNumber,
         customerName,
@@ -1244,8 +1242,8 @@ export async function getOrdersForAccounts() {
         cashSubmissionNotes,
         paymentReceivedBy,
         paymentReceivedAt,
-        stripePaymentIntentId,
-        stripeCheckoutSessionId,
+        razorpayOrderId,
+        razorpayPaymentId,
         paymentCompletedAt,
         statusHistory
       }`
@@ -1287,11 +1285,11 @@ export async function getAccountsPaymentStats() {
         "totalCodRevenue": *[_type == "order" && paymentMethod == "cash_on_delivery" && defined(totalPrice)].totalPrice,
         "codPaidRevenue": *[_type == "order" && paymentMethod == "cash_on_delivery" && paymentStatus == "paid" && defined(totalPrice)].totalPrice,
         "codPendingRevenue": *[_type == "order" && paymentMethod == "cash_on_delivery" && paymentStatus == "pending" && defined(totalPrice)].totalPrice,
-        "cardRevenue": *[_type == "order" && (paymentMethod == "card" || paymentMethod == "stripe") && paymentStatus == "paid" && defined(totalPrice)].totalPrice,
+        "cardRevenue": *[_type == "order" && paymentMethod == "razorpay" && paymentStatus == "paid" && defined(totalPrice)].totalPrice,
         "totalCodOrders": count(*[_type == "order" && paymentMethod == "cash_on_delivery"]),
         "codPaidOrders": count(*[_type == "order" && paymentMethod == "cash_on_delivery" && paymentStatus == "paid"]),
         "codPendingOrders": count(*[_type == "order" && paymentMethod == "cash_on_delivery" && paymentStatus == "pending"]),
-        "cardOrders": count(*[_type == "order" && (paymentMethod == "card" || paymentMethod == "stripe") && paymentStatus == "paid"])
+        "cardOrders": count(*[_type == "order" && paymentMethod == "razorpay" && paymentStatus == "paid"])
       }`
     );
 

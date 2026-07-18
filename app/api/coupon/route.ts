@@ -59,7 +59,8 @@ console.log("Coupon Result:", coupon);
 
     // Usage Limit Check
     if (
-      coupon.timesUsed >= coupon.usageLimit
+      coupon.usageLimit &&
+      (coupon.timesUsed ?? 0) >= coupon.usageLimit
     ) {
       return NextResponse.json(
         {

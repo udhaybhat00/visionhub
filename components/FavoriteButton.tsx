@@ -5,9 +5,7 @@ import { Heart } from "lucide-react";
 import BreadcrumbLink from "@/components/BreadcrumbLink";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
-import isArray from "js-isarray";
 import _ from "lodash";
-import { trackWishlistAdd, trackWishlistRemove } from "@/lib/analytics";
 
 const FavoriteButton = ({
   showProduct = false,
@@ -44,19 +42,6 @@ const FavoriteButton = ({
             duration: 3000,
           }
         );
-
-        // Track wishlist analytics
-        if (isRemoving) {
-          trackWishlistRemove({
-            productId: product._id,
-            name: product.name || "Unknown Product",
-          });
-        } else {
-          trackWishlistAdd({
-            productId: product._id,
-            name: product.name || "Unknown Product",
-          });
-        }
       });
     }
   };
@@ -89,7 +74,7 @@ const FavoriteButton = ({
             }`}
           >
             {/* {favoriteProduct.length > 9 ? "9+" : favoriteProduct.length} */}
-            {isArray(favoriteProduct) && favoriteProduct.length > 0
+            {Array.isArray(favoriteProduct) && favoriteProduct.length > 0
               ? favoriteProduct.length > 9
                 ? "9+"
                 : favoriteProduct.length

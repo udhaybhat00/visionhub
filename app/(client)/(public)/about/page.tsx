@@ -57,7 +57,7 @@ const AboutPage = () => {
 
  const team = [
   {
-    name: "Shivam Bhat",
+    name: "Udhay Bhat",
     role: "Founder & CEO",
     description:
       "Building VisionHub with a vision to provide premium sunglasses, computer glasses, prescription frames, sports eyewear, and eye-care essentials while delivering a seamless shopping experience.",

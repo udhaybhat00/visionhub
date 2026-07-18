@@ -144,7 +144,6 @@ export default function AiStylistPage() {
       setSelectedProduct(next[0] || null);
     });
 
-    trackStylist("virtual_try_on_opened");
 
     return () => {
       stopLiveCamera();
@@ -306,7 +305,6 @@ export default function AiStylistPage() {
       streamRef.current = stream;
       setIsLiveCamera(true);
       setIsCameraStarting(false);
-      trackStylist("virtual_try_on_camera_started");
     } catch (error) {
       setIsCameraStarting(false);
       const message =
@@ -356,12 +354,10 @@ export default function AiStylistPage() {
   const selectProduct = (product: Product, closeTray = false) => {
     setSelectedProduct(product);
     if (closeTray) setIsProductTrayOpen(false);
-    trackStylist("product_try_on", { productId: product._id });
   };
 
   const buyNow = (product: Product) => {
     addItem(product);
-    trackStylist("virtual_try_on_buy_now", { productId: product._id });
     window.location.href = "/cart";
   };
 
@@ -1064,12 +1060,4 @@ function loadScript(src: string) {
 
   scriptLoaders.set(src, loader);
   return loader;
-}
-
-function trackStylist(eventName: string, eventParams: Record<string, unknown> = {}) {
-  fetch("/api/analytics/track", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ eventName, eventParams }),
-  }).catch(() => undefined);
 }

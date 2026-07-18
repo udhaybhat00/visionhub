@@ -40,7 +40,6 @@ export const USER_ORDERS_BY_EMAIL_QUERY = `
     address,
     status,
     orderDate,
-    invoice,
     customerName,
     email
   }

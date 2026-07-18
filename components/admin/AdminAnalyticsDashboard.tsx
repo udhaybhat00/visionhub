@@ -25,7 +25,6 @@ import {
   Percent,
   RefreshCw,
   ShoppingCart,
-  Sparkles,
   Star,
   Truck,
   XCircle,
@@ -67,7 +66,6 @@ type AnalyticsResponse = {
     deliveredOrders: number;
     cancelledOrders: number;
     lowStockProducts: number;
-    aiStylistUsage: number;
   };
   changes: {
     revenueToday: number;
@@ -235,14 +233,6 @@ const cardConfig: DashboardCardConfig[] = [
     tone: "text-orange-700 bg-orange-50",
     format: "number",
     href: "/admin/products",
-  },
-  {
-    key: "aiStylistUsage",
-    title: "AI Stylist Usage",
-    icon: Sparkles,
-    tone: "text-violet-700 bg-violet-50",
-    format: "number",
-    href: "/admin/analytics",
   },
 ];
 

@@ -477,7 +477,7 @@ const getAddresses = async () => {
 ### 1. Verify Cache Headers
 
 ```bash
-curl -I https://VisionHubpro.reactbd.org/
+curl -I https://visionhub.vercel.app/
 
 # Look for:
 # Cache-Control: s-maxage=600, stale-while-revalidate
@@ -587,7 +587,7 @@ async function warmCache() {
   const popularProducts = await getPopularProducts();
 
   for (const product of popularProducts) {
-    await fetch(`https://VisionHubpro.reactbd.org/product/${product.slug}`);
+    await fetch(`https://visionhub.vercel.app/product/${product.slug}`);
   }
 }
 ```

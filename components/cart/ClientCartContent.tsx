@@ -4,7 +4,6 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
 import { ServerCartContent } from "./ServerCartContent";
 import { CartSkeleton } from "./CartSkeleton";
-import { trackCartView } from "@/lib/analytics";
 
 interface Address {
   _id: string;
@@ -99,10 +98,6 @@ export function ClientCartContent() {
 
   useEffect(() => {
     fetchUserData();
-    // Track cart view
-    if (user) {
-      trackCartView(user.id);
-    }
   }, [user, fetchUserData]);
 
   if (!isLoaded || loading) {

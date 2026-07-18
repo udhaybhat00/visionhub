@@ -248,7 +248,7 @@ export default async function InvoicePage({
     className="text-3xl italic font-semibold"
     style={{ fontFamily: "cursive" }}
   >
-    Shivam
+    Udhay
   </p>
 
   <p className="font-medium mt-1">

@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 
 export default function PaymentFailedPage() {
   const searchParams = useSearchParams();
-  const orderId = searchParams.get("order_id");
   const orderNumber = searchParams.get("orderNumber");
 
   return (
@@ -40,7 +39,7 @@ export default function PaymentFailedPage() {
 
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild className="h-12 rounded-full bg-gray-950 px-6 hover:bg-black">
-              <Link href={orderId ? `/checkout?orderId=${orderId}` : "/checkout"}>
+              <Link href="/checkout">
                 <RefreshCw className="mr-2 h-4 w-4" /> Try Again
               </Link>
             </Button>
