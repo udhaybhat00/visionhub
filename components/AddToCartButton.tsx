@@ -8,7 +8,6 @@ import useCartStore from "@/store";
 import QuantityButtons from "./QuantityButtons";
 import { cn } from "@/lib/utils";
 import { ShoppingBag } from "lucide-react";
-import { trackAddToCart } from "@/lib/analytics";
 
 interface Props {
   product: Product;
@@ -36,13 +35,6 @@ const AddToCartButton = memo(({ product, className }: Props) => {
       toast.success(`${product?.name} added to cart!`, {
         description: `Current quantity: ${itemCount + 1}`,
         duration: 3000,
-      });
-      // Firebase Analytics event
-      trackAddToCart({
-        productId: product._id,
-        name: product.name || "Unknown",
-        price: product.price ?? 0,
-        quantity: itemCount + 1,
       });
     } else {
       toast.error("Stock limit reached", {

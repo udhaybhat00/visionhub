@@ -22,7 +22,7 @@ interface WalletTransaction {
 interface WithdrawalRequest {
   id: string;
   amount: number;
-  method: "bank" | "paypal" | "stripe" | "check";
+  method: "bank" | "paypal" | "check";
   bankDetails?: {
     accountHolderName: string;
     bankName: string;
@@ -256,7 +256,7 @@ export async function deductWalletBalance(
  */
 export async function requestWithdrawal(data: {
   amount: number;
-  method: "bank" | "paypal" | "stripe" | "check";
+  method: "bank" | "paypal" | "check";
   bankDetails?: {
     accountHolderName: string;
     bankName: string;

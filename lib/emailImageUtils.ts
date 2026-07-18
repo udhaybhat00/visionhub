@@ -33,7 +33,7 @@ export function getEmailImageUrl(
     if (!imageData) {
       const baseUrl =
         process.env.NEXT_PUBLIC_BASE_URL || "https://visionhub.vercel.app";
-      return `${baseUrl}/images/products/product_1.png`;
+      return `${baseUrl}/logo.png`;
     }
 
     // If imageData is already a string URL, return it
@@ -60,11 +60,11 @@ export function getEmailImageUrl(
 
     // Fallback to placeholder image
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://visionhub.vercel.app";
-    return `${baseUrl}/images/products/product_1.png`;
+    return `${baseUrl}/logo.png`;
   } catch (error) {
     console.error("Error generating email image URL:", error);
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://visionhub.vercel.app";
-    return `${baseUrl}/images/products/product_1.png`;
+    return `${baseUrl}/logo.png`;
   }
 }
 

@@ -169,8 +169,7 @@ export const USER_ORDERS_QUERY = `
     address,
     status,
     paymentStatus,
-    orderDate,
-    invoice
+    orderDate
   }
 `;
 
@@ -211,9 +210,6 @@ export const ORDER_BY_ID_QUERY = `
     paymentStatus,
     paymentMethod,
     orderDate,
-    invoice,
-    stripeCheckoutSessionId,
-    stripePaymentIntentId,
     paymentCompletedAt,
     addressConfirmedBy,
     addressConfirmedAt,

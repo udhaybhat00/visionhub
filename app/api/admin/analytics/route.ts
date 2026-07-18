@@ -260,7 +260,6 @@ export async function GET(req: NextRequest) {
       totalCoupons,
       activeCoupons,
       totalSubscribers,
-      aiStylistUsage,
     ] = await Promise.all([
       backendClient.fetch<AnalyticsOrder[]>(
         `*[_type == "order"]{
@@ -310,9 +309,6 @@ export async function GET(req: NextRequest) {
       backendClient.fetch<number>(`count(*[_type == "coupon"])`),
       backendClient.fetch<number>(`count(*[_type == "coupon" && isActive == true])`),
       backendClient.fetch<number>(`count(*[_type == "subscription" && status == "active"])`),
-      backendClient.fetch<number>(
-        `count(*[_type == "analyticsEvent" && eventName match "ai*"])`
-      ).catch(() => 0),
     ]);
 
     const orderDateInRange = (order: AnalyticsOrder, start: Date, end: Date) => {
@@ -371,7 +367,6 @@ export async function GET(req: NextRequest) {
         deliveredOrders,
         cancelledOrders,
         lowStockProducts: lowStockCount,
-        aiStylistUsage,
       },
       changes: {
         revenueToday: calculateChange(revenueToday, revenueYesterday),

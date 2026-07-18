@@ -10,7 +10,7 @@ All contact-related configuration is stored in the `.env` file. Here are the ava
 
 ```bash
 NEXT_PUBLIC_COMPANY_NAME=VisionHub                          # Your company name
-NEXT_PUBLIC_COMPANY_EMAIL=shivam@gmail.com             # Main company email
+NEXT_PUBLIC_COMPANY_EMAIL=udhaybhat00@gmail.com        # Main company email
 NEXT_PUBLIC_COMPANY_PHONE=+91 123456789              # Main phone number
 NEXT_PUBLIC_COMPANY_ADDRESS=123 Shopping Street, Commerce District  # Street address
 NEXT_PUBLIC_COMPANY_CITY=123 Shopping Street, Jammu, India          # City, state, country
@@ -27,7 +27,7 @@ NEXT_PUBLIC_COMPANY_BUSINESS_HOURS_WEEKEND=Saturday - Sunday: 10AM - 4PM EST
 ### Contact Emails
 
 ```bash
-NEXT_PUBLIC_SUPPORT_EMAIL=shivam@gmail.com             # Customer support email
+NEXT_PUBLIC_SUPPORT_EMAIL=udhaybhat00@gmail.com        # Customer support email
 NEXT_PUBLIC_SALES_EMAIL=sales@VisionHub.com                 # Sales team email
 ```
 

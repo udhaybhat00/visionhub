@@ -371,7 +371,6 @@ export const userType = defineType({
                 list: [
                   { title: "Bank Transfer", value: "bank" },
                   { title: "PayPal", value: "paypal" },
-                  { title: "Stripe", value: "stripe" },
                   { title: "Check", value: "check" },
                 ],
               },

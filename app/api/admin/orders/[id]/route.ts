@@ -187,36 +187,8 @@ email,
       .set(filteredUpdateData)
       .commit();
 
-    // Track order status update and send notification if status was changed
+    // Send a notification if the order status changed.
     if (updateData.status && updateData.status !== currentOrder.status) {
-      // Track analytics
-      try {
-        await fetch(
-          `${
-            process.env.NEXT_PUBLIC_BASE_URL || "https://visionhub.vercel.app"
-          }/api/analytics/track`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              eventName: "order_status_update",
-              eventParams: {
-                orderId: id,
-                status: updateData.status,
-                previousStatus: currentOrder.status,
-                adminUserId: userId,
-              },
-            }),
-          }
-        );
-      } catch (analyticsError) {
-        console.error(
-          "Failed to track order status update event:",
-          analyticsError
-        );
-      }
-
-      // Send notification to user
       try {
         const userClerkId =
           currentOrder.clerkUserId || currentOrder.user?.clerkUserId;

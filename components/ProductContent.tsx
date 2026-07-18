@@ -7,7 +7,6 @@ import PriceView from "@/components/PriceView";
 import DynamicBreadcrumb from "@/components/DynamicBreadcrumb";
 import ProductSpecs from "@/components/ProductSpecs";
 import ProductReviews from "@/components/ProductReviews";
-import { trackProductView } from "@/lib/analytics";
 import Link from "next/link";
 import Image from "next/image";
 import { productImageUrl } from "@/sanity/lib/image";
@@ -94,14 +93,9 @@ const ProductContent = ({
     },
   ];
 
-  // Track product view on component mount
+  // Keep a small local history for the recently viewed section.
   useEffect(() => {
     if (product) {
-      trackProductView({
-        productId: product._id,
-        name: product.name || "Unknown",
-      });
-
       const slug = product.slug?.current;
       if (!slug) return;
 

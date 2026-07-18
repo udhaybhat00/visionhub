@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import useCartStore from "@/store";
 import { Product } from "@/sanity.types";
 import { twMerge } from "tailwind-merge";
-import { trackAddToCart, trackRemoveFromCart } from "@/lib/analytics";
 
 interface Props {
   product: Product;
@@ -24,26 +23,12 @@ const QuantityButtons = ({ product, className, borderStyle }: Props) => {
     } else {
       toast.success(`${product?.name?.substring(0, 12)} removed successfully!`);
     }
-    // Firebase Analytics event
-    trackRemoveFromCart({
-      productId: product._id,
-      name: product.name || "Unknown",
-      price: product.price ?? 0,
-      quantity: itemCount - 1,
-    });
   };
 
   const handleAddToCart = () => {
     if ((product?.stock as number) > itemCount) {
       addItem(product);
       toast.success("Quantity Increased successfully!");
-      // Firebase Analytics event
-      trackAddToCart({
-        productId: product._id,
-        name: product.name || "Unknown",
-        price: product.price ?? 0,
-        quantity: itemCount + 1,
-      });
     } else {
       toast.error("Can not add more than available stock");
     }

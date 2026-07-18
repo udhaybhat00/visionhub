@@ -475,7 +475,6 @@ const applyCoupon = async () => {
   cart={cart}
   selectedAddress={selectedAddress}
   couponCode={appliedCoupon}
-  couponDiscount={couponDiscount}
 />
           </div>
         </div>

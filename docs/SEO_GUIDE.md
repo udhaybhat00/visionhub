@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the comprehensive SEO implementation for VisionHub e-commerce platform at **https://VisionHubpro.reactbd.org**. The implementation follows modern SEO best practices and is optimized for Next.js 16.
+This document outlines the comprehensive SEO implementation for VisionHub e-commerce platform at **https://visionhub.vercel.app**. The implementation follows modern SEO best practices and is optimized for Next.js 16.
 
 ## Table of Contents
 
@@ -55,7 +55,7 @@ This document outlines the comprehensive SEO implementation for VisionHub e-comm
 
 **Implementation:**
 
-- metadataBase: `https://VisionHubpro.reactbd.org`
+- metadataBase: `https://visionhub.vercel.app`
 - Title template: `%s | VisionHub - Premium Online Shopping`
 - Default title & description
 - Open Graph configuration
@@ -67,7 +67,7 @@ This document outlines the comprehensive SEO implementation for VisionHub e-comm
 
 ```typescript
 export const metadata: Metadata = {
-  metadataBase: new URL("https://VisionHubpro.reactbd.org"),
+  metadataBase: new URL("https://visionhub.vercel.app"),
   title: {
     template: "%s | VisionHub - Premium Online Shopping",
     default: "VisionHub - Your Trusted Online Shopping Destination",
@@ -114,7 +114,7 @@ export const metadata: Metadata = {
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "VisionHub",
-  "url": "https://VisionHubpro.reactbd.org",
+  "url": "https://visionhub.vercel.app",
   // ...
 }
 </script>
@@ -141,7 +141,7 @@ export const metadata: Metadata = {
 2. **Breadcrumb Schema** - Navigation path:
    - Home → Shop → Product Name
 
-**Example URL:** `https://VisionHubpro.reactbd.org/product/iphone-15-pro`
+**Example URL:** `https://visionhub.vercel.app/product/iphone-15-pro`
 
 ### Category Pages
 
@@ -160,7 +160,7 @@ export const metadata: Metadata = {
    - Home → Categories → Category Name
 2. **ItemList Schema** - All products in category
 
-**Example URL:** `https://VisionHubpro.reactbd.org/category/electronics`
+**Example URL:** `https://visionhub.vercel.app/category/electronics`
 
 ---
 
@@ -195,7 +195,7 @@ Structured data helps search engines understand your content better, enabling:
   },
   "offers": {
     "@type": "Offer",
-    "url": "https://VisionHubpro.reactbd.org/product/iphone-15-pro",
+    "url": "https://visionhub.vercel.app/product/iphone-15-pro",
     "priceCurrency": "USD",
     "price": 999,
     "availability": "https://schema.org/InStock",
@@ -220,13 +220,13 @@ Structured data helps search engines understand your content better, enabling:
       "@type": "ListItem",
       "position": 1,
       "name": "Home",
-      "item": "https://VisionHubpro.reactbd.org"
+      "item": "https://visionhub.vercel.app"
     },
     {
       "@type": "ListItem",
       "position": 2,
       "name": "Shop",
-      "item": "https://VisionHubpro.reactbd.org/shop"
+      "item": "https://visionhub.vercel.app/shop"
     }
   ]
 }
@@ -239,8 +239,8 @@ Structured data helps search engines understand your content better, enabling:
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "VisionHub",
-  "url": "https://VisionHubpro.reactbd.org",
-  "logo": "https://VisionHubpro.reactbd.org/logo.png",
+  "url": "https://visionhub.vercel.app",
+  "logo": "https://visionhub.vercel.app/logo.png",
   "contactPoint": {
     "@type": "ContactPoint",
     "telephone": "+1-555-123-4567",
@@ -257,12 +257,12 @@ Structured data helps search engines understand your content better, enabling:
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "VisionHub",
-  "url": "https://VisionHubpro.reactbd.org",
+  "url": "https://visionhub.vercel.app",
   "potentialAction": {
     "@type": "SearchAction",
     "target": {
       "@type": "EntryPoint",
-      "urlTemplate": "https://VisionHubpro.reactbd.org/shop?search={search_term_string}"
+      "urlTemplate": "https://visionhub.vercel.app/shop?search={search_term_string}"
     },
     "query-input": "required name=search_term_string"
   }
@@ -291,7 +291,7 @@ Structured data helps search engines understand your content better, enabling:
 3. All category pages
 4. All brand pages
 
-**URL:** `https://VisionHubpro.reactbd.org/sitemap.xml`
+**URL:** `https://visionhub.vercel.app/sitemap.xml`
 
 **Priorities:**
 
@@ -321,10 +321,10 @@ Disallow: /studio/
 Disallow: /_next/
 Disallow: /checkout/
 
-Sitemap: https://VisionHubpro.reactbd.org/sitemap.xml
+Sitemap: https://visionhub.vercel.app/sitemap.xml
 ```
 
-**URL:** `https://VisionHubpro.reactbd.org/robots.txt`
+**URL:** `https://visionhub.vercel.app/robots.txt`
 
 ---
 
@@ -578,14 +578,14 @@ Update these in `.env`:
 
 ```env
 # Base URL for SEO
-NEXT_PUBLIC_BASE_URL=https://VisionHubpro.reactbd.org
+NEXT_PUBLIC_BASE_URL=https://visionhub.vercel.app
 
 # Google Search Console verification
 GOOGLE_SITE_VERIFICATION=your-verification-code
 
 # Company Information (used in schemas)
 NEXT_PUBLIC_COMPANY_NAME=VisionHub
-NEXT_PUBLIC_COMPANY_EMAIL=shivam@gmail.com
+NEXT_PUBLIC_COMPANY_EMAIL=udhaybhat00@gmail.com
 NEXT_PUBLIC_COMPANY_PHONE=+91 123456789
 NEXT_PUBLIC_COMPANY_ADDRESS=123 Shopping Street, Commerce District
 ```
@@ -614,7 +614,7 @@ NEXT_PUBLIC_COMPANY_ADDRESS=123 Shopping Street, Commerce District
 
 For SEO-related questions or improvements:
 
-- Technical Lead: noor.jsdivs@gmail.com
+- Technical Lead: Udhay Bhat (udhaybhat00@gmail.com)
 - Documentation: See `/docs/SEO_GUIDE.md`
 
 ---

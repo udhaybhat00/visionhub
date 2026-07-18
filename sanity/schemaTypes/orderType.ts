@@ -13,46 +13,11 @@ export const orderType = defineType({
       type: "string",
       validation: (Rule) => Rule.required(),
     }),
-    {
-      name: "invoice",
-      type: "object",
-      fields: [
-        { name: "id", type: "string" },
-        { name: "number", type: "string" },
-        { name: "hosted_invoice_url", type: "url" },
-      ],
-    },
-    defineField({
-      name: "stripeCheckoutSessionId",
-      title: "Stripe Checkout Session ID",
-      type: "string",
-      hidden: ({ document }) => document?.paymentMethod !== "stripe",
-    }),
-    defineField({
-      name: "stripeCustomerId",
-      title: "Stripe Customer ID",
-      type: "string",
-      hidden: ({ document }) => document?.paymentMethod !== "stripe",
-    }),
     defineField({
       name: "clerkUserId",
       title: "Store User ID",
       type: "string",
       validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: "clerkPaymentId",
-      title: "Clerk Payment ID",
-      type: "string",
-      description: "Clerk payment session or transaction ID",
-      hidden: ({ document }) => document?.paymentMethod !== "clerk",
-    }),
-    defineField({
-      name: "clerkPaymentStatus",
-      title: "Clerk Payment Status",
-      type: "string",
-      description: "Status of Clerk payment",
-      hidden: ({ document }) => document?.paymentMethod !== "clerk",
     }),
     defineField({
       name: "customerName",
@@ -65,12 +30,6 @@ export const orderType = defineType({
       title: "Customer Email",
       type: "string",
       validation: (Rule) => Rule.required().email(),
-    }),
-    defineField({
-      name: "stripePaymentIntentId",
-      title: "Stripe Payment Intent ID",
-      type: "string",
-      hidden: ({ document }) => document?.paymentMethod !== "stripe",
     }),
     defineField({
       name: "razorpayOrderId",

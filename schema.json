@@ -1,5 +1,108 @@
 [
   {
+    "name": "coupon",
+    "type": "document",
+    "attributes": {
+      "_id": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_type": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string",
+          "value": "coupon"
+        }
+      },
+      "_createdAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_updatedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_rev": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "code": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "discountType": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "percentage"
+            },
+            {
+              "type": "string",
+              "value": "fixed"
+            }
+          ]
+        },
+        "optional": true
+      },
+      "discountValue": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "number"
+        },
+        "optional": true
+      },
+      "minimumOrderValue": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "number"
+        },
+        "optional": true
+      },
+      "expiryDate": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "isActive": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
+        },
+        "optional": true
+      },
+      "usageLimit": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "number"
+        },
+        "optional": true
+      },
+      "timesUsed": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "number"
+        },
+        "optional": true
+      }
+    }
+  },
+  {
     "name": "subscription",
     "type": "document",
     "attributes": {
@@ -1672,10 +1775,6 @@
                     {
                       "type": "string",
                       "value": "paypal"
-                    },
-                    {
-                      "type": "string",
-                      "value": "stripe"
                     },
                     {
                       "type": "string",
@@ -3413,65 +3512,7 @@
         },
         "optional": true
       },
-      "invoice": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "object",
-          "attributes": {
-            "id": {
-              "type": "objectAttribute",
-              "value": {
-                "type": "string"
-              },
-              "optional": true
-            },
-            "number": {
-              "type": "objectAttribute",
-              "value": {
-                "type": "string"
-              },
-              "optional": true
-            },
-            "hosted_invoice_url": {
-              "type": "objectAttribute",
-              "value": {
-                "type": "string"
-              },
-              "optional": true
-            }
-          }
-        },
-        "optional": true
-      },
-      "stripeCheckoutSessionId": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "stripeCustomerId": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
       "clerkUserId": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "clerkPaymentId": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "clerkPaymentStatus": {
         "type": "objectAttribute",
         "value": {
           "type": "string"
@@ -3492,7 +3533,21 @@
         },
         "optional": true
       },
-      "stripePaymentIntentId": {
+      "razorpayOrderId": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "razorpayPaymentId": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "razorpaySignature": {
         "type": "objectAttribute",
         "value": {
           "type": "string"
@@ -3601,6 +3656,20 @@
         },
         "optional": true
       },
+      "couponCode": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "couponDiscount": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "number"
+        },
+        "optional": true
+      },
       "address": {
         "type": "objectAttribute",
         "value": {
@@ -3656,19 +3725,11 @@
             },
             {
               "type": "string",
-              "value": "address_confirmed"
+              "value": "confirmed"
             },
             {
               "type": "string",
-              "value": "order_confirmed"
-            },
-            {
-              "type": "string",
-              "value": "packed"
-            },
-            {
-              "type": "string",
-              "value": "ready_for_delivery"
+              "value": "processing"
             },
             {
               "type": "string",
@@ -3680,25 +3741,62 @@
             },
             {
               "type": "string",
-              "value": "completed"
-            },
-            {
-              "type": "string",
               "value": "cancelled"
-            },
-            {
-              "type": "string",
-              "value": "rescheduled"
-            },
-            {
-              "type": "string",
-              "value": "failed_delivery"
             }
           ]
         },
         "optional": true
       },
       "orderDate": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "stockReducedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "stockReductionFailedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "stockReductionError": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "paymentCompletedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "razorpayWebhookProcessedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "orderEmailSentAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "couponUsageCountedAt": {
         "type": "objectAttribute",
         "value": {
           "type": "string"
@@ -3737,263 +3835,9 @@
           "of": [
             {
               "type": "string",
-              "value": "cash_on_delivery"
-            },
-            {
-              "type": "string",
-              "value": "stripe"
-            },
-            {
-              "type": "string",
-              "value": "clerk"
-            },
-            {
-              "type": "string",
-              "value": "card"
+              "value": "razorpay"
             }
           ]
-        },
-        "optional": true
-      },
-      "addressConfirmedBy": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "addressConfirmedAt": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "orderConfirmedBy": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "orderConfirmedAt": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "packedBy": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "packedAt": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "packingNotes": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "assignedWarehouseBy": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "assignedWarehouseAt": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "dispatchedBy": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "dispatchedAt": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "assignedDeliverymanId": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "assignedDeliverymanName": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "deliveredBy": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "deliveredAt": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "deliveryNotes": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "deliveryAttempts": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "number"
-        },
-        "optional": true
-      },
-      "rescheduledDate": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "rescheduledReason": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "cashCollected": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "boolean"
-        },
-        "optional": true
-      },
-      "cashCollectedAmount": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "number"
-        },
-        "optional": true
-      },
-      "cashCollectedAt": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "cashSubmittedToAccounts": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "boolean"
-        },
-        "optional": true
-      },
-      "cashSubmittedBy": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "cashSubmittedAt": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "cashSubmissionNotes": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "assignedAccountsEmployeeId": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "assignedAccountsEmployeeName": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "cashSubmissionStatus": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "union",
-          "of": [
-            {
-              "type": "string",
-              "value": "not_submitted"
-            },
-            {
-              "type": "string",
-              "value": "pending"
-            },
-            {
-              "type": "string",
-              "value": "confirmed"
-            },
-            {
-              "type": "string",
-              "value": "rejected"
-            }
-          ]
-        },
-        "optional": true
-      },
-      "cashSubmissionRejectionReason": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "paymentReceivedBy": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "paymentReceivedAt": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
         },
         "optional": true
       },
@@ -4089,30 +3933,6 @@
                     {
                       "type": "string",
                       "value": "admin"
-                    },
-                    {
-                      "type": "string",
-                      "value": "callcenter"
-                    },
-                    {
-                      "type": "string",
-                      "value": "packer"
-                    },
-                    {
-                      "type": "string",
-                      "value": "warehouse"
-                    },
-                    {
-                      "type": "string",
-                      "value": "deliveryman"
-                    },
-                    {
-                      "type": "string",
-                      "value": "incharge"
-                    },
-                    {
-                      "type": "string",
-                      "value": "accounts"
                     },
                     {
                       "type": "string",

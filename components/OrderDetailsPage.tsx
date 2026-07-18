@@ -77,13 +77,6 @@ interface OrderDetailsPageProps {
     paymentStatus: string;
     paymentMethod: string;
     orderDate: string;
-    invoice?: {
-      id: string;
-      number: string;
-      hosted_invoice_url: string;
-    };
-    stripeCheckoutSessionId?: string;
-    stripePaymentIntentId?: string;
     paymentCompletedAt?: string;
     addressConfirmedAt?: string;
     addressConfirmedBy?: string;
@@ -154,7 +147,6 @@ const getPaymentStatusColor = (status: string) => {
 };
 
 const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ order }) => {
-  const [generatingInvoice, setGeneratingInvoice] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(order);
   const [isReordering, setIsReordering] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
@@ -190,44 +182,6 @@ const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ order }) => {
       toast.error("Failed to reorder items. Please try again.");
     } finally {
       setIsReordering(false);
-    }
-  };
-
-  const handleGenerateInvoice = async () => {
-    setGeneratingInvoice(true);
-    try {
-      const response = await fetch(
-        `/api/orders/${order._id}/generate-invoice`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        toast.success(data.message || "Invoice generated successfully!");
-        // Update the current order with the new invoice data
-        setCurrentOrder((prev) => ({
-          ...prev,
-          invoice: data.invoice,
-        }));
-      } else {
-        console.error("Invoice generation failed:", data);
-        const errorMessage = data.error || "Failed to generate invoice";
-        const details = data.details ? ` Details: ${data.details}` : "";
-        toast.error(errorMessage + details);
-      }
-    } catch (error) {
-      console.error("Invoice generation error:", error);
-      toast.error(
-        "Network error: Failed to generate invoice. Please try again."
-      );
-    } finally {
-      setGeneratingInvoice(false);
     }
   };
 
@@ -291,28 +245,13 @@ const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ order }) => {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
-          {currentOrder.invoice?.hosted_invoice_url ? (
+          {currentOrder.paymentStatus === PAYMENT_STATUSES.PAID ? (
             <Button asChild variant="outline">
-              <Link
-                href={currentOrder.invoice.hosted_invoice_url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <Link href={`/invoice/${currentOrder._id}`} target="_blank">
                 <Download className="w-4 h-4 mr-2" />
-                Download Invoice
+                View Invoice
               </Link>
             </Button>
-          ) : currentOrder.paymentStatus === "paid" ||
-            currentOrder.status === "paid" ? (
-            <Button asChild variant="outline">
-  <Link
-    href={`/invoice/${currentOrder._id}`}
-    target="_blank"
-  >
-    <Download className="w-4 h-4 mr-2" />
-    View Invoice
-  </Link>
-</Button>
           ) : null}
           <Button
             onClick={handleReorder}

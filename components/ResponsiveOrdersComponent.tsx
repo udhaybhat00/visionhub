@@ -1,8 +1,6 @@
 "use client";
-import React, { useState } from "react";
 import { format } from "date-fns";
-import { CreditCard, Eye, Download } from "lucide-react";
-import { toast } from "sonner";
+import { Eye } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Badge } from "./ui/badge";
@@ -12,19 +10,12 @@ import Image from "next/image";
 import { productImageUrl } from "@/sanity/lib/image";
 import PriceFormatter from "./PriceFormatter";
 import { MY_ORDERS_QUERYResult } from "@/sanity.types";
-import DirectPaymentModal from "./DirectPaymentModal";
 
 const ResponsiveOrdersComponent = ({
   orders,
 }: {
   orders: MY_ORDERS_QUERYResult;
 }) => {
-  const [payingOrderId] = useState<string | null>(null);
-  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<
-    MY_ORDERS_QUERYResult[0] | null
-  >(null);
-
   // Helper function to render product images with stacked layout
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderProductImages = (products: any[], isCard = false) => {
@@ -81,38 +72,15 @@ const ResponsiveOrdersComponent = ({
     );
   };
 
-  const handlePayNow = async (orderId: string) => {
+  const handleGenerateInvoice = (orderId: string) => {
     if (!orderId) return;
 
-    // Find the order to get details for the modal
-    const order = orders.find((o) => o._id === orderId);
-    if (order) {
-      setSelectedOrder(order);
-      setPaymentModalOpen(true);
-    }
-  };
-
-  const handlePaymentModalClose = () => {
-    setPaymentModalOpen(false);
-    setSelectedOrder(null);
-  };
-
-  const handleGenerateInvoice = (orderId: string) => {
-  if (!orderId) return;
-
-  window.open(`/invoice/${orderId}`, "_blank");
-};
-
-  const isOrderPayable = (order: MY_ORDERS_QUERYResult[number]) => {
-    const isPaid = order.paymentStatus === PAYMENT_STATUSES.PAID;
-    const isCancelled = order.status === ORDER_STATUSES.CANCELLED;
-    return !isPaid && !isCancelled;
+    window.open(`/invoice/${orderId}`, "_blank");
   };
 
   const getStatusBadgeVariant = (order: MY_ORDERS_QUERYResult[number]) => {
     if (
       order.paymentStatus === "paid" ||
-      order.status === "completed" ||
       order.status === "delivered"
     ) {
       return "bg-green-100 text-green-800";
@@ -124,38 +92,20 @@ const ResponsiveOrdersComponent = ({
   };
 
   const renderInvoiceSection = (order: MY_ORDERS_QUERYResult[number]) => {
-    if (order?.invoice?.hosted_invoice_url) {
-      return (
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600 truncate">
-            {order?.invoice?.number || "INV-" + order.orderNumber?.slice(-6)}
-          </span>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-6 w-6 p-0"
-            onClick={() => {
-              window.open(order.invoice?.hosted_invoice_url, "_blank");
-            }}
-          >
-            <Download className="w-3 h-3" />
-          </Button>
-        </div>
-      );
-    } else if (order?.paymentStatus === "paid") {
+    if (order?.paymentStatus === PAYMENT_STATUSES.PAID) {
       return (
         <Button
-  size="sm"
-  variant="outline"
-  className="h-6 px-2 text-xs"
-  onClick={() => handleGenerateInvoice(order._id)}
->
+          size="sm"
+          variant="outline"
+          className="h-6 px-2 text-xs"
+          onClick={() => handleGenerateInvoice(order._id)}
+        >
           View Invoice
         </Button>
       );
-    } else {
-      return <span className="text-xs text-gray-400">----</span>;
     }
+
+    return <span className="text-xs text-gray-400">----</span>;
   };
 
   // Mobile Card View Component
@@ -224,25 +174,6 @@ const ResponsiveOrdersComponent = ({
                 <span className="text-sm">View</span>
               </Link>
             </Button>
-            {isOrderPayable(order) && (
-              <Button
-                onClick={() => handlePayNow(order._id)}
-                disabled={payingOrderId === order._id}
-                className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white disabled:opacity-50 disabled:cursor-not-allowed flex-1 sm:flex-none min-w-[100px] h-10 touch-manipulation transition-all duration-200 shadow-sm hover:shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
-                {payingOrderId === order._id ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    <span className="text-sm font-medium">Paying...</span>
-                  </>
-                ) : (
-                  <>
-                    <CreditCard className="w-4 h-4 mr-2 shrink-0" />
-                    <span className="text-sm font-medium">Pay Now</span>
-                  </>
-                )}
-              </Button>
-            )}
           </div>
         </div>
       </CardContent>
@@ -251,17 +182,6 @@ const ResponsiveOrdersComponent = ({
 
   return (
     <div>
-      {/* Payment Modal */}
-      {selectedOrder && selectedOrder._id && selectedOrder.orderNumber && (
-        <DirectPaymentModal
-          isOpen={paymentModalOpen}
-          onClose={handlePaymentModalClose}
-          orderId={selectedOrder._id}
-          orderTotal={selectedOrder.totalPrice || 0}
-          orderNumber={selectedOrder.orderNumber}
-        />
-      )}
-
       {/* Mobile Card View - Hidden on large screens */}
       <div className="lg:hidden space-y-4">
         {orders.map((order) => (
@@ -365,30 +285,6 @@ const ResponsiveOrdersComponent = ({
                           <span className="hidden xl:inline ml-1">View</span>
                         </Link>
                       </Button>
-                      {isOrderPayable(order) && (
-                        <Button
-                          onClick={() => handlePayNow(order._id)}
-                          disabled={payingOrderId === order._id}
-                          size="sm"
-                          className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed min-w-20 xl:min-w-[100px] touch-manipulation"
-                        >
-                          {payingOrderId === order._id ? (
-                            <>
-                              <div className="animate-spin rounded-full h-3 w-3 xl:mr-1"></div>
-                              <span className="hidden xl:inline ml-1 text-xs">
-                                Paying...
-                              </span>
-                            </>
-                          ) : (
-                            <>
-                              <CreditCard className="w-3 h-3 xl:mr-1 shrink-0" />
-                              <span className="hidden xl:inline ml-1 text-xs font-medium">
-                                Pay Now
-                              </span>
-                            </>
-                          )}
-                        </Button>
-                      )}
                     </div>
                   </td>
                 </tr>

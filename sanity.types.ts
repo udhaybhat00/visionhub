@@ -13,6 +13,22 @@
  */
 
 // Source: schema.json
+export type Coupon = {
+  _id: string;
+  _type: "coupon";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  code?: string;
+  discountType?: "percentage" | "fixed";
+  discountValue?: number;
+  minimumOrderValue?: number;
+  expiryDate?: string;
+  isActive?: boolean;
+  usageLimit?: number;
+  timesUsed?: number;
+};
+
 export type Subscription = {
   _id: string;
   _type: "subscription";
@@ -251,7 +267,7 @@ export type User = {
   withdrawalRequests?: Array<{
     id?: string;
     amount?: number;
-    method?: "bank" | "paypal" | "stripe" | "check";
+    method?: "bank" | "paypal" | "check";
     bankDetails?: {
       accountHolderName?: string;
       bankName?: string;
@@ -496,19 +512,12 @@ export type Order = {
   _updatedAt: string;
   _rev: string;
   orderNumber?: string;
-  invoice?: {
-    id?: string;
-    number?: string;
-    hosted_invoice_url?: string;
-  };
-  stripeCheckoutSessionId?: string;
-  stripeCustomerId?: string;
   clerkUserId?: string;
-  clerkPaymentId?: string;
-  clerkPaymentStatus?: string;
   customerName?: string;
   email?: string;
-  stripePaymentIntentId?: string;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+  razorpaySignature?: string;
   products?: Array<{
     product?: {
       _ref: string;
@@ -525,6 +534,8 @@ export type Order = {
   totalPrice?: number;
   currency?: string;
   amountDiscount?: number;
+  couponCode?: string;
+  couponDiscount?: number;
   address?: {
     state?: string;
     zip?: string;
@@ -532,48 +543,34 @@ export type Order = {
     address?: string;
     name?: string;
   };
- status?:
-  | "pending"
-  | "confirmed"
-  | "processing"
-  | "shipped"
-  | "delivered"
-  | "cancelled";
-
-orderDate?: string;
-
-paymentStatus?:
-  | "pending"
-  | "paid"
-  | "failed"
-  | "cancelled";
-
-paymentMethod?:
-  | "cash_on_delivery"
-  | "razorpay"
-  | "card"
-  | "upi";
-
-orderConfirmedBy?: string;
-orderConfirmedAt?: string;
-
-deliveredBy?: string;
-deliveredAt?: string;
-deliveryNotes?: string;
-
-cancelledAt?: string;
-cancelledBy?: string;
-cancellationReason?: string;
-
-amountPaid?: number;
-
-statusHistory?: Array<{
-  status?: string;
-  changedBy?: string;
-  changedAt?: string;
-  notes?: string;
-  _key: string;
-}>;
+  status?: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
+  orderDate?: string;
+  stockReducedAt?: string;
+  stockReductionFailedAt?: string;
+  stockReductionError?: string;
+  paymentCompletedAt?: string;
+  razorpayWebhookProcessedAt?: string;
+  orderEmailSentAt?: string;
+  couponUsageCountedAt?: string;
+  paymentStatus?: "pending" | "paid" | "failed" | "cancelled";
+  paymentMethod?: "razorpay";
+  cancellationRequested?: boolean;
+  cancellationRequestedAt?: string;
+  cancellationRequestReason?: string;
+  cancelledAt?: string;
+  cancelledBy?: string;
+  cancellationReason?: string;
+  amountPaid?: number;
+  refundedToWallet?: boolean;
+  refundAmount?: number;
+  statusHistory?: Array<{
+    status?: string;
+    changedBy?: string;
+    changedByRole?: "admin" | "system";
+    changedAt?: string;
+    notes?: string;
+    _key: string;
+  }>;
 };
 
 export type Product = {
@@ -786,170 +783,91 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type AllSanitySchemaTypes = Subscription | Review | UserAccessRequest | SentNotification | Contact | Address | User | SanityImageCrop | SanityImageHotspot | Blogcategory | Slug | Blog | BlockContent | Author | Banner | Order | Product | Brand | Category | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
+export type AllSanitySchemaTypes = Coupon | Subscription | Review | UserAccessRequest | SentNotification | Contact | Address | User | SanityImageCrop | SanityImageHotspot | Blogcategory | Slug | Blog | BlockContent | Author | Banner | Order | Product | Brand | Category | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./app/(client)/(user)/success/page.tsx
 // Variable: query
-// Query: *[_type == 'order' && clerkUserId == $userId] | order(orderDate desc){  ...,products[]{    ...,product->  }}
-export type QueryResult = Array<{
+// Query: *[_type == 'order' && _id == $orderId][0]{  _id,  orderNumber,  totalPrice,  address}
+export type QueryResult = {
   _id: string;
-  _type: "order";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  orderNumber?: string;
-  invoice?: {
-    id?: string;
-    number?: string;
-    hosted_invoice_url?: string;
-  };
-  stripeCheckoutSessionId?: string;
-  stripeCustomerId?: string;
-  clerkUserId?: string;
-  clerkPaymentId?: string;
-  clerkPaymentStatus?: string;
-  customerName?: string;
-  email?: string;
-  stripePaymentIntentId?: string;
-  products: Array<{
-    product: {
-      _id: string;
-      _type: "product";
-      _createdAt: string;
-      _updatedAt: string;
-      _rev: string;
-      name?: string;
-      slug?: Slug;
-      images?: Array<{
-        asset?: {
-          _ref: string;
-          _type: "reference";
-          _weak?: boolean;
-          [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-        };
-        media?: unknown;
-        hotspot?: SanityImageHotspot;
-        crop?: SanityImageCrop;
-        _type: "image";
-        _key: string;
-      }>;
-      description?: string;
-      highlights?: Array<string>;
-      price?: number;
-      discount?: number;
-      frameMaterial?: string;
-      lensType?: string;
-      gender?: string;
-      frameShape?: string;
-      uvProtection?: string;
-      warranty?: string;
-      frameSize?: string;
-      lensWidth?: string;
-      bridgeWidth?: string;
-      templeLength?: string;
-      lensColor?: string;
-      prescriptionAvailable?: boolean;
-      categories?: Array<{
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        _key: string;
-        [internalGroqTypeReferenceTo]?: "category";
-      }>;
-      stock?: number;
-      sortOrder?: number;
-      brand?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "brand";
-      };
-      status?: "hot" | "new" | "sale";
-      variant?: "computer-glasses" | "premium" | "prescription" | "sports" | "sunglasses";
-      isFeatured?: boolean;
-      averageRating?: number;
-      totalReviews?: number;
-      ratingDistribution?: {
-        fiveStars?: number;
-        fourStars?: number;
-        threeStars?: number;
-        twoStars?: number;
-        oneStar?: number;
-      };
-    } | null;
-    quantity?: number;
-    _key: string;
-  }> | null;
-  subtotal?: number;
-  tax?: number;
-  shipping?: number;
-  totalPrice?: number;
-  currency?: string;
-  amountDiscount?: number;
-  address?: {
+  orderNumber: string | null;
+  totalPrice: number | null;
+  address: {
     state?: string;
     zip?: string;
     city?: string;
     address?: string;
     name?: string;
-  };
-  status?: "address_confirmed" | "cancelled" | "completed" | "delivered" | "failed_delivery" | "order_confirmed" | "shipped" | "packed" | "pending" | "ready_for_delivery" | "rescheduled";
-  orderDate?: string;
-  paymentStatus?: "cancelled" | "failed" | "paid" | "pending";
-  paymentMethod?:
-  | "cash_on_delivery"
-  | "razorpay"
-  | "upi"
-  | "card";
-  addressConfirmedBy?: string;
-  addressConfirmedAt?: string;
-  orderConfirmedBy?: string;
-  orderConfirmedAt?: string;
-  packedBy?: string;
-  packedAt?: string;
-  packingNotes?: string;
-  assignedWarehouseBy?: string;
-  assignedWarehouseAt?: string;
-  dispatchedBy?: string;
-  dispatchedAt?: string;
-  assignedDeliverymanId?: string;
-  assignedDeliverymanName?: string;
-  deliveredBy?: string;
-  deliveredAt?: string;
-  deliveryNotes?: string;
-  deliveryAttempts?: number;
-  rescheduledDate?: string;
-  rescheduledReason?: string;
-  cashCollected?: boolean;
-  cashCollectedAmount?: number;
-  cashCollectedAt?: string;
-  cashSubmittedToAccounts?: boolean;
-  cashSubmittedBy?: string;
-  cashSubmittedAt?: string;
-  cashSubmissionNotes?: string;
-  assignedAccountsEmployeeId?: string;
-  assignedAccountsEmployeeName?: string;
-  cashSubmissionStatus?: "confirmed" | "not_submitted" | "pending" | "rejected";
-  cashSubmissionRejectionReason?: string;
-  paymentReceivedBy?: string;
-  paymentReceivedAt?: string;
-  cancellationRequested?: boolean;
-  cancellationRequestedAt?: string;
-  cancellationRequestReason?: string;
-  cancelledAt?: string;
-  cancelledBy?: string;
-  cancellationReason?: string;
-  amountPaid?: number;
-  refundedToWallet?: boolean;
-  refundAmount?: number;
-  statusHistory?: Array<{
-    status?: string;
-    changedBy?: string;
-    changedByRole?: "accounts" | "admin" | "callcenter" | "deliveryman" | "incharge" | "packer" | "system" | "warehouse";
-    changedAt?: string;
-    notes?: string;
+  } | null;
+} | null;
+
+// Source: ./app/(client)/ai-stylist/page.tsx
+// Variable: productQuery
+// Query: *[_type=="product"] | order(coalesce(sortOrder, 999999) asc, name asc)[0...24]{  ...,  "averageRating": math::avg(*[_type == "review" && product._ref == ^._id && status == "approved"].rating),  "totalReviews": count(*[_type == "review" && product._ref == ^._id && status == "approved"])}
+export type ProductQueryResult = Array<{
+  _id: string;
+  _type: "product";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  slug?: Slug;
+  images?: Array<{
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
     _key: string;
   }>;
+  description?: string;
+  highlights?: Array<string>;
+  price?: number;
+  discount?: number;
+  frameMaterial?: string;
+  lensType?: string;
+  gender?: string;
+  frameShape?: string;
+  uvProtection?: string;
+  warranty?: string;
+  frameSize?: string;
+  lensWidth?: string;
+  bridgeWidth?: string;
+  templeLength?: string;
+  lensColor?: string;
+  prescriptionAvailable?: boolean;
+  categories?: Array<{
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    _key: string;
+    [internalGroqTypeReferenceTo]?: "category";
+  }>;
+  stock?: number;
+  sortOrder?: number;
+  brand?: {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "brand";
+  };
+  status?: "hot" | "new" | "sale";
+  variant?: "computer-glasses" | "premium" | "prescription" | "sports" | "sunglasses";
+  isFeatured?: boolean;
+  averageRating: number | null;
+  totalReviews: number;
+  ratingDistribution?: {
+    fiveStars?: number;
+    fourStars?: number;
+    threeStars?: number;
+    twoStars?: number;
+    oneStar?: number;
+  };
 }>;
 
 // Source: ./sanity/helpers/index.ts
@@ -1032,19 +950,12 @@ export type MY_ORDERS_QUERYResult = Array<{
   _updatedAt: string;
   _rev: string;
   orderNumber?: string;
-  invoice?: {
-    id?: string;
-    number?: string;
-    hosted_invoice_url?: string;
-  };
-  stripeCheckoutSessionId?: string;
-  stripeCustomerId?: string;
   clerkUserId?: string;
-  clerkPaymentId?: string;
-  clerkPaymentStatus?: string;
   customerName?: string;
   email?: string;
-  stripePaymentIntentId?: string;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+  razorpaySignature?: string;
   products: Array<{
     product: {
       _id: string;
@@ -1076,6 +987,8 @@ export type MY_ORDERS_QUERYResult = Array<{
   totalPrice?: number;
   currency?: string;
   amountDiscount?: number;
+  couponCode?: string;
+  couponDiscount?: number;
   address?: {
     state?: string;
     zip?: string;
@@ -1083,42 +996,17 @@ export type MY_ORDERS_QUERYResult = Array<{
     address?: string;
     name?: string;
   };
-  status?: "address_confirmed" | "cancelled" | "completed" | "delivered" | "failed_delivery" | "order_confirmed" | "shipped" | "packed" | "pending" | "ready_for_delivery" | "rescheduled";
+  status?: "cancelled" | "confirmed" | "delivered" | "pending" | "processing" | "shipped";
   orderDate?: string;
+  stockReducedAt?: string;
+  stockReductionFailedAt?: string;
+  stockReductionError?: string;
+  paymentCompletedAt?: string;
+  razorpayWebhookProcessedAt?: string;
+  orderEmailSentAt?: string;
+  couponUsageCountedAt?: string;
   paymentStatus: "cancelled" | "failed" | "paid" | "pending" | null;
-  paymentMethod: "card" | "cash_on_delivery" | "clerk" | "stripe" | null;
-  addressConfirmedBy?: string;
-  addressConfirmedAt?: string;
-  orderConfirmedBy?: string;
-  orderConfirmedAt?: string;
-  packedBy?: string;
-  packedAt?: string;
-  packingNotes?: string;
-  assignedWarehouseBy?: string;
-  assignedWarehouseAt?: string;
-  dispatchedBy?: string;
-  dispatchedAt?: string;
-  assignedDeliverymanId?: string;
-  assignedDeliverymanName?: string;
-  deliveredBy?: string;
-  deliveredAt?: string;
-  deliveryNotes?: string;
-  deliveryAttempts?: number;
-  rescheduledDate?: string;
-  rescheduledReason?: string;
-  cashCollected?: boolean;
-  cashCollectedAmount?: number;
-  cashCollectedAt?: string;
-  cashSubmittedToAccounts?: boolean;
-  cashSubmittedBy?: string;
-  cashSubmittedAt?: string;
-  cashSubmissionNotes?: string;
-  assignedAccountsEmployeeId?: string;
-  assignedAccountsEmployeeName?: string;
-  cashSubmissionStatus?: "confirmed" | "not_submitted" | "pending" | "rejected";
-  cashSubmissionRejectionReason?: string;
-  paymentReceivedBy?: string;
-  paymentReceivedAt?: string;
+  paymentMethod: "razorpay" | null;
   cancellationRequested?: boolean;
   cancellationRequestedAt?: string;
   cancellationRequestReason?: string;
@@ -1131,7 +1019,7 @@ export type MY_ORDERS_QUERYResult = Array<{
   statusHistory?: Array<{
     status?: string;
     changedBy?: string;
-    changedByRole?: "accounts" | "admin" | "callcenter" | "deliveryman" | "incharge" | "packer" | "system" | "warehouse";
+    changedByRole?: "admin" | "system";
     changedAt?: string;
     notes?: string;
     _key: string;
@@ -1194,7 +1082,7 @@ export type FEATURED_CATEGORY_QUERYResult = Array<{
   };
 }>;
 // Variable: ALL_PRODUCTS_QUERY
-// Query: *[_type=="product"] | order(coalesce(sortOrder, 999999) asc, name asc)
+// Query: *[_type=="product"] | order(coalesce(sortOrder, 999999) asc, name asc){    ...,    "averageRating": coalesce(math::avg(*[_type == "review" && product._ref == ^._id && status == "approved"].rating), 0),    "totalReviews": count(*[_type == "review" && product._ref == ^._id && status == "approved"])  }
 export type ALL_PRODUCTS_QUERYResult = Array<{
   _id: string;
   _type: "product";
@@ -1250,8 +1138,8 @@ export type ALL_PRODUCTS_QUERYResult = Array<{
   status?: "hot" | "new" | "sale";
   variant?: "computer-glasses" | "premium" | "prescription" | "sports" | "sunglasses";
   isFeatured?: boolean;
-  averageRating?: number;
-  totalReviews?: number;
+  averageRating: number | 0;
+  totalReviews: number;
   ratingDistribution?: {
     fiveStars?: number;
     fourStars?: number;
@@ -1261,7 +1149,7 @@ export type ALL_PRODUCTS_QUERYResult = Array<{
   };
 }>;
 // Variable: DEAL_PRODUCTS
-// Query: *[_type == 'product' && status == 'hot'] | order(coalesce(sortOrder, 999999) asc, name asc){  ...,"categories": categories[]->title}
+// Query: *[_type == 'product' && status == 'hot'] | order(coalesce(sortOrder, 999999) asc, name asc){  ...,  "categories": categories[]->title,  "averageRating": coalesce(math::avg(*[_type == "review" && product._ref == ^._id && status == "approved"].rating), 0),  "totalReviews": count(*[_type == "review" && product._ref == ^._id && status == "approved"])}
 export type DEAL_PRODUCTSResult = Array<{
   _id: string;
   _type: "product";
@@ -1311,8 +1199,8 @@ export type DEAL_PRODUCTSResult = Array<{
   status: "hot";
   variant?: "computer-glasses" | "premium" | "prescription" | "sports" | "sunglasses";
   isFeatured?: boolean;
-  averageRating?: number;
-  totalReviews?: number;
+  averageRating: number | 0;
+  totalReviews: number;
   ratingDistribution?: {
     fiveStars?: number;
     fourStars?: number;
@@ -1322,7 +1210,7 @@ export type DEAL_PRODUCTSResult = Array<{
   };
 }>;
 // Variable: FEATURE_PRODUCTS
-// Query: *[_type == 'product' && isFeatured == true] | order(coalesce(sortOrder, 999999) asc, name asc){  ...,"categories": categories[]->title}
+// Query: *[_type == 'product' && isFeatured == true] | order(coalesce(sortOrder, 999999) asc, name asc){  ...,  "categories": categories[]->title,  "averageRating": coalesce(math::avg(*[_type == "review" && product._ref == ^._id && status == "approved"].rating), 0),  "totalReviews": count(*[_type == "review" && product._ref == ^._id && status == "approved"])}
 export type FEATURE_PRODUCTSResult = Array<{
   _id: string;
   _type: "product";
@@ -1372,8 +1260,8 @@ export type FEATURE_PRODUCTSResult = Array<{
   status?: "hot" | "new" | "sale";
   variant?: "computer-glasses" | "premium" | "prescription" | "sports" | "sunglasses";
   isFeatured: true;
-  averageRating?: number;
-  totalReviews?: number;
+  averageRating: number | 0;
+  totalReviews: number;
   ratingDistribution?: {
     fiveStars?: number;
     fourStars?: number;
@@ -1690,7 +1578,7 @@ export type PRODUCT_BY_SLUG_QUERYResult = {
   status?: "hot" | "new" | "sale";
   variant?: "computer-glasses" | "premium" | "prescription" | "sports" | "sunglasses";
   isFeatured?: boolean;
-  averageRating: number | null;
+  averageRating: number | 0;
   totalReviews: number;
   ratingDistribution?: {
     fiveStars?: number;
@@ -1723,7 +1611,7 @@ export type RELATED_PRODUCTS_QUERYResult = Array<{
     _type: "image";
     _key: string;
   }> | null;
-  averageRating: number | null;
+  averageRating: number | 0;
   totalReviews: number;
   categories: Array<{
     _id: string;
@@ -1736,21 +1624,35 @@ export type RELATED_PRODUCTS_QUERYResult = Array<{
 export type BRAND_QUERYResult = Array<{
   brandName: string | null;
 }>;
+// Variable: COUPON_BY_CODE_QUERY
+// Query: *[_type == "coupon" && code == $code && isActive == true][0]{  _id,  code,  discountType,  discountValue,  minimumOrderValue,  expiryDate,  usageLimit,  timesUsed,  isActive}
+export type COUPON_BY_CODE_QUERYResult = {
+  _id: string;
+  code: string | null;
+  discountType: "fixed" | "percentage" | null;
+  discountValue: number | null;
+  minimumOrderValue: number | null;
+  expiryDate: string | null;
+  usageLimit: number | null;
+  timesUsed: number | null;
+  isActive: boolean | null;
+} | null;
 
 // Query TypeMap
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    "*[_type == 'order' && clerkUserId == $userId] | order(orderDate desc){\n  ...,products[]{\n    ...,product->\n  }\n}": QueryResult;
+    "*[_type == 'order' && _id == $orderId][0]{\n  _id,\n  orderNumber,\n  totalPrice,\n  address\n}": QueryResult;
+    "*[_type==\"product\"] | order(coalesce(sortOrder, 999999) asc, name asc)[0...24]{\n  ...,\n  \"averageRating\": math::avg(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"].rating),\n  \"totalReviews\": count(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"])\n}": ProductQueryResult;
     "*[_type == 'product' && references(*[_type == \"category\" && slug.current == $categorySlug]._id)] | order(coalesce(sortOrder, 999999) asc, name asc)": PRODUCT_BY_CATEGORY_QUERYResult;
     "*[_type == 'sale'] | order(name asc)": SALE_QUERYResult;
     "*[_type == 'order' && clerkUserId == $userId] | order(orderDate desc)[$start...$end]{\n    ...,\n    paymentStatus,\n    paymentMethod,\n    products[]{\n      ...,\n      product->{\n        _id,\n        name,\n        slug,\n        image,\n        images,\n        price,\n        currency\n      }\n    }\n  }": MY_ORDERS_QUERYResult;
     "count(*[_type == 'order' && clerkUserId == $userId])": COUNT_QUERYResult;
     "*[_type == 'banner'] | order(publishedAt desc)": BANNER_QUERYResult;
     "*[_type == 'category' && featured == true] | order(name desc)": FEATURED_CATEGORY_QUERYResult;
-    "*[_type==\"product\"] | order(coalesce(sortOrder, 999999) asc, name asc)": ALL_PRODUCTS_QUERYResult;
-    "*[_type == 'product' && status == 'hot'] | order(coalesce(sortOrder, 999999) asc, name asc){\n  ...,\"categories\": categories[]->title\n}": DEAL_PRODUCTSResult;
-    "*[_type == 'product' && isFeatured == true] | order(coalesce(sortOrder, 999999) asc, name asc){\n  ...,\"categories\": categories[]->title\n}": FEATURE_PRODUCTSResult;
+    "*[_type==\"product\"] | order(coalesce(sortOrder, 999999) asc, name asc){\n    ...,\n    \"averageRating\": coalesce(math::avg(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"].rating), 0),\n    \"totalReviews\": count(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"])\n  }": ALL_PRODUCTS_QUERYResult;
+    "*[_type == 'product' && status == 'hot'] | order(coalesce(sortOrder, 999999) asc, name asc){\n  ...,\n  \"categories\": categories[]->title,\n  \"averageRating\": coalesce(math::avg(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"].rating), 0),\n  \"totalReviews\": count(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"])\n}": DEAL_PRODUCTSResult;
+    "*[_type == 'product' && isFeatured == true] | order(coalesce(sortOrder, 999999) asc, name asc){\n  ...,\n  \"categories\": categories[]->title,\n  \"averageRating\": coalesce(math::avg(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"].rating), 0),\n  \"totalReviews\": count(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"])\n}": FEATURE_PRODUCTSResult;
     "*[_type=='brand'] | order(name asc) ": BRANDS_QUERYResult;
     " *[_type == 'blog' && isLatest == true]|order(name asc){\n    ...,\n    blogcategories[]->{\n    title\n  }\n  }": LATEST_BLOG_QUERYResult;
     "*[_type == 'blog'] | order(publishedAt desc)[0...$quantity]{\n  ...,  \n     blogcategories[]->{\n    title\n}\n    }\n  ": GET_ALL_BLOGResult;
@@ -1763,5 +1665,6 @@ declare module "@sanity/client" {
     "*[_type == \"product\" && slug.current == $slug] | order(coalesce(sortOrder, 999999) asc, name asc) [0]{\n    ...,\n    \"averageRating\": coalesce(math::avg(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"].rating), 0),\n    \"totalReviews\": count(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"])\n  }": PRODUCT_BY_SLUG_QUERYResult;
     "*[_type == \"product\" && count((categories[]._ref)[@ in $categoryIds]) > 0 && slug.current != $currentSlug] | order(coalesce(sortOrder, 999999) asc, name asc) [0...$limit]{\n    _id,\n    name,\n    slug,\n    price,\n    discount,\n    stock,\n    sortOrder,\n    images,\n    \"averageRating\": coalesce(math::avg(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"].rating), 0),\n    \"totalReviews\": count(*[_type == \"review\" && product._ref == ^._id && status == \"approved\"]),\n    categories[]->{\n      _id,\n      title,\n      slug\n    }\n  }": RELATED_PRODUCTS_QUERYResult;
     "*[_type == \"product\" && slug.current == $slug]{\n\"brandName\": brand->title\n}": BRAND_QUERYResult;
+    "\n*[_type == \"coupon\" && code == $code && isActive == true][0]{\n  _id,\n  code,\n  discountType,\n  discountValue,\n  minimumOrderValue,\n  expiryDate,\n  usageLimit,\n  timesUsed,\n  isActive\n}\n": COUPON_BY_CODE_QUERYResult;
   }
 }

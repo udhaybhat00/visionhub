@@ -113,24 +113,6 @@ export default function AdminUserManagement() {
         </Card>
       </div>
 
-      <div className="mt-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Access</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <Button
-                onClick={() => setEmail("dev.reactbd@gmail.com")}
-                variant="outline"
-                size="sm"
-              >
-                Set Current User (dev.reactbd@gmail.com)
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }

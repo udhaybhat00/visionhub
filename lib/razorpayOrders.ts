@@ -145,7 +145,7 @@ async function calculatePricing(
 
     if (
       sanityCoupon.usageLimit &&
-      sanityCoupon.timesUsed >= sanityCoupon.usageLimit
+      (sanityCoupon.timesUsed ?? 0) >= sanityCoupon.usageLimit
     ) {
       throw new CheckoutValidationError("Coupon limit reached");
     }
@@ -159,10 +159,11 @@ async function calculatePricing(
       );
     }
 
+    const discountValue = sanityCoupon.discountValue ?? 0;
     const couponDiscount =
       sanityCoupon.discountType === "percentage"
-        ? (verifiedSubtotal * sanityCoupon.discountValue) / 100
-        : sanityCoupon.discountValue;
+        ? (verifiedSubtotal * discountValue) / 100
+        : discountValue;
 
     coupon = {
       couponId: sanityCoupon._id,
