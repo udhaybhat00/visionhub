@@ -3,133 +3,126 @@ import Container from "./Container";
 import Link from "next/link";
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
-import { ArrowRight, Monitor, ShieldCheck, Sun, Trophy } from "lucide-react";
+import { ArrowRight, Glasses } from "lucide-react";
 
 interface Props {
   categories: Category[];
 }
 
-const needs = [
+const collectionStyles = [
   {
-    title: "Sun Protection",
-    description: "Polarized and UV-focused styles for daily outdoor use.",
-    href: "/shop?type=sunglasses",
-    icon: Sun,
+    card: "min-h-[430px] bg-[#cddbd5] lg:row-span-2 lg:min-h-[570px]",
+    image: "inset-x-0 top-4 bottom-28 p-7 sm:p-10",
+    text: "text-[#111313]",
   },
   {
-    title: "Screen Comfort",
-    description: "Computer glasses built for long workdays and study hours.",
-    href: "/shop?type=computer-glasses",
-    icon: Monitor,
+    card: "min-h-[300px] bg-[#171a19] lg:col-span-2 lg:min-h-0",
+    image: "left-[38%] right-0 top-0 bottom-0 p-6 sm:p-8",
+    text: "max-w-[48%] text-white",
   },
   {
-    title: "Prescription Ready",
-    description: "Frames selected for comfort, fit, and everyday wear.",
-    href: "/shop?type=prescription",
-    icon: ShieldCheck,
+    card: "min-h-[280px] bg-[#e5dfd2] lg:min-h-0",
+    image: "inset-x-0 top-2 bottom-24 p-6",
+    text: "text-[#111313]",
   },
   {
-    title: "Active Eyewear",
-    description: "Secure-fit sports styles for movement and performance.",
-    href: "/shop?type=sports",
-    icon: Trophy,
+    card: "min-h-[280px] bg-[#dbe5e8] lg:min-h-0",
+    image: "inset-x-0 top-2 bottom-24 p-6",
+    text: "text-[#111313]",
   },
 ];
 
 const HomeCategories = ({ categories }: Props) => {
+  const collections = categories?.slice(0, 4) ?? [];
+
+  if (collections.length === 0) {
+    return null;
+  }
+
   return (
-    <Container className="py-12 lg:py-16">
-      <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
-        <div>
-          <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-shop_light_green">
-            Shop By Need
-          </p>
-          <h2 className="mt-3 max-w-md text-3xl font-extrabold leading-tight text-slate-950 lg:text-4xl">
-            Start with how you use your eyewear.
-          </h2>
-          <p className="mt-4 max-w-md text-base leading-7 text-slate-600">
-            Choose by protection, screen comfort, prescription use, or active
-            fit. Every product page shows lens and frame details before you buy.
-          </p>
+    <section className="bg-[#f6f6f3] py-14 lg:py-20">
+      <Container>
+        <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-extrabold uppercase text-[#9a7918]">
+              The collection edit
+            </p>
+            <h2 className="font-display mt-3 max-w-xl text-3xl font-black leading-tight text-[#111313] sm:text-4xl">
+              Frames for the way you see the world.
+            </h2>
+          </div>
           <Link
             href="/category"
-            className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-slate-950 hover:text-shop_dark_green"
+            className="inline-flex items-center gap-2 text-sm font-extrabold text-[#111313] transition-colors hover:text-[#8b6c12]"
           >
             View all collections
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          {needs.map((item) => (
-            <Link
-              key={item.title}
-              href={item.href}
-              className="group rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-shop_light_green hover:shadow-md"
-            >
-              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-slate-50 text-shop_dark_green">
-                <item.icon className="h-5 w-5" />
-              </div>
-              <h3 className="mt-5 text-lg font-extrabold text-slate-950">
-                {item.title}
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-slate-500">
-                {item.description}
-              </p>
-              <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-shop_dark_green">
-                Shop styles
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </span>
-            </Link>
-          ))}
-        </div>
-      </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1.18fr_0.82fr_0.82fr] lg:grid-rows-2">
+          {collections.map((category, index) => {
+            const style = collectionStyles[index] ?? collectionStyles[3];
+            const href = category?.slug?.current
+              ? `/category/${category.slug.current}`
+              : "/category";
 
-      {categories?.length > 0 && (
-        <div className="mt-10 border-t border-slate-200 pt-8">
-          <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h3 className="text-2xl font-extrabold text-slate-950">
-                Browse Collections
-              </h3>
-              <p className="mt-1 text-sm text-slate-500">
-                Curated eyewear categories from the VisionHub catalog.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {categories.slice(0, 8).map((category) => (
+            return (
               <Link
                 key={category?._id}
-                href={`/category/${category?.slug?.current}`}
-                className="group rounded-lg border border-slate-200 bg-white p-4 transition-colors hover:border-shop_light_green"
+                href={href}
+                className={`group relative overflow-hidden rounded-md ${style.card}`}
               >
-                <div className="flex aspect-[4/3] items-center justify-center rounded-lg bg-slate-50 p-4">
+                <div className={`absolute ${style.image}`}>
                   {category?.image ? (
                     <Image
-                      src={urlFor(category.image).width(260).height(180).url()}
-                      alt={`${category?.title} eyewear collection`}
-                      width={260}
-                      height={180}
-                      className="h-full w-full object-contain transition-transform group-hover:scale-105"
+                      src={urlFor(category.image)
+                        .width(index === 0 ? 900 : 680)
+                        .height(index === 0 ? 900 : 520)
+                        .fit("max")
+                        .url()}
+                      alt={`${category?.title || "Eyewear"} collection`}
+                      fill
+                      sizes={
+                        index === 0
+                          ? "(max-width: 1024px) 100vw, 42vw"
+                          : "(max-width: 640px) 100vw, 30vw"
+                      }
+                      className="object-contain transition-transform duration-500 group-hover:scale-[1.04]"
                     />
                   ) : (
-                    <Sun className="h-8 w-8 text-slate-300" />
+                    <Glasses className="m-auto h-full w-20 text-current/20" />
                   )}
                 </div>
-                <div className="mt-4 flex items-center justify-between gap-3">
-                  <h4 className="min-w-0 truncate text-sm font-extrabold text-slate-950">
-                    {category?.title}
-                  </h4>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-slate-400 transition-colors group-hover:text-shop_dark_green" />
+
+                <div
+                  className={`absolute inset-x-0 bottom-0 z-10 p-5 sm:p-6 ${style.text}`}
+                >
+                  <p className="text-[11px] font-bold uppercase opacity-60">
+                    Collection {String(index + 1).padStart(2, "0")}
+                  </p>
+                  <div className="mt-2 flex items-end justify-between gap-4">
+                    <div>
+                      <h3 className="font-display text-xl font-black sm:text-2xl">
+                        {category?.title || "Curated eyewear"}
+                      </h3>
+                      {category?.description && index === 0 && (
+                        <p className="mt-2 line-clamp-2 max-w-sm text-sm leading-6 opacity-65">
+                          {category.description}
+                        </p>
+                      )}
+                    </div>
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-current/30 transition-transform group-hover:translate-x-1">
+                      <ArrowRight className="h-4 w-4" />
+                    </span>
+                  </div>
                 </div>
               </Link>
-            ))}
-          </div>
+            );
+          })}
         </div>
-      )}
-    </Container>
+      </Container>
+    </section>
   );
 };
 

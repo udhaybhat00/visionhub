@@ -1,7 +1,7 @@
 import HomeCategories from "@/components/HomeCategories";
 import LatestBlog from "@/components/LatestBlog";
 import HomeBanner from "@/components/HomeBanner";
-import ProductGrid from "@/components/ProductGrid";
+import HomeProductShowcase from "@/components/HomeProductShowcase";
 import ShopByBrands from "@/components/ShopByBrands";
 import AiStylistCTA from "@/components/AiStylistCTA";
 import { getCategories } from "@/sanity/queries";
@@ -33,10 +33,10 @@ export default async function Home() {
       />
 
       <HomeBanner />
-      <div className="pb-10">
+      <div>
         <HomeCategories categories={categories} />
+        <HomeProductShowcase />
         <AiStylistCTA />
-        <ProductGrid />
         <ShopByBrands />
         <HomeReviews />
         <LatestBlog />
