@@ -4,106 +4,124 @@ import {
   ArrowRight,
   BadgeCheck,
   Glasses,
+  ScanFace,
   ShieldCheck,
-  Sparkles,
+  Truck,
 } from "lucide-react";
 
 import { banner_1 } from "@/images";
 import Container from "./Container";
 
-const heroStats = [
-  { value: "UV400", label: "Sun protection" },
-  { value: "48h", label: "Dispatch target" },
-  { value: "Pan India", label: "Delivery" },
+const trustItems = [
+  {
+    title: "Authenticity checked",
+    description: "Frames inspected before dispatch",
+    icon: BadgeCheck,
+  },
+  {
+    title: "Fit guidance",
+    description: "Sizing and frame details upfront",
+    icon: Glasses,
+  },
+  {
+    title: "Protected delivery",
+    description: "Tracked, lens-safe packaging",
+    icon: Truck,
+  },
+  {
+    title: "Secure checkout",
+    description: "Verified Razorpay payments",
+    icon: ShieldCheck,
+  },
 ];
 
-const HomeBanner = async () => {
+export default function HomeBanner() {
   return (
-    <section className="relative overflow-hidden border-b border-slate-200 bg-[#f5f8f7]">
-      <Container className="relative min-h-[calc(100svh-190px)] py-10 sm:py-14 lg:min-h-[620px] lg:py-16">
-        <div className="absolute inset-y-0 right-0 hidden w-[58%] lg:block">
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,#f5f8f7_0%,rgba(245,248,247,0.78)_20%,rgba(245,248,247,0.1)_58%,rgba(245,248,247,0)_100%)]" />
-          <Image
-            src={banner_1}
-            alt="VisionHub premium eyewear frame"
-            priority
-            sizes="58vw"
-            className="h-full w-full object-contain object-center"
-          />
-        </div>
+    <section className="bg-[#101313] text-white">
+      <div className="relative min-h-[560px] overflow-hidden sm:min-h-[590px] lg:min-h-[620px]">
+        <Image
+          src={banner_1}
+          alt="VisionHub signature black optical frame"
+          fill
+          priority
+          sizes="100vw"
+          className="home-hero-frame object-cover object-[62%_center] sm:object-[58%_center] lg:object-center"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,10,10,0.96)_0%,rgba(7,10,10,0.84)_36%,rgba(7,10,10,0.22)_69%,rgba(7,10,10,0.08)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(7,10,10,0.72)_0%,transparent_48%)] lg:hidden" />
 
-        <div className="relative z-10 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-slate-600 shadow-sm">
-              <Sparkles className="h-3.5 w-3.5 text-shop_orange" />
-              VisionHub Eyewear
+        <Container className="relative z-10 flex min-h-[560px] items-center py-12 sm:min-h-[590px] lg:min-h-[620px] lg:py-16">
+          <div className="max-w-xl">
+            <div className="mb-7 flex items-center gap-3 text-xs font-bold uppercase text-[#e2c86e]">
+              <span className="h-px w-10 bg-[#e2c86e]" />
+              Independent optical edit
             </div>
 
-            <h1 className="mt-6 text-4xl font-extrabold leading-[1.05] tracking-normal text-slate-950 sm:text-5xl lg:text-6xl">
-              Frames made for clear vision and everyday style.
+            <h1 className="font-display text-5xl font-black leading-none text-white sm:text-6xl lg:text-7xl">
+              VisionHub
             </h1>
-
-            <p className="mt-5 max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
-              Shop sunglasses, computer glasses, prescription-ready frames, and
-              sports eyewear with fit details, lens specs, and secure delivery
-              shown upfront.
+            <p className="font-display mt-4 text-2xl font-semibold leading-tight text-white sm:text-3xl">
+              Eyewear engineered for every angle.
+            </p>
+            <p className="mt-5 max-w-lg text-sm leading-7 text-white/72 sm:text-base">
+              Discover considered frames for sun, screen, prescription, and
+              movement. Built around precise fit, confident materials, and
+              everyday clarity.
             </p>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/shop"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-slate-950 px-6 text-sm font-bold text-white transition-colors hover:bg-shop_dark_green"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#d5b34b] px-6 text-sm font-bold text-[#111313] transition-colors hover:bg-[#ebd47f]"
               >
-                Shop Eyewear
+                Explore the collection
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href="/ai-stylist"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-6 text-sm font-bold text-slate-900 transition-colors hover:border-shop_light_green hover:text-shop_dark_green"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-white/35 bg-black/10 px-6 text-sm font-bold text-white backdrop-blur-sm transition-colors hover:border-white hover:bg-white hover:text-[#111313]"
               >
-                Try Frames Live
-                <Glasses className="h-4 w-4" />
+                <ScanFace className="h-4 w-4" />
+                Try frames live
               </Link>
             </div>
 
-            <div className="mt-8 grid max-w-xl grid-cols-3 divide-x divide-slate-200 rounded-lg border border-slate-200 bg-white shadow-sm">
-              {heroStats.map((stat) => (
-                <div key={stat.label} className="px-3 py-4">
-                  <p className="text-base font-extrabold text-slate-950 sm:text-lg">
-                    {stat.value}
-                  </p>
-                  <p className="mt-1 text-xs font-medium text-slate-500">
-                    {stat.label}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-3 text-sm font-semibold text-slate-600">
-              <span className="inline-flex items-center gap-2">
-                <BadgeCheck className="h-4 w-4 text-shop_light_green" />
-                Genuine product checks
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-shop_light_green" />
-                Secure checkout
-              </span>
+            <div className="mt-9 flex flex-wrap gap-x-7 gap-y-3 border-t border-white/20 pt-5 text-xs font-semibold text-white/72">
+              <span>UV400 protection options</span>
+              <span>Prescription-ready styles</span>
+              <span>Pan India delivery</span>
             </div>
           </div>
+        </Container>
 
-          <div className="relative flex min-h-[250px] items-center justify-center lg:hidden">
-            <Image
-              src={banner_1}
-              alt="VisionHub premium eyewear frame"
-              priority
-              sizes="100vw"
-              className="max-h-[300px] w-full object-contain"
-            />
-          </div>
+        <div className="pointer-events-none absolute bottom-5 right-5 hidden text-right lg:block">
+          <p className="text-xs font-bold uppercase text-white/60">
+            Signature edit 01
+          </p>
+          <p className="mt-1 text-sm font-semibold text-white">
+            Sculpted optical acetate
+          </p>
         </div>
-      </Container>
+      </div>
+
+      <div className="border-t border-white/10 bg-[#f6f6f3] text-[#171919]">
+        <Container className="grid grid-cols-2 divide-x divide-y divide-black/10 lg:grid-cols-4 lg:divide-y-0">
+          {trustItems.map((item) => (
+            <div
+              key={item.title}
+              className="flex min-h-[96px] items-center gap-3 px-3 py-5 sm:px-5"
+            >
+              <item.icon className="h-5 w-5 shrink-0 text-[#a17f1a]" />
+              <div>
+                <p className="text-sm font-extrabold">{item.title}</p>
+                <p className="mt-1 text-xs leading-5 text-black/55">
+                  {item.description}
+                </p>
+              </div>
+            </div>
+          ))}
+        </Container>
+      </div>
     </section>
   );
-};
-
-export default HomeBanner;
+}

@@ -7,6 +7,7 @@
 /* @custom-variant dark (&:is(.dark *)); */
 
 @theme {
+  --font-display: var(--font-raleway);
  --color-shop_light_pink: #f5f5f5;
 --color-shop_dark_green: #0f0f0f;
 --color-shop_btn_dark_green: #111111;
@@ -575,6 +576,26 @@
   backdrop-filter: blur(8px);
 }
 
+@keyframes homeHeroDrift {
+  from {
+    transform: scale(1.015);
+  }
+  to {
+    transform: translate3d(-0.35%, 0, 0) scale(1.045);
+  }
+}
+
+.home-hero-frame {
+  animation: homeHeroDrift 14s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-frame {
+    animation: none;
+  }
+}
+
 /* Admin Navigation Animations */
 @keyframes slideInFromTop {
   from {
@@ -826,5 +847,4 @@ body.admin-page-active {
     transform: translate3d(0, 0, 0) !important;
   }
 }
-
 
