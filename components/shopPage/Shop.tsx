@@ -5,7 +5,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import Container from "../Container";
 import Title from "../Title";
 import CategoryList from "./CategoryList";
-import { Loader2, Filter, X } from "lucide-react";
+import { Loader2, Filter, X, SlidersHorizontal } from "lucide-react";
 import ProductCard from "../ProductCard";
 import NoProductAvailable from "../product/NoProductAvailable";
 import BrandList from "./BrandList";
@@ -33,9 +33,8 @@ const Shop = ({ categories, brands }: Props) => {
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
-      // Extract min and max price from selectedPrice
       let minPrice = 0;
-      let maxPrice = 10000; // Default high value
+      let maxPrice = 10000;
 
       if (selectedPrice) {
         const [min, max] = selectedPrice.split("-").map(Number);
@@ -81,15 +80,15 @@ const Shop = ({ categories, brands }: Props) => {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <Container className="py-6">
+      <Container className="py-4 sm:py-6">
         {/* Header Section */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-6 mb-4 sm:mb-6">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-            <div>
-              <Title className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+            <div className="min-w-0">
+              <Title className="text-xl md:text-2xl font-bold text-gray-900 mb-1">
                 Shop Products
               </Title>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-500 text-sm">
                 Discover amazing products tailored to your needs
               </p>
             </div>
@@ -102,7 +101,7 @@ const Shop = ({ categories, brands }: Props) => {
                   setSelectedBrand(null);
                   setSelectedPrice(null);
                 }}
-                className="inline-flex items-center px-4 py-2 bg-red-50 text-red-700 border border-red-200 rounded-md hover:bg-red-100 transition-colors duration-200 text-sm font-medium"
+                className="inline-flex items-center px-4 py-2 bg-red-50 text-red-700 border border-red-200 rounded-md hover:bg-red-100 transition-colors duration-200 text-sm font-medium shrink-0"
               >
                 Clear All Filters
               </button>
@@ -113,11 +112,11 @@ const Shop = ({ categories, brands }: Props) => {
           {(selectedCategory || selectedBrand || selectedPrice) && (
             <div className="mt-4 pt-4 border-t border-gray-100">
               <div className="flex flex-wrap gap-2">
-                <span className="text-sm font-medium text-gray-700 mr-2">
+                <span className="text-sm font-medium text-gray-500 mr-1">
                   Active filters:
                 </span>
                 {selectedCategory && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200">
                     Category:{" "}
                     {
                       categories?.find(
@@ -127,7 +126,7 @@ const Shop = ({ categories, brands }: Props) => {
                   </span>
                 )}
                 {selectedBrand && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-800 border border-green-200">
                     Brand:{" "}
                     {
                       brands?.find(
@@ -137,8 +136,8 @@ const Shop = ({ categories, brands }: Props) => {
                   </span>
                 )}
                 {selectedPrice && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                    Price: ${selectedPrice.replace("-", " - $")}
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-800 border border-purple-200">
+                    Price: ₹{selectedPrice.replace("-", " - ₹")}
                   </span>
                 )}
               </div>
@@ -147,15 +146,15 @@ const Shop = ({ categories, brands }: Props) => {
         </div>
 
         {/* Mobile Filter Toggle */}
-        <div className="xl:hidden mb-4">
+        <div className="lg:hidden mb-4">
           <button
             onClick={() => setShowMobileFilters(!showMobileFilters)}
-            className="inline-flex items-center justify-center w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-shop_dark_green transition-colors duration-200"
+            className="inline-flex items-center justify-center w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-shop_dark_green transition-colors duration-200"
           >
-            <Filter className="w-4 h-4 mr-2" />
+            <SlidersHorizontal className="w-4 h-4 mr-2" />
             {showMobileFilters ? "Hide Filters" : "Show Filters"}
             {(selectedCategory || selectedBrand || selectedPrice) && (
-              <span className="ml-2 bg-shop_dark_green text-white text-xs px-2 py-1 rounded-full">
+              <span className="ml-2 bg-shop_dark_green text-white text-xs px-2 py-0.5 rounded-full">
                 {
                   [selectedCategory, selectedBrand, selectedPrice].filter(
                     Boolean
@@ -166,17 +165,16 @@ const Shop = ({ categories, brands }: Props) => {
           </button>
         </div>
 
-        {/* <div className="flex flex-col lg:flex-row gap-6" /> */}
-        <div className="flex flex-col xl:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* Mobile Filter Overlay */}
           {showMobileFilters && (
-            <div className="fixed inset-0 z-50 xl:hidden">
+            <div className="fixed inset-0 z-50 lg:hidden">
               <div
                 className="fixed inset-0 bg-black/50"
                 onClick={() => setShowMobileFilters(false)}
               />
               <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-xl shadow-xl max-h-[80vh] overflow-y-auto">
-                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                <div className="p-4 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10">
                   <h3 className="text-lg font-semibold text-gray-900">
                     Filters
                   </h3>
@@ -203,7 +201,7 @@ const Shop = ({ categories, brands }: Props) => {
                     selectedPrice={selectedPrice}
                   />
                 </div>
-                <div className="p-4 border-t border-gray-200 bg-gray-50">
+                <div className="p-4 border-t border-gray-200 bg-gray-50 sticky bottom-0">
                   <button
                     onClick={() => setShowMobileFilters(false)}
                     className="w-full bg-shop_dark_green text-white py-3 px-4 rounded-lg font-medium hover:bg-shop_dark_green/90 transition-colors duration-200"
@@ -216,7 +214,7 @@ const Shop = ({ categories, brands }: Props) => {
           )}
 
           {/* Desktop Sidebar Filters */}
-          <div className="hidden xl:block xl:w-80 flex-shrink-0">
+          <div className="hidden lg:block lg:w-72 xl:w-80 flex-shrink-0">
             <div className="sticky top-6 space-y-4">
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div className="p-4 bg-gray-50 border-b border-gray-200">
@@ -247,43 +245,43 @@ const Shop = ({ categories, brands }: Props) => {
           {/* Main Content */}
           <div className="flex-1 min-w-0">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="p-4 sm:p-6">
+              <div className="p-3 sm:p-4 md:p-6">
                 {loading ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                     {Array.from({ length: 8 }).map((_, index) => (
                       <div
                         key={index}
                         className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden animate-pulse"
                       >
                         <div className="aspect-square bg-gray-200"></div>
-                        <div className="p-4 space-y-3">
+                        <div className="p-3 space-y-2">
                           <div className="h-3 bg-gray-200 rounded w-3/4"></div>
                           <div className="h-4 bg-gray-200 rounded w-full"></div>
                           <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                          <div className="h-8 bg-gray-200 rounded w-full"></div>
+                          <div className="h-8 bg-gray-200 rounded w-full mt-2"></div>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : products?.length > 0 ? (
                   <div>
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 pb-4 border-b border-gray-100">
-                      <h2 className="text-lg font-semibold text-gray-900 mb-2 sm:mb-0">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 pb-4 border-b border-gray-100">
+                      <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-0">
                         {products.length} Product
                         {products.length !== 1 ? "s" : ""} Found
                       </h2>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-xs sm:text-sm text-gray-500">
                         Showing all available products
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                       {products?.map((product) => (
                         <ProductCard key={product?._id} product={product} />
                       ))}
                     </div>
                   </div>
                 ) : (
-                  <div className="py-12">
+                  <div className="py-8 sm:py-12">
                     <NoProductAvailable className="bg-transparent" />
                   </div>
                 )}

@@ -13,7 +13,7 @@ const data: ContactItemData[] = [
     title: "Visit Us",
     subtitle: `${contactConfig.company.address}, ${contactConfig.company.city}`,
     icon: (
-      <MapPin className="h-6 w-6 text-gray-600 group-hover:text-primary transition-colors" />
+      <MapPin className="h-5 w-5 text-gray-400 group-hover:text-[#d5b34b] transition-colors" />
     ),
     href: `https://maps.google.com/?q=${encodeURIComponent(`${contactConfig.company.address}, ${contactConfig.company.city}`)}`,
   },
@@ -21,7 +21,7 @@ const data: ContactItemData[] = [
     title: "Call Us",
     subtitle: contactConfig.company.phone,
     icon: (
-      <Phone className="h-6 w-6 text-gray-600 group-hover:text-primary transition-colors" />
+      <Phone className="h-5 w-5 text-gray-400 group-hover:text-[#d5b34b] transition-colors" />
     ),
     href: `tel:${contactConfig.company.phone.replace(/\D/g, "")}`,
   },
@@ -29,14 +29,14 @@ const data: ContactItemData[] = [
     title: "Working Hours",
     subtitle: `${contactConfig.businessHours.weekday}, ${contactConfig.businessHours.weekend}`,
     icon: (
-      <Clock className="h-6 w-6 text-gray-600 group-hover:text-primary transition-colors" />
+      <Clock className="h-5 w-5 text-gray-400 group-hover:text-[#d5b34b] transition-colors" />
     ),
   },
   {
     title: "Email Us",
     subtitle: contactConfig.emails.support,
     icon: (
-      <Mail className="h-6 w-6 text-gray-600 group-hover:text-primary transition-colors" />
+      <Mail className="h-5 w-5 text-gray-400 group-hover:text-[#d5b34b] transition-colors" />
     ),
     href: `mailto:${contactConfig.emails.support}`,
   },
@@ -44,7 +44,7 @@ const data: ContactItemData[] = [
 
 const FooterTop = () => {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 border-b">
+    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 border-b border-gray-200 py-2">
       {data.map((item, index) => (
         <ContactItem
           key={index}
@@ -78,14 +78,16 @@ const ContactItem = ({ icon, title, content, href }: ContactItemProps) => {
   return (
     <Component
       {...props}
-      className="flex items-center gap-3 group hover:bg-gray-50 p-4 transition-colors cursor-pointer"
+      className="flex items-center gap-3 border-r border-gray-100 last:border-r-0 px-5 py-5 transition-colors hover:bg-gray-50/50"
     >
-      {icon}
-      <div>
-        <h3 className="font-semibold text-gray-900 group-hover:text-primary transition-colors">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 group-hover:bg-[#d5b34b]/10 transition-colors">
+        {icon}
+      </div>
+      <div className="min-w-0">
+        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
           {title}
-        </h3>
-        <p className="text-gray-600 text-sm mt-1 group-hover:text-gray-900 transition-colors">
+        </p>
+        <p className="mt-0.5 text-sm font-medium text-gray-900 truncate">
           {content}
         </p>
       </div>

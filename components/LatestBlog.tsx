@@ -29,15 +29,15 @@ const LatestBlog = async () => {
           </div>
           <Link
             href="/blog"
-            className="inline-flex items-center gap-2 text-sm font-extrabold text-[#111313] transition-colors hover:text-[#8b6c12]"
+            className="group inline-flex items-center gap-2 text-sm font-extrabold text-[#111313] transition-colors hover:text-[#8b6c12]"
           >
             Read all stories
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
         </div>
 
         <div className="grid gap-8 border-t border-black/10 pt-8 lg:grid-cols-[1.35fr_0.65fr]">
-          <article className="group">
+          <article className="group transition-all duration-300 hover:-translate-y-0.5">
             <Link
               href={`/blog/${featuredBlog.slug?.current}`}
               className="block"
@@ -86,7 +86,7 @@ const LatestBlog = async () => {
           <div className="divide-y divide-black/10 border-y border-black/10 lg:border-t-0">
             {supportingBlogs.length > 0 ? (
               supportingBlogs.map((blog) => (
-                <article key={blog._id} className="group py-5 first:pt-0">
+                <article key={blog._id} className="group rounded-md py-5 first:pt-0 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sm">
                   <Link
                     href={`/blog/${blog.slug?.current}`}
                     className="grid grid-cols-[112px_1fr] gap-4"

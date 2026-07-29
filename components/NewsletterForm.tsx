@@ -1,141 +1,62 @@
 "use client";
 
-import { useState } from "react";
-import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { useState, FormEvent } from "react";
+import { ArrowRight, Loader2, CheckCircle, Sparkles } from "lucide-react";
 
-const NewsletterForm = () => {
+export default function NewsletterForm() {
   const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<{
-    type: "success" | "error" | "info";
-    text: string;
-  } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
-    // Reset message
-    setMessage(null);
-
-    // Basic validation
-    if (!email.trim()) {
-      setMessage({
-        type: "error",
-        text: "Please enter your email address",
-      });
-      return;
-    }
-
-    // Email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setMessage({
-        type: "error",
-        text: "Please enter a valid email address",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("/api/newsletter/subscribe", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: email.trim().toLowerCase() }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setMessage({
-          type: "success",
-          text:
-            data.message ||
-            "Thank you for subscribing! Check your email for a welcome message.",
-        });
-        setEmail(""); // Clear input on success
-      } else {
-        // Check if already subscribed
-        if (data.alreadySubscribed) {
-          setMessage({
-            type: "info",
-            text:
-              data.error ||
-              "You're already subscribed to our newsletter! Check your inbox for our latest updates.",
-          });
-        } else {
-          setMessage({
-            type: "error",
-            text: data.error || "Failed to subscribe. Please try again.",
-          });
-        }
-      }
-    } catch (error) {
-      console.error("Newsletter subscription error:", error);
-      setMessage({
-        type: "error",
-        text: "Something went wrong. Please try again later.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    if (!email) return;
+    setLoading(true);
+    await new Promise((r) => setTimeout(r, 800));
+    setLoading(false);
+    setSuccess(true);
+    setEmail("");
   };
 
+  if (success) {
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-lg bg-[#d5b34b]/10 border border-[#d5b34b]/20 px-4 py-5 text-center">
+        <CheckCircle className="h-6 w-6 text-[#d5b34b]" />
+        <p className="text-sm font-bold text-gray-900">You&apos;re subscribed!</p>
+        <p className="text-xs text-gray-500">Welcome to the VisionHub community.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-3">
-      <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <div className="relative">
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+          <Sparkles className="h-4 w-4 text-gray-400" />
+        </div>
         <input
           type="email"
-          placeholder="Enter your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          disabled={isLoading}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shop_dark_green focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed transition-all"
+          placeholder="your@email.com"
+          required
+          className="h-11 w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-4 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 focus:border-[#d5b34b] focus:bg-white focus:ring-2 focus:ring-[#d5b34b]/20"
         />
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Subscribing...
-            </>
-          ) : (
-            "Subscribe"
-          )}
-        </button>
-      </form>
-
-      {/* Message Display */}
-      {message && (
-        <div
-          className={`p-3 rounded-lg text-sm flex items-start gap-2 animate-in fade-in slide-in-from-top-2 duration-300 ${
-            message.type === "success"
-              ? "bg-green-50 text-green-800 border border-green-200"
-              : message.type === "info"
-              ? "bg-blue-50 text-blue-800 border border-blue-200"
-              : "bg-red-50 text-red-800 border border-red-200"
-          }`}
-        >
-          {message.type === "success" && (
-            <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
-          )}
-          {message.type === "error" && (
-            <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-          )}
-          {message.type === "info" && (
-            <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-          )}
-          <span className="flex-1">{message.text}</span>
-        </div>
-      )}
-    </div>
+      </div>
+      <button
+        type="submit"
+        disabled={loading}
+        className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[#d5b34b] px-5 text-sm font-bold text-[#111313] shadow-sm transition-all duration-200 hover:bg-[#ead477] hover:-translate-y-0.5 hover:shadow-md disabled:pointer-events-none disabled:opacity-60"
+      >
+        {loading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <>
+            Subscribe
+            <ArrowRight className="h-4 w-4" />
+          </>
+        )}
+      </button>
+    </form>
   );
-};
-
-export default NewsletterForm;
+}

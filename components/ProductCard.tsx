@@ -6,33 +6,53 @@ import AddToCartButton from "./AddToCartButton";
 import Title from "./Title";
 import { StarIcon } from "@sanity/icons";
 import ProductSideMenu from "./ProductSideMenu";
-import { Flame } from "lucide-react";
+import { Flame, ImageOff } from "lucide-react";
 import { productImageUrl } from "@/sanity/image";
 
 const ProductCard = memo(({ product }: { product: Product }) => {
+  const images = product?.images;
+  const hasImages = images && images.length > 0;
+  const primaryImage = images?.[0] ?? null;
+  const secondaryImage = images && images.length > 1 ? images[1] : null;
+
   return (
     <div className="text-sm border rounded-md border-dark-blue/20 group bg-white">
-      <div className="relative group overflow-hidden bg-shop_light_bg aspect-square rounded-t-md">
-        {product?.images && (
-          <Link href={`/product/${product?.slug?.current}`}>
-<img
-  src={productImageUrl(product.images[0], 700, 700)}
-  className={`w-full h-full object-contain object-center p-4 transition-transform duration-500
-  ${product?.stock !== 0 ? "group-hover:scale-105" : "opacity-50"}`}
-  alt={product?.name || "Product Image"}
-  loading="lazy"
-/>
-            {/* <Image
-              src={urlFor(product.images[0]).url()}
-              alt="productImage"
-              width={500}
-              height={500}
-              priority
-              className={`w-full h-64 object-contain overflow-hidden transition-transform bg-shop_light_bg duration-500 
-              ${product?.stock !== 0 ? "group-hover:scale-105" : "opacity-50"}`}
-            /> */}
-          </Link>
-        )}
+      <div className="relative group/image overflow-hidden bg-shop_light_bg aspect-square rounded-t-md">
+        <Link href={`/product/${product?.slug?.current}`}>
+          {primaryImage ? (
+            <>
+              <img
+                src={productImageUrl(primaryImage, 700, 700)}
+                className={`w-full h-full object-contain object-center p-4 transition-opacity duration-500 ${
+                  secondaryImage
+                    ? "group-hover/image:opacity-0"
+                    : ""
+                } ${
+                  product?.stock !== 0
+                    ? "group-hover:scale-105"
+                    : "opacity-50"
+                }`}
+                alt={product?.name || "Product Image"}
+                loading="lazy"
+              />
+              {secondaryImage && (
+                <img
+                  src={productImageUrl(secondaryImage, 700, 700)}
+                  className="absolute inset-0 w-full h-full object-contain object-center p-4 opacity-0 transition-opacity duration-500 group-hover/image:opacity-100 group-hover:scale-105"
+                  alt={`${product?.name || "Product"} alternate view`}
+                  loading="lazy"
+                />
+              )}
+            </>
+          ) : (
+            <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gray-50 p-4">
+              <ImageOff className="h-8 w-8 text-gray-300" />
+              <span className="text-xs font-medium text-gray-400">
+                Image coming soon
+              </span>
+            </div>
+          )}
+        </Link>
         <ProductSideMenu product={product} />
         {product?.status === "sale" ? (
           <p className="absolute top-2 left-2 z-10 text-xs border border-dark-color/50 px-2 rounded-full group-hover:border-light-green hover:text-shop_dark_green hoverEffect">

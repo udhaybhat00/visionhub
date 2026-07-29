@@ -20,11 +20,11 @@ A full-stack eyewear commerce platform built with Next.js 16, React 19, TypeScri
 
 ## 📖 About The Project
 
-VisionHub is a responsive eyewear e-commerce application for discovering, comparing, virtually trying on, and purchasing sunglasses, computer glasses, prescription frames, premium eyewear, and sports eyewear.
+VisionHub is a premium eyewear e-commerce platform for discovering, comparing, virtually trying on, and purchasing sunglasses, computer glasses, prescription frames, premium optical, and sports eyewear.
 
-The customer experience includes a searchable product catalog, detailed eyewear specifications, category and brand discovery, a camera-based virtual try-on beta, persistent cart and wishlist state, coupon-aware Razorpay checkout, order tracking, cancellation requests, invoices, refund credits, reviews, notifications, newsletters, and account management.
+The customer experience includes a searchable product catalog with detailed specifications, category and brand discovery, a camera-based virtual try-on, persistent cart and wishlist state, coupon-aware Razorpay checkout, order tracking, cancellation requests, invoices, refund credits, moderated reviews, notifications, newsletters, and full account management.
 
-The operations side includes an authenticated admin workspace for catalog management, inventory, orders, customers, access requests, coupons, reviews, content, subscriptions, contacts, notifications, and business analytics. Sanity Studio is also embedded directly in the application at `/studio`.
+The operations side includes an authenticated admin workspace for catalog management, inventory, orders, customers, access requests, coupons, reviews, content, subscriptions, contacts, notifications, and business analytics. Sanity Studio is embedded directly in the application at `/studio`.
 
 ---
 
@@ -33,7 +33,8 @@ The operations side includes an authenticated admin workspace for catalog manage
 ### 🛍 Customer Features
 
 - Eyewear catalog with search, category, brand, price, and sorting controls
-- Product pages with galleries, stock, discounts, specifications, ratings, and related products
+- Product pages with image galleries, stock status, discounts, specifications, ratings, and related products
+- Premium hero section with dynamic Sanity imagery, trust strip, and Framer Motion micro-interactions
 - Category, brand, deal, blog, FAQ, help, contact, privacy, and terms pages
 - AI Stylist beta with live camera try-on, MediaPipe face tracking, automatic frame fitting, and manual fit controls
 - Persistent shopping cart and wishlist, recently viewed products, and a browser-local My Looks gallery
@@ -45,7 +46,7 @@ The operations side includes an authenticated admin workspace for catalog manage
 - Wallet balance and transaction models for eligible refund credits
 - Moderated product reviews, rating summaries, verified-purchase checks, and helpful votes
 - Transactional emails, in-app notifications, newsletter subscription, and contact support
-- Responsive layouts, loading skeletons, mobile navigation, and custom error pages
+- Responsive layouts, loading skeletons, mobile navigation, testimonial carousel, and custom error pages
 
 ### 💳 Payment Features
 
@@ -88,6 +89,7 @@ The operations side includes an authenticated admin workspace for catalog manage
 - Server rendering, Suspense boundaries, route-level skeletons, and responsive loading states
 - Tagged Next.js caching with targeted path revalidation
 - Sanity-backed business analytics and internal best-seller tracking
+- Scroll-reveal animations via Framer Motion with optimized viewport margins
 
 ---
 
@@ -153,14 +155,16 @@ VisionHub
 │   ├── admin             # Admin dashboards and resource managers
 │   ├── cart              # Cart, address, and checkout controls
 │   ├── checkout          # Razorpay checkout experience
+│   ├── common            # Shared presentational components (Logo, SearchBar, SocialMedia, ImageView)
 │   ├── invoice           # Invoice components
-│   ├── layout            # Navigation and responsive layout
+│   ├── layout            # Navigation, mobile menu, sidebar, and footer
 │   ├── product           # Product detail and catalog components
 │   ├── profile           # Customer profile and account controls
 │   ├── shopPage          # Shop filters and product listing
 │   └── ui                # Reusable Radix-based UI primitives
 │
 ├── config                # Contact and application configuration
+├── constants             # Navigation, footer links, FAQ data
 ├── contexts              # Shared customer data context
 ├── docs                  # Feature, setup, architecture, SEO, and caching guides
 ├── hooks                 # Shared React hooks

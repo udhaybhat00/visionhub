@@ -13,6 +13,7 @@ import {
   Mail,
   Scale,
 } from "lucide-react";
+import { contactConfig } from "@/config/contact";
 import Container from "@/components/Container";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -283,10 +284,10 @@ content: [
                 <p className="text-sm text-light-text mt-6">
                   For immediate assistance, email us at{" "}
                   <a
-                    href="mailto:support@visionhub.in"
+                    href={`mailto:${contactConfig.emails.support}`}
                     className="text-shop_light_green hover:underline"
                   >
-                    support@visionhub.in
+                    {contactConfig.emails.support}
                   </a>
                 </p>
               </CardContent>

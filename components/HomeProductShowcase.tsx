@@ -42,7 +42,7 @@ function ProductTile({ product }: { product: HomeProduct }) {
     "Precision-fit eyewear";
 
   return (
-    <article className="group flex min-w-0 flex-col border border-black/10 bg-white">
+    <article className="group flex min-w-0 flex-col border border-black/10 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
       <div className="relative aspect-[4/5] overflow-hidden bg-[#f1f3f1]">
         <Link
           href={`/product/${product.slug?.current}`}
@@ -147,10 +147,10 @@ export default async function HomeProductShowcase() {
             </p>
             <Link
               href="/shop"
-              className="hidden shrink-0 items-center gap-2 text-sm font-extrabold text-[#111313] transition-colors hover:text-[#8b6c12] sm:inline-flex"
+              className="group hidden shrink-0 items-center gap-2 text-sm font-extrabold text-[#111313] transition-colors hover:text-[#8b6c12] sm:inline-flex"
             >
               Shop all
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </div>
         </div>
@@ -163,10 +163,10 @@ export default async function HomeProductShowcase() {
 
         <Link
           href="/shop"
-          className="mt-7 inline-flex items-center gap-2 text-sm font-extrabold text-[#111313] sm:hidden"
+          className="group mt-7 inline-flex items-center gap-2 text-sm font-extrabold text-[#111313] sm:hidden"
         >
           Shop all eyewear
-          <ArrowRight className="h-4 w-4" />
+          <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
         </Link>
       </Container>
     </section>
