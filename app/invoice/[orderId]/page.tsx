@@ -3,6 +3,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { writeClient } from "@/sanity/lib/client";
 import PrintButton from "@/components/invoice/PrintButton";
 import Image from "next/image";
+import { contactConfig } from "@/config/contact";
 
 export default async function InvoicePage({
   params,
@@ -109,19 +110,12 @@ export default async function InvoicePage({
       Sold By
     </h3>
 
-   <p className="font-semibold">
-  VisionHub Eyewear
-</p>
-
-<p>Jammu, India</p>
-
-<p>GSTIN: Not Applicable</p>
-
-<p>Email: support@visionhub.in</p>
-
-<p>Website: www.visionhub.in</p>
-
-<p>Phone: +91 XXXXX XXXXX</p>
+    <p className="font-semibold">{contactConfig.company.name} Eyewear</p>
+    <p>{contactConfig.company.city}</p>
+    <p>GSTIN: Not Applicable</p>
+    <p>Email: {contactConfig.company.email}</p>
+    <p>Website: visionhub.in</p>
+    <p>Phone: {contactConfig.company.phone}</p>
   </div>
 
   <div>

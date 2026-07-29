@@ -106,14 +106,18 @@ const RelatedProducts = memo(({ relatedProducts }: RelatedProductsProps) => {
                           key={index}
                           size={12}
                           className={`${
-                            index < 4
+                            index < Math.round(product?.averageRating || 0)
                               ? "text-shop_light_green fill-shop_light_green"
                               : "text-gray-300"
                           }`}
                         />
                       ))}
                     </div>
-                    <span className="text-xs text-gray-600">(4.0)</span>
+                    <span className="text-xs text-gray-600">
+                      {product?.totalReviews
+                        ? `(${product.averageRating?.toFixed(1)})`
+                        : ""}
+                    </span>
                   </div>
 
                   {/* Price */}

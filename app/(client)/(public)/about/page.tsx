@@ -12,310 +12,406 @@ import {
   Shield,
   Star,
   ArrowRight,
+  ScanFace,
+  BadgeCheck,
+  Truck,
 } from "lucide-react";
 import Container from "@/components/Container";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-const AboutPage = () => {
- const stats = [
-  { number: "100+", label: "Eyewear Styles", icon: ShoppingBag },
+const stats = [
+  { number: "100+", label: "Eyewear styles", icon: ShoppingBag },
   { number: "10+", label: "Categories", icon: Award },
-  { number: "24/7", label: "Support", icon: Users },
-  { number: "100%", label: "Authentic Products", icon: Shield },
+  { number: "24/7", label: "Customer support", icon: Users },
+  { number: "100%", label: "Authentic products", icon: Shield },
 ];
 
-  const values = [
-    {
-      icon: Target,
-      title: "Customer First",
-      description: "Every decision we make starts with our customers in mind.",
-      color: "text-shop_light_green",
-    },
-    {
-      icon: Shield,
-      title: "Premium Quality",
-      description: "We ensure every product meets our high standards.",
-      color: "text-shop_dark_green",
-    },
-    {
-      icon: Zap,
-      title: "Vision & Comfort",
-      description: "Constantly evolving to bring you the latest and greatest.",
-      color: "text-shop_orange",
-    },
-    {
-      icon: Globe,
-      title: "Trusted Service",
-      description:
-        "Committed to eco-friendly practices and responsible sourcing.",
-      color: "text-shop_light_green",
-    },
-  ];
-
- const team = [
+const values = [
   {
-    name: "Udhay Bhat",
-    role: "Founder & CEO",
-    description:
-      "Building VisionHub with a vision to provide premium sunglasses, computer glasses, prescription frames, sports eyewear, and eye-care essentials while delivering a seamless shopping experience.",
+    icon: Target,
+    title: "Customer first",
+    description: "Every decision starts with what's best for the person wearing the frames.",
+  },
+  {
+    icon: Shield,
+    title: "Premium quality",
+    description: "Every product is checked against our standards before it reaches you.",
+  },
+  {
+    icon: Zap,
+    title: "Vision & comfort",
+    description: "Frames built for real life — screen time, sunlight, sport, and prescription needs.",
+  },
+  {
+    icon: Globe,
+    title: "Responsible sourcing",
+    description: "Committed to working with suppliers who share our values on quality and ethics.",
   },
 ];
 
+const milestones = [
+  { year: "2025", event: "VisionHub founded with a focus on quality eyewear and customer-first service." },
+  { year: "2026", event: "Expanded catalog across categories including AI-powered virtual try-on." },
+];
+
+const team = [
+  {
+    name: "Udhay Bhat",
+    role: "Founder & CEO",
+    initials: "UB",
+    description:
+      "Building VisionHub with a focus on premium eyewear — from sun and screen to prescription and performance — while delivering a seamless shopping experience.",
+  },
+];
+
+const AboutPage = () => {
   return (
-    <div className="bg-gradient-to-b from-shop_light_bg to-white min-h-screen">
-      {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-r from-shop_dark_green to-shop_light_green text-white">
-        <Container className="max-w-6xl">
+    <div className="bg-[#f6f6f3] min-h-screen">
+      <section className="relative overflow-hidden bg-[#101313] py-20 lg:py-28">
+        <div className="absolute inset-0 opacity-[0.04]">
+          <div className="absolute -left-20 -top-20 h-80 w-80 rounded-full border border-white" />
+          <div className="absolute -right-32 -top-10 h-96 w-96 rounded-full border border-white" />
+          <div className="absolute -bottom-20 left-1/3 h-64 w-64 rounded-full border border-white" />
+        </div>
+        <Container>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center"
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="relative text-center"
           >
-            <Badge className="mb-6 bg-white/20 text-white border-white/30 hover:bg-white/30">
+            <span className="inline-flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#d5b34b]">
+              <span className="h-px w-8 bg-[#d5b34b]" />
               Est. 2025
-            </Badge>
-            <h1 className="text-5xl lg:text-6xl font-bold mb-6">
+              <span className="h-px w-8 bg-[#d5b34b]" />
+            </span>
+            <h1 className="font-display mt-5 text-4xl font-black leading-tight text-white sm:text-5xl lg:text-6xl">
               About VisionHub
             </h1>
-           <p className="text-xl lg:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed">
-  VisionHub is your trusted destination for premium eyewear,
-  sunglasses, computer glasses, prescription frames, sports eyewear, and accessories.
-  We combine style, comfort, and quality to help you see clearly and
-  look your best every day.
-</p>
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/62 sm:text-base">
+              VisionHub is your destination for premium eyewear — sunglasses, computer
+              glasses, prescription frames, and sports eyewear — built around precise
+              fit, confident materials, and everyday clarity.
+            </p>
           </motion.div>
         </Container>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 -mt-10">
-        <Container className="max-w-6xl">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      <section className="pb-14 lg:pb-20">
+        <Container>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            variants={{
+              visible: { transition: { staggerChildren: 0.08 } },
+            }}
+            className="grid grid-cols-2 gap-4 lg:grid-cols-4"
+          >
             {stats.map((stat, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                variants={{
+                  hidden: { opacity: 0, y: 16 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="rounded-md border border-black/10 bg-white px-5 py-7 text-center transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
               >
-                <Card className="text-center bg-white shadow-lg hover:shadow-xl transition-shadow">
-                  <CardContent className="pt-6">
-                    <stat.icon className="w-8 h-8 mx-auto mb-3 text-shop_light_green" />
-                    <h3 className="text-3xl font-bold text-shop_dark_green mb-1">
-                      {stat.number}
-                    </h3>
-                    <p className="text-dark-text font-medium">{stat.label}</p>
-                  </CardContent>
-                </Card>
+                <stat.icon className="mx-auto h-7 w-7 text-[#9a7918]" />
+                <p className="font-display mt-4 text-3xl font-black leading-none text-[#111313] sm:text-4xl">
+                  {stat.number}
+                </p>
+                <p className="mt-2 text-xs font-semibold text-black/50">
+                  {stat.label}
+                </p>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         </Container>
       </section>
 
-      {/* Story Section */}
-      <section className="py-20">
-        <Container className="max-w-6xl">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <section className="border-y border-black/10 bg-white py-14 lg:py-20">
+        <Container>
+          <div className="grid gap-12 lg:grid-cols-[1fr_1fr] lg:items-center">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
             >
-              <Badge className="mb-4 bg-shop_light_green/10 text-shop_dark_green hover:bg-shop_light_green/20">
-                Our Story
-              </Badge>
-              <h2 className="text-4xl font-bold text-shop_dark_green mb-6">
-                Helping You See Better, Every Day
+              <span className="text-xs font-extrabold uppercase tracking-widest text-[#9a7918]">
+                Our story
+              </span>
+              <h2 className="font-display mt-3 text-3xl font-black leading-tight text-[#111313] sm:text-4xl">
+                Helping you see better, every day.
               </h2>
-              <p className="text-lg text-dark-text mb-6 leading-relaxed">
-                VisionHub was created with a simple mission: to make premium eyewear
-accessible, stylish, and affordable. We carefully curate sunglasses,
-computer glasses, prescription frames, sports eyewear, and accessories from trusted brands to help
-customers find the perfect fit for their lifestyle.
+              <p className="mt-5 text-sm leading-7 text-black/55 sm:text-base">
+                VisionHub was built around a straightforward idea: premium eyewear
+                should be accessible, fit well, and last. We curate frames for sun,
+                screen, prescription, and movement — pairing each with clear
+                measurements, material details, and lens options so you know exactly
+                what you&apos;re choosing.
               </p>
-              <p className="text-lg text-dark-text mb-8 leading-relaxed">
-               Whether you're looking for fashion-forward frames, prescription
-eyewear, or everyday eye-care essentials, VisionHub is committed to
-delivering quality products, reliable service, and a seamless shopping
-experience.
+              <p className="mt-4 text-sm leading-7 text-black/55 sm:text-base">
+                Whether you need blue-light protection for long office hours,
+                polarised sun lenses for the road, or lightweight sports frames that
+                stay put, VisionHub is built around precision and everyday wear.
               </p>
-              <Button
-                asChild
-                className="bg-shop_dark_green hover:bg-shop_btn_dark_green"
+              <Link
+                href="/contact"
+                className="group mt-7 inline-flex items-center gap-2 text-sm font-extrabold text-[#111313] transition-colors hover:text-[#8b6c12]"
               >
-                <Link href="/contact">
-                  Get in Touch <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </Button>
+                Get in touch
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
             </motion.div>
+
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
               className="relative"
             >
-              <div className="bg-gradient-to-br from-shop_light_green to-shop_dark_green rounded-2xl p-8 text-white">
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-white/20 rounded-lg p-4 text-center">
-                    <Star className="w-6 h-6 mx-auto mb-2" />
-                    <p className="font-semibold">Premium Quality</p>
+              <div className="rounded-md border border-black/10 bg-[#f6f6f3] p-8">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-md border border-black/10 bg-white p-4 text-center">
+                    <Star className="mx-auto h-5 w-5 text-[#9a7918]" />
+                    <p className="mt-2 text-xs font-extrabold text-[#111313]">
+                      Premium quality
+                    </p>
                   </div>
-                  <div className="bg-white/20 rounded-lg p-4 text-center">
-                    <Shield className="w-6 h-6 mx-auto mb-2" />
-                    <p className="font-semibold">Secure Shopping</p>
+                  <div className="rounded-md border border-black/10 bg-white p-4 text-center">
+                    <BadgeCheck className="mx-auto h-5 w-5 text-[#315d55]" />
+                    <p className="mt-2 text-xs font-extrabold text-[#111313]">
+                      Authentic products
+                    </p>
+                  </div>
+                  <div className="rounded-md border border-black/10 bg-white p-4 text-center">
+                    <Truck className="mx-auto h-5 w-5 text-[#315d55]" />
+                    <p className="mt-2 text-xs font-extrabold text-[#111313]">
+                      Protected delivery
+                    </p>
+                  </div>
+                  <div className="rounded-md border border-black/10 bg-white p-4 text-center">
+                    <ScanFace className="mx-auto h-5 w-5 text-[#9a7918]" />
+                    <p className="mt-2 text-xs font-extrabold text-[#111313]">
+                      Virtual try-on
+                    </p>
                   </div>
                 </div>
-                <blockquote className="text-lg italic">
-                  &quot;Great vision starts with quality eyewear. Our goal is to help every customer find the perfect balance of comfort, style, and clarity.&quot;
+                <blockquote className="mt-6 border-t border-black/10 pt-6">
+                  <p className="text-sm leading-7 italic text-black/55">
+                    &ldquo;Great vision starts with quality eyewear. Our goal is to
+                    help every customer find the perfect balance of comfort, style,
+                    and clarity.&rdquo;
+                  </p>
+                  <p className="mt-3 text-xs font-extrabold text-[#111313]">
+                    — VisionHub Team
+                  </p>
                 </blockquote>
-                <p className="mt-4 font-semibold">- VisionHub Team</p>
               </div>
             </motion.div>
           </div>
         </Container>
       </section>
 
-      {/* Values Section */}
-      <section className="py-20 bg-shop_light_bg">
-        <Container className="max-w-6xl">
+      <section className="bg-[#f6f6f3] py-14 lg:py-20">
+        <Container>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="text-center"
           >
-            <Badge className="mb-4 bg-shop_orange/10 text-shop_orange hover:bg-shop_orange/20">
-              Our Values
-            </Badge>
-            <h2 className="text-4xl font-bold text-shop_dark_green mb-4">
-              What We Stand For
+            <span className="text-xs font-extrabold uppercase tracking-widest text-[#9a7918]">
+              Our values
+            </span>
+            <h2 className="font-display mt-3 text-3xl font-black leading-tight text-[#111313] sm:text-4xl">
+              What we stand for.
             </h2>
-            <p className="text-lg text-dark-text max-w-2xl mx-auto">
-              These core values guide everything we do, from product selection
-              to customer service.
+            <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-black/55">
+              These principles guide everything from product selection to how we
+              support you.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={{
+              visible: { transition: { staggerChildren: 0.08 } },
+            }}
+            className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+          >
             {values.map((value, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
+                variants={{
+                  hidden: { opacity: 0, y: 16 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="group rounded-md border border-black/10 bg-white p-6 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
               >
-                <Card className="h-full hover:shadow-lg transition-all group cursor-pointer">
-                  <CardContent className="p-6 text-center">
-                    <value.icon
-                      className={`w-12 h-12 mx-auto mb-4 ${value.color} group-hover:scale-110 transition-transform`}
-                    />
-                    <h3 className="text-xl font-bold text-shop_dark_green mb-3">
-                      {value.title}
-                    </h3>
-                    <p className="text-dark-text leading-relaxed">
-                      {value.description}
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[#f6f6f3] text-[#315d55] transition-colors group-hover:bg-[#315d55] group-hover:text-white">
+                  <value.icon className="h-5 w-5" />
+                </div>
+                <h3 className="mt-4 text-sm font-extrabold text-[#111313]">
+                  {value.title}
+                </h3>
+                <p className="mt-2 text-xs leading-5 text-black/50">
+                  {value.description}
+                </p>
               </motion.div>
             ))}
+          </motion.div>
+        </Container>
+      </section>
+
+      <section className="border-y border-black/10 bg-white py-14 lg:py-20">
+        <Container>
+          <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:items-start">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+            >
+              <span className="text-xs font-extrabold uppercase tracking-widest text-[#9a7918]">
+                Timeline
+              </span>
+              <h2 className="font-display mt-3 text-3xl font-black leading-tight text-[#111313] sm:text-4xl">
+                Our journey so far.
+              </h2>
+              <p className="mt-4 text-sm leading-7 text-black/55">
+                From founding to first collection, here&apos;s how VisionHub has
+                grown.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-60px" }}
+              variants={{
+                visible: { transition: { staggerChildren: 0.12 } },
+              }}
+              className="relative space-y-8 pl-8 before:absolute before:left-3 before:top-2 before:h-[calc(100%-16px)] before:w-px before:bg-black/10"
+            >
+              {milestones.map((m, i) => (
+                <motion.div
+                  key={i}
+                  variants={{
+                    hidden: { opacity: 0, x: -12 },
+                    visible: { opacity: 1, x: 0 },
+                  }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className="relative"
+                >
+                  <span className="absolute -left-8 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-black/10 bg-white text-[10px] font-extrabold text-[#9a7918]">
+                    {i + 1}
+                  </span>
+                  <span className="text-xs font-extrabold uppercase text-[#9a7918]">
+                    {m.year}
+                  </span>
+                  <p className="mt-1 text-sm leading-7 text-black/55">
+                    {m.event}
+                  </p>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         </Container>
       </section>
 
-      {/* Team Section */}
-      <section className="py-20">
-        <Container className="max-w-6xl">
+      <section className="bg-[#f6f6f3] py-14 lg:py-20">
+        <Container>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="text-center"
           >
-            <Badge className="mb-4 bg-shop_light_green/10 text-shop_dark_green hover:bg-shop_light_green/20">
-              Leadership Team
-            </Badge>
-            <h2 className="text-4xl font-bold text-shop_dark_green mb-4">
-              Meet the Founder
+            <span className="text-xs font-extrabold uppercase tracking-widest text-[#9a7918]">
+              Leadership
+            </span>
+            <h2 className="font-display mt-3 text-3xl font-black leading-tight text-[#111313] sm:text-4xl">
+              Meet the founder.
             </h2>
-            <p className="text-lg text-dark-text max-w-2xl mx-auto">
-             VisionHub was founded with a mission to combine quality eyewear, modern style, and exceptional customer service into one trusted destination.
+            <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-black/55">
+              VisionHub was built on a mission to combine quality eyewear with a
+              shopping experience that puts the customer first.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {team.map((member, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="group rounded-md border border-black/10 bg-white p-6 text-center transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
               >
-                <Card className="text-center hover:shadow-lg transition-all group">
-                  <CardContent className="p-6">
-                    <div className="w-24 h-24 bg-gradient-to-br from-shop_light_green to-shop_dark_green rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold group-hover:scale-105 transition-transform">
-                      {member.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </div>
-                    <h3 className="text-xl font-bold text-shop_dark_green mb-1">
-                      {member.name}
-                    </h3>
-                    <Badge className="mb-3 bg-shop_orange/10 text-shop_orange border-none">
-                      {member.role}
-                    </Badge>
-                    <p className="text-dark-text text-sm leading-relaxed">
-                      {member.description}
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#101313] text-xl font-black text-[#d5b34b] transition-transform group-hover:scale-105">
+                  {member.initials}
+                </div>
+                <h3 className="mt-4 text-base font-extrabold text-[#111313]">
+                  {member.name}
+                </h3>
+                <span className="mt-1 inline-block text-[11px] font-extrabold uppercase tracking-wider text-[#9a7918]">
+                  {member.role}
+                </span>
+                <p className="mt-3 text-xs leading-6 text-black/50">
+                  {member.description}
+                </p>
               </motion.div>
             ))}
           </div>
         </Container>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-shop_dark_green to-shop_light_green text-white">
-        <Container className="max-w-6xl">
+      <section className="relative overflow-hidden bg-[#101313] py-16 lg:py-20">
+        <div className="absolute inset-0 opacity-[0.03]">
+          <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full border border-white" />
+          <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full border border-white" />
+        </div>
+        <Container>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center"
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="relative text-center"
           >
-            <h2 className="text-4xl font-bold mb-4">
-              Find Your Perfect Pair
+            <h2 className="font-display text-3xl font-black leading-tight text-white sm:text-4xl">
+              Find your perfect pair.
             </h2>
-            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Explore our collection of premium sunglasses, computer glasses, prescription frames, sports eyewear, and accessories designed for style, comfort, and clear vision.
+            <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-white/62">
+              Explore our collection of sunglasses, computer glasses, prescription
+              frames, and sports eyewear — built for the way you see the world.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                asChild
-                size="lg"
-                className="bg-white text-shop_dark_green hover:bg-white/90"
+            <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Link
+                href="/shop"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#d5b34b] px-6 text-sm font-extrabold text-[#111313] transition-all duration-300 hover:bg-[#ead477] hover:-translate-y-0.5 hover:shadow-lg"
               >
-                <Link href="/shop">
-                  Start Shopping <ShoppingBag className="w-5 h-5 ml-2" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                className="bg-white text-shop_dark_green hover:bg-white/90"
+                Start shopping
+                <ShoppingBag className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/contact"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-white/35 px-6 text-sm font-extrabold text-white backdrop-blur-sm transition-all duration-300 hover:border-white hover:bg-white hover:text-[#111313] hover:-translate-y-0.5 hover:shadow-lg"
               >
-                <Link href="/contact">
-                  Contact Us <ArrowRight className="w-5 h-5 ml-2" />
-                </Link>
-              </Button>
+                Contact us
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
           </motion.div>
         </Container>

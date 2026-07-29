@@ -53,10 +53,10 @@ const HomeCategories = ({ categories }: Props) => {
           </div>
           <Link
             href="/category"
-            className="inline-flex items-center gap-2 text-sm font-extrabold text-[#111313] transition-colors hover:text-[#8b6c12]"
+            className="group inline-flex items-center gap-2 text-sm font-extrabold text-[#111313] transition-colors hover:text-[#8b6c12]"
           >
             View all collections
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
         </div>
 
@@ -71,7 +71,7 @@ const HomeCategories = ({ categories }: Props) => {
               <Link
                 key={category?._id}
                 href={href}
-                className={`group relative overflow-hidden rounded-md ${style.card}`}
+                className={`group relative overflow-hidden rounded-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md ${style.card}`}
               >
                 <div className={`absolute ${style.image}`}>
                   {category?.image ? (

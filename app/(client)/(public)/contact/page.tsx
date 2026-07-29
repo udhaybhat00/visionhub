@@ -1,22 +1,31 @@
 "use client";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import Container from "@/components/Container";
 import { contactConfig } from "@/config/contact";
 import {
-  CheckCircle,
-  Mail,
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
+import {
   MapPin,
   Phone,
+  Mail,
   Clock,
   Send,
-  MessageCircle,
   Loader2,
   AlertCircle,
+  CheckCircle,
+  ShieldCheck,
+  HeadphonesIcon,
+  Sparkles,
   ExternalLink,
+  MessageCircle,
 } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
@@ -28,10 +37,89 @@ interface FormData {
   message: string;
 }
 
+const contactInfo = [
+  {
+    icon: MapPin,
+    title: "Visit Our Store",
+    details: contactConfig.company.address,
+    subDetails: contactConfig.company.city,
+    accent: "border-l-[#315d55]",
+    iconBg: "bg-[#315d55]",
+    href: `https://maps.google.com/?q=${encodeURIComponent(`${contactConfig.company.address}, ${contactConfig.company.city}`)}`,
+  },
+  {
+    icon: Phone,
+    title: "Call Us",
+    details: contactConfig.company.phone,
+    subDetails: contactConfig.businessHours.weekday,
+    accent: "border-l-[#9a7918]",
+    iconBg: "bg-[#9a7918]",
+    href: `tel:${contactConfig.company.phone.replace(/\D/g, "")}`,
+  },
+  {
+    icon: Mail,
+    title: "Email Support",
+    details: contactConfig.emails.support,
+    subDetails: contactConfig.responseTime.standard,
+    accent: "border-l-[#315d55]",
+    iconBg: "bg-[#315d55]",
+    href: `mailto:${contactConfig.emails.support}`,
+  },
+  {
+    icon: Clock,
+    title: "Business Hours",
+    details: contactConfig.businessHours.weekday,
+    subDetails: contactConfig.businessHours.weekend,
+    accent: "border-l-[#9a7918]",
+    iconBg: "bg-[#9a7918]",
+  },
+];
+
+const faqs = [
+  {
+    q: "How can I track my order?",
+    a: "Once your order is dispatched, you'll receive tracking details via email and SMS. You can also monitor real-time updates from your account dashboard under \"My Orders\".",
+  },
+  {
+    q: "Do you offer prescription lenses?",
+    a: "Yes, selected frames support prescription lenses. Check the product page for prescription availability, or use our AI stylist to see how frames look on you before ordering.",
+  },
+  {
+    q: "What is your return policy?",
+    a: "We accept returns within 14 days of delivery for unused items in original packaging. Prescription lenses and personalized items are final sale. Visit our Returns page for full details.",
+  },
+  {
+    q: "How do I find my frame size?",
+    a: "Each product page lists exact dimensions (lens width, bridge width, temple length). Use our size guide or visit a local optical store to measure your current frames for reference.",
+  },
+  {
+    q: "Are your sunglasses UV protected?",
+    a: "All VisionHub sunglasses provide UV400 protection, blocking 99-100% of UVA and UVB rays. Polarised options are available for reduced glare while driving or outdoors.",
+  },
+];
+
+const trustItems = [
+  {
+    icon: ShieldCheck,
+    title: "Secure Payments",
+    desc: "Protected via Razorpay with SSL encryption",
+  },
+  {
+    icon: HeadphonesIcon,
+    title: "Dedicated Support",
+    desc: contactConfig.responseTime.standard,
+  },
+  {
+    icon: Sparkles,
+    title: "Authentic Products",
+    desc: "Verified sourcing from trusted brands",
+  },
+];
+
 const ContactPage = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -40,14 +128,10 @@ const ContactPage = () => {
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-    // Clear error when user starts typing
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (error) setError("");
   };
 
@@ -55,234 +139,185 @@ const ContactPage = () => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setSuccess(false);
 
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-
       const data = await response.json();
-
       if (response.ok) {
         setSuccess(true);
-        setFormData({
-          name: "",
-          email: "",
-          subject: "",
-          message: "",
-        });
+        setFormData({ name: "", email: "", subject: "", message: "" });
       } else {
         setError(data.error || "Something went wrong. Please try again.");
       }
-    } catch (err) {
+    } catch {
       setError("Network error. Please check your connection and try again.");
-      console.error("Contact form error:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const contactInfo = [
-    {
-      icon: MapPin,
-      title: "Visit Our Store",
-      details: contactConfig.company.address,
-      subDetails: contactConfig.company.city,
-      color: "text-shop_dark_green",
-      bgColor: "bg-shop_dark_green/10",
-      href: `https://maps.google.com/?q=${encodeURIComponent(`${contactConfig.company.address}, ${contactConfig.company.city}`)}`,
-    },
-    {
-      icon: Phone,
-      title: "Call Us",
-      details: contactConfig.company.phone,
-      subDetails: contactConfig.businessHours.weekday,
-      color: "text-shop_light_green",
-      bgColor: "bg-shop_light_green/10",
-      href: `tel:${contactConfig.company.phone.replace(/\D/g, "")}`,
-    },
-    {
-      icon: Mail,
-      title: "Email Support",
-      details: contactConfig.emails.support,
-      subDetails: contactConfig.responseTime.standard,
-      color: "text-shop_orange",
-      bgColor: "bg-shop_orange/10",
-      href: `mailto:${contactConfig.emails.support}`,
-    },
-    {
-  icon: MessageCircle,
-  title: "WhatsApp Support",
-  details: "+91 123456789",
-  subDetails: "Quick assistance",
-  color: "text-green-600",
-  bgColor: "bg-green-100",
-  href: "https://wa.me/91123456789",
-},
-    {
-      icon: Clock,
-      title: "Business Hours",
-      details: contactConfig.businessHours.weekday,
-      subDetails: contactConfig.businessHours.weekend,
-      color: "text-purple-600",
-      bgColor: "bg-purple-600/10",
-    },
-  ];
-
   return (
-    <div className="bg-gradient-to-b from-shop_light_bg to-white min-h-screen">
-      {/* Hero Banner Section */}
-      <section className="py-20 bg-gradient-to-r from-shop_dark_green to-shop_light_green text-white">
-        <Container className="max-w-6xl">
+    <div className="bg-[#f6f6f3] min-h-screen">
+      <section className="relative overflow-hidden bg-[#101313] py-20 lg:py-28">
+        <div className="absolute inset-0 opacity-[0.04]">
+          <div className="absolute -left-20 -top-20 h-80 w-80 rounded-full border border-white" />
+          <div className="absolute -right-32 -top-10 h-96 w-96 rounded-full border border-white" />
+          <div className="absolute -bottom-20 left-1/3 h-64 w-64 rounded-full border border-white" />
+        </div>
+        <Container>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center"
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="relative text-center"
           >
-            <Badge className="mb-6 bg-white/20 text-white border-white/30 hover:bg-white/30">
-              VisionHub Support
-            </Badge>
-            <h1 className="text-5xl lg:text-6xl font-bold mb-6">Contact VisionHub</h1>
-            <p className="text-xl lg:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed">
-             Need help choosing the perfect eyewear? Have questions about
-sunglasses, computer glasses, prescription frames, sports eyewear, or your order? The VisionHub
-team is here to assist you with expert guidance and support.
+            <span className="inline-flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#d5b34b]">
+              <span className="h-px w-8 bg-[#d5b34b]" />
+              Get in touch
+              <span className="h-px w-8 bg-[#d5b34b]" />
+            </span>
+            <h1 className="font-display mt-5 text-4xl font-black leading-tight text-white sm:text-5xl lg:text-6xl">
+              Let&apos;s talk eyewear.
+            </h1>
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/62 sm:text-base">
+              Questions about fit, prescriptions, orders, or finding the right
+              frame? Our team is here to help.
             </p>
           </motion.div>
         </Container>
       </section>
 
-      <Container className="px-4 sm:px-6 lg:px-8 py-6 lg:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-          {/* Contact Information */}
+      <Container className="px-4 py-10 lg:py-16">
+        <div className="grid gap-8 lg:grid-cols-[1fr_1.6fr] lg:gap-12">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="lg:col-span-1"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="space-y-4"
           >
-            <div className="bg-white rounded-2xl shadow-lg p-6 lg:p-8 border border-gray-100">
-              <h2 className="text-2xl font-bold text-shop_dark_green mb-6">
-                Contact Information
-              </h2>
-
-              <div className="space-y-6">
-                {contactInfo.map((info, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.1 * index }}
-                    className="flex items-start gap-4"
+            {contactInfo.map((info, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.08 }}
+                className={`group rounded-md border border-black/10 bg-white p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md ${info.accent ? `border-l-4 ${info.accent}` : ""}`}
+              >
+                <div className="flex items-start gap-4">
+                  <div
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md ${info.iconBg} text-white`}
                   >
-                    <div className={`p-3 rounded-lg ${info.bgColor}`}>
-                      <info.icon className={`w-5 h-5 ${info.color}`} />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-shop_dark_green mb-1">
-                        {info.title}
-                      </h3>
-                      {info.href ? (
-                        <a
-                          href={info.href}
-                          className="text-dark-text text-sm mb-1 hover:text-shop_dark_green transition-colors duration-200 flex items-center gap-1 group"
-                          target={
-                            info.href.startsWith("http") ? "_blank" : "_self"
-                          }
-                          rel={
-                            info.href.startsWith("http")
-                              ? "noopener noreferrer"
-                              : undefined
-                          }
-                        >
-                          {info.details}
-                          {info.href.startsWith("http") && (
-                            <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                          )}
-                        </a>
-                      ) : (
-                        <p className="text-dark-text text-sm mb-1">
-                          {info.details}
-                        </p>
-                      )}
-                      <p className="text-light-text text-xs">
-                        {info.subDetails}
+                    <info.icon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-extrabold text-[#111313]">
+                      {info.title}
+                    </h3>
+                    {info.href ? (
+                      <a
+                        href={info.href}
+                        target={info.href.startsWith("http") ? "_blank" : "_self"}
+                        rel={
+                          info.href.startsWith("http")
+                            ? "noopener noreferrer"
+                            : undefined
+                        }
+                        className="mt-1 flex items-center gap-1.5 text-sm text-black/55 transition-colors hover:text-[#111313]"
+                      >
+                        {info.details}
+                        {info.href.startsWith("http") && (
+                          <ExternalLink className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
+                        )}
+                      </a>
+                    ) : (
+                      <p className="mt-1 text-sm text-black/55">
+                        {info.details}
                       </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Additional Info */}
-              <div className="mt-8 p-4 bg-shop_light_pink rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <MessageCircle className="w-4 h-4 text-shop_dark_green" />
-                  <h4 className="font-semibold text-shop_dark_green">
-                    Customer Care
-                  </h4>
+                    )}
+                    <p className="mt-0.5 text-xs text-black/40">
+                      {info.subDetails}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-sm text-dark-text">
-                  Our support team aims to respond to all customer inquiries as quickly as possible during business hours.
-                </p>
+              </motion.div>
+            ))}
+
+            <div className="rounded-md border border-black/10 bg-white p-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#111313] text-[#d5b34b]">
+                  <MessageCircle className="h-4 w-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-extrabold text-[#111313]">
+                    Need quick help?
+                  </p>
+                  <p className="mt-0.5 text-xs text-black/45">
+                    Browse our FAQ or visit the help center for instant answers.
+                  </p>
+                </div>
               </div>
             </div>
           </motion.div>
 
-          {/* Contact Form */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="lg:col-span-2"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
           >
-            <div className="bg-white rounded-2xl shadow-lg p-6 lg:p-8 border border-gray-100">
-              <h2 className="text-2xl font-bold text-shop_dark_green mb-6">
-                Send us a Message
+            <div className="rounded-md border border-black/10 bg-white p-6 sm:p-8">
+              <h2 className="font-display text-2xl font-black text-[#111313]">
+                Send us a message
               </h2>
+              <p className="mt-2 text-sm leading-6 text-black/55">
+                Fill in the details below and we&apos;ll get back to you as
+                soon as possible.
+              </p>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <form onSubmit={handleSubmit} className="mt-7 space-y-5">
+                <div className="grid gap-5 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label
                       htmlFor="name"
-                      className="text-shop_dark_green font-medium"
+                      className="text-xs font-extrabold uppercase text-[#111313]"
                     >
-                      Full Name *
+                      Full name *
                     </Label>
                     <Input
                       disabled={loading}
                       type="text"
                       id="name"
                       name="name"
-                      placeholder="Enter your full name"
+                      placeholder="Your name"
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="h-12 focus:border-shop_light_green focus:ring-shop_light_green/20"
+                      className="h-11 rounded-md border-black/15 text-sm transition-[border-color,box-shadow] duration-200 focus:border-[#315d55] focus:ring-[#315d55]/15"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label
                       htmlFor="email"
-                      className="text-shop_dark_green font-medium"
+                      className="text-xs font-extrabold uppercase text-[#111313]"
                     >
-                      Email Address *
+                      Email address *
                     </Label>
                     <Input
                       disabled={loading}
                       type="email"
                       id="email"
                       name="email"
-                      placeholder="your.email@example.com"
+                      placeholder="your@email.com"
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="h-12 focus:border-shop_light_green focus:ring-shop_light_green/20"
+                      className="h-11 rounded-md border-black/15 text-sm transition-[border-color,box-shadow] duration-200 focus:border-[#315d55] focus:ring-[#315d55]/15"
                     />
                   </div>
                 </div>
@@ -290,7 +325,7 @@ team is here to assist you with expert guidance and support.
                 <div className="space-y-2">
                   <Label
                     htmlFor="subject"
-                    className="text-shop_dark_green font-medium"
+                    className="text-xs font-extrabold uppercase text-[#111313]"
                   >
                     Subject *
                   </Label>
@@ -299,31 +334,37 @@ team is here to assist you with expert guidance and support.
                     type="text"
                     id="subject"
                     name="subject"
-                    placeholder="Brief description of your inquiry"
+                    placeholder="What is this about?"
                     value={formData.subject}
                     onChange={handleChange}
                     required
-                    className="h-12 focus:border-shop_light_green focus:ring-shop_light_green/20"
+                    className="h-11 rounded-md border-black/15 text-sm transition-[border-color,box-shadow] duration-200 focus:border-[#315d55] focus:ring-[#315d55]/15"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="message"
-                    className="text-shop_dark_green font-medium"
-                  >
-                    Message *
-                  </Label>
+                  <div className="flex items-center justify-between">
+                    <Label
+                      htmlFor="message"
+                      className="text-xs font-extrabold uppercase text-[#111313]"
+                    >
+                      Message *
+                    </Label>
+                    <span className="text-xs text-black/35">
+                      {formData.message.length}/1000
+                    </span>
+                  </div>
                   <Textarea
                     disabled={loading}
                     id="message"
                     name="message"
-                    placeholder="Please provide detailed information about your inquiry..."
+                    placeholder="Tell us about your inquiry in detail..."
                     value={formData.message}
                     onChange={handleChange}
-                    rows={6}
+                    rows={5}
+                    maxLength={1000}
                     required
-                    className="resize-none focus:border-shop_light_green focus:ring-shop_light_green/20"
+                    className="resize-none rounded-md border-black/15 text-sm transition-[border-color,box-shadow] duration-200 focus:border-[#315d55] focus:ring-[#315d55]/15"
                   />
                 </div>
 
@@ -333,9 +374,9 @@ team is here to assist you with expert guidance and support.
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg"
+                      className="flex items-center gap-2 overflow-hidden rounded-md border border-red-200 bg-red-50 p-4"
                     >
-                      <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                      <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
                       <p className="text-sm text-red-700">{error}</p>
                     </motion.div>
                   )}
@@ -344,17 +385,17 @@ team is here to assist you with expert guidance and support.
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full sm:w-auto bg-shop_dark_green hover:bg-shop_light_green text-white h-12 px-8 font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none"
+                  className="h-12 w-full rounded-md bg-[#111313] px-6 text-sm font-extrabold text-white transition-all duration-300 hover:bg-[#315d55] hover:-translate-y-0.5 hover:shadow-md disabled:transform-none sm:w-auto"
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Sending Message...
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending...
                     </>
                   ) : (
                     <>
-                      <Send className="w-5 h-5 mr-2" />
-                      Send Message
+                      <Send className="mr-2 h-4 w-4" />
+                      Send message
                     </>
                   )}
                 </Button>
@@ -363,144 +404,116 @@ team is here to assist you with expert guidance and support.
           </motion.div>
         </div>
 
-        {/* FAQ Section */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-16"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="mt-14 lg:mt-20"
         >
-          <div className="text-center mb-8">
-            <h2 className="text-2xl lg:text-3xl font-bold text-shop_dark_green mb-4">
-              Frequently Asked Questions
+          <div className="mb-8 text-center">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-[#9a7918]">
+              Common questions
+            </span>
+            <h2 className="font-display mt-3 text-3xl font-black leading-tight text-[#111313] sm:text-4xl">
+              Quick answers.
             </h2>
-            <p className="text-dark-text max-w-xl mx-auto">
-              Find quick answers to common questions about our services and
-              policies.
-            </p>
           </div>
+          <div className="mx-auto max-w-3xl">
+            <Accordion type="single" collapsible className="space-y-3">
+              {faqs.map((faq, index) => (
+                <AccordionItem
+                  key={index}
+                  value={`faq-${index}`}
+                  className="rounded-md border border-black/10 bg-white px-6"
+                >
+                  <AccordionTrigger className="py-5 text-left text-sm font-extrabold text-[#111313] hover:no-underline hover:text-[#8b6c12]">
+                    {faq.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-5 text-sm leading-7 text-black/55">
+                    {faq.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-  {
-    q: "How can I track my order?",
-    a: "Once your order is shipped, you will receive tracking details via email or SMS. You can also view order updates from your account dashboard.",
-  },
-  {
-    q: "Are your products authentic?",
-    a: "Yes. VisionHub is committed to providing genuine and quality eyewear products sourced from trusted suppliers and brands.",
-  },
-  {
-    q: "Do you offer prescription eyewear?",
-    a: "Selected products support prescription lenses. Please check the product details page for availability.",
-  },
-  {
-    q: "How can I contact customer support?",
-    a: "You can reach us through our contact form, email, or phone during business hours and our team will be happy to assist you.",
-  },
-].map((faq, index) => (
-              <div
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+          className="mt-14 lg:mt-20"
+        >
+          <div className="mb-8 text-center">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-[#9a7918]">
+              Why VisionHub
+            </span>
+            <h2 className="font-display mt-3 text-3xl font-black leading-tight text-[#111313] sm:text-4xl">
+              Shop with confidence.
+            </h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {trustItems.map((item, index) => (
+              <motion.div
                 key={index}
-                className="bg-white p-6 rounded-lg shadow-sm border border-gray-100"
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.08 }}
+                className="group rounded-md border border-black/10 bg-white p-6 text-center transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
               >
-                <h3 className="font-semibold text-shop_dark_green mb-2">
-                  {faq.q}
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md bg-[#f6f6f3] text-[#315d55] transition-colors group-hover:bg-[#315d55] group-hover:text-white">
+                  <item.icon className="h-5 w-5" />
+                </div>
+                <h3 className="mt-4 text-sm font-extrabold text-[#111313]">
+                  {item.title}
                 </h3>
-                <p className="text-dark-text text-sm">{faq.a}</p>
-              </div>
+                <p className="mt-2 text-xs leading-5 text-black/50">
+                  {item.desc}
+                </p>
+              </motion.div>
             ))}
           </div>
         </motion.div>
-        {/* Trust Section */}
-<div className="mt-16">
-  <div className="text-center mb-8">
-    <h2 className="text-2xl lg:text-3xl font-bold text-shop_dark_green mb-4">
-      Why Shop With VisionHub?
-    </h2>
-  </div>
-
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 text-center">
-      <CheckCircle className="w-10 h-10 text-green-600 mx-auto mb-3" />
-      <h3 className="font-semibold text-shop_dark_green mb-2">
-        Secure Shopping
-      </h3>
-      <p className="text-sm text-gray-600">
-        Your personal information and transactions are protected with secure systems.
-      </p>
-    </div>
-
-    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 text-center">
-      <CheckCircle className="w-10 h-10 text-green-600 mx-auto mb-3" />
-      <h3 className="font-semibold text-shop_dark_green mb-2">
-        Quality Eyewear
-      </h3>
-      <p className="text-sm text-gray-600">
-        Carefully selected products designed for style, comfort, and durability.
-      </p>
-    </div>
-
-    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 text-center">
-      <CheckCircle className="w-10 h-10 text-green-600 mx-auto mb-3" />
-      <h3 className="font-semibold text-shop_dark_green mb-2">
-        Customer Support
-      </h3>
-      <p className="text-sm text-gray-600">
-        Friendly support available to help with product and order questions.
-      </p>
-    </div>
-  </div>
-</div>
       </Container>
 
-      
-
-      {/* Success Modal */}
       <AnimatePresence>
         {success && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 flex items-center justify-center bg-black/60 z-50 p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
             onClick={() => setSuccess(false)}
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4"
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="w-full max-w-sm rounded-md border border-black/10 bg-white p-8"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="text-center">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{
-                    delay: 0.2,
-                    type: "spring",
-                    stiffness: 200,
-                    damping: 10,
-                  }}
-                  className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"
-                >
-                  <CheckCircle className="w-8 h-8 text-green-600" />
-                </motion.div>
-                <h3 className="text-2xl font-bold text-shop_dark_green mb-2">
-                  Message Sent Successfully!
-                </h3>
-                <p className="text-dark-text mb-6">
-                  Thank you for contacting us. We&apos;ve received your message
-                  and we will review your message and respond as soon as possible.
-                </p>
-                <Button
-                  onClick={() => setSuccess(false)}
-                  className="w-full bg-shop_dark_green hover:bg-shop_light_green text-white h-12 font-semibold rounded-lg transition-all duration-300"
-                >
-                  Close
-                </Button>
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#315d55]/10">
+                <CheckCircle className="h-7 w-7 text-[#315d55]" />
               </div>
+              <div className="mt-5 text-center">
+                <h3 className="text-lg font-extrabold text-[#111313]">
+                  Message sent!
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-black/55">
+                  Thanks for reaching out. We typically respond within 24 hours
+                  during business days.
+                </p>
+              </div>
+              <Button
+                onClick={() => setSuccess(false)}
+                className="mt-6 h-11 w-full rounded-md bg-[#111313] text-sm font-extrabold text-white transition-all duration-300 hover:bg-[#315d55]"
+              >
+                Done
+              </Button>
             </motion.div>
           </motion.div>
         )}

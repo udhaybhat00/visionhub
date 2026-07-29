@@ -29,10 +29,10 @@ const ShopByBrands = async () => {
             </p>
             <Link
               href="/brands"
-              className="mt-6 inline-flex items-center gap-2 text-sm font-extrabold text-[#111313] transition-colors hover:text-[#8b6c12]"
+              className="group mt-6 inline-flex items-center gap-2 text-sm font-extrabold text-[#111313] transition-colors hover:text-[#8b6c12]"
             >
               Explore all brands
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </div>
 
@@ -44,7 +44,7 @@ const ShopByBrands = async () => {
                   pathname: "/shop",
                   query: { brand: brand?.slug?.current },
                 }}
-                className="group flex aspect-[3/2] items-center justify-center rounded-md border border-black/10 bg-white/75 p-4 transition-colors hover:border-[#9a7918]"
+                className="group flex aspect-[3/2] items-center justify-center rounded-md border border-black/10 bg-white/75 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#9a7918] hover:shadow-md"
               >
                 {brand?.image ? (
                   <Image
