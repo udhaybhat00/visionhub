@@ -14,7 +14,7 @@ A full-stack eyewear commerce platform built with Next.js 16, React 19, TypeScri
 
 ## 🚀 Live Demo
 
-[https://visionhub.vercel.app](https://visionhub.vercel.app)
+[https://visionhubstore.vercel.app/](https://visionhubstore.vercel.app/)
 
 ---
 
@@ -295,6 +295,14 @@ Use a Sanity token with write permissions for admin mutations and server-side or
 
 ---
 
+## 🎥 Live Demo Video
+
+[![VisionHub Demo](https://img.youtube.com/vi/jJp0yEfbXjQ/maxresdefault.jpg)](https://youtu.be/jJp0yEfbXjQ)
+
+*Click the thumbnail above for a full walkthrough of the storefront, AI Stylist try-on, checkout flow, and admin dashboard.*
+
+---
+
 ## 📸 Screenshots
 
 ![VisionHub storefront preview](public/preview.png)
@@ -314,17 +322,11 @@ Recommended additional screenshots:
 
 ### Udhay Bhat
 
-👨‍💻 Self-Taught Full Stack Developer
-
-🔐 Cybersecurity Enthusiast
-
+👨‍💻 Full-Stack Developer & Cybersecurity Student
+🔐 Hands-on pentesting experience — Burp Suite, Nmap, Metasploit
+☁️ Building toward Cloud Security & DevSecOps
 🛠 Kali Linux & Security Testing
-
-📊 Machine Learning Projects
-
-📚 Learning Deep Learning & Neural Networks
-
-💻 Passionate About Building Real-World Software Solutions
+💻 Building production-grade secure web applications
 
 ---
 
@@ -388,9 +390,9 @@ Recommended additional screenshots:
 
 GitHub: https://github.com/udhaybhat00
 
-LinkedIn: Add Your LinkedIn Profile
+LinkedIn: https://linkedin.com/in/udhaybhat
 
-Portfolio: Add Your Portfolio Link
+Portfolio: https://github.com/udhaybhat00
 
 ---
 
