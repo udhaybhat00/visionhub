@@ -52,7 +52,7 @@ const FavoriteButton = ({
           href={"/wishlist"}
           className={
             variant === "header"
-              ? "group relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white text-gray-700 shadow-sm transition-all hover:border-shop_orange hover:bg-shop_light_bg hover:text-shop_dark_green"
+              ? "group relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white text-gray-700 shadow-sm transition-all hover:border-shop_orange hover:bg-shop_light_bg hover:text-shop_dark_green"
               : "group relative hover:text-shop_light_green hoverEffect"
           }
         >

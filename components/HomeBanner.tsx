@@ -2,11 +2,18 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useRef, useEffect, useMemo } from "react";
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+import { useRef, useMemo } from "react";
 import {
   ArrowRight,
   BadgeCheck,
+  Glasses,
   ScanFace,
   ShieldCheck,
   Star,
@@ -14,6 +21,7 @@ import {
 } from "lucide-react";
 
 import Container from "./Container";
+import PriceView from "./PriceView";
 import { ALL_PRODUCTS_QUERYResult, BANNER_QUERYResult } from "@/sanity.types";
 import { productImageUrl, urlFor } from "@/sanity/lib/image";
 
@@ -54,217 +62,301 @@ export default function HomeBanner({
   averageRating,
 }: HomeBannerProps) {
   const sectionRef = useRef<HTMLElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+
   const mouseX = useMotionValue(0.5);
   const mouseY = useMotionValue(0.5);
 
-  const springX = useSpring(mouseX, { stiffness: 40, damping: 25 });
-  const springY = useSpring(mouseY, { stiffness: 40, damping: 25 });
+  const springX = useSpring(mouseX, { stiffness: 90, damping: 16 });
+  const springY = useSpring(mouseY, { stiffness: 90, damping: 16 });
 
-  const imageX = useTransform(springX, [0, 1], [8, -8]);
-  const imageY = useTransform(springY, [0, 1], [8, -8]);
+  const rotateX = useTransform(springY, [0, 1], [6, -6]);
+  const rotateY = useTransform(springX, [0, 1], [-7, 7]);
+  const cardX = useTransform(springX, [0, 1], [-12, 12]);
+  const cardY = useTransform(springY, [0, 1], [8, -8]);
 
-  const hasGoodImage = useMemo(() => {
-    if (banners?.[0]?.image) return true;
-    const featured = products?.find((p) => p.isFeatured && p.images?.[0]);
-    return !!featured?.images?.[0];
-  }, [banners, products]);
+  const featured = useMemo(
+    () =>
+      products?.find((p) => p.isFeatured && p.images?.[0]) ?? products?.[0],
+    [products]
+  );
+  const support = useMemo(
+    () =>
+      products?.find((p) => p._id !== featured?._id && p.images?.[0]) ?? null,
+    [products, featured]
+  );
 
   const heroImage = useMemo(() => {
     if (banners?.[0]?.image) {
-      return urlFor(banners[0].image).width(1920).height(1080).url();
+      return urlFor(banners[0].image).width(1600).height(1100).url();
     }
-    const featured = products?.find((p) => p.isFeatured && p.images?.[0]);
     if (featured?.images?.[0]) {
-      return productImageUrl(featured.images[0], 1920, 1080);
+      return productImageUrl(featured.images[0], 1600, 1100);
     }
     return null;
-  }, [banners, products]);
+  }, [banners, featured]);
 
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
+  const cardImage = featured?.images?.[0]
+    ? productImageUrl(featured.images[0], 800, 1000)
+    : null;
+  const supportImage = support?.images?.[0]
+    ? productImageUrl(support.images[0], 600, 720)
+    : null;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = section.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width;
-      const y = (e.clientY - rect.top) / rect.height;
-      mouseX.set(x);
-      mouseY.set(y);
-    };
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const rect = sectionRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    mouseX.set((e.clientX - rect.left) / rect.width);
+    mouseY.set((e.clientY - rect.top) / rect.height);
+  };
 
-    const handleMouseLeave = () => {
-      mouseX.set(0.5);
-      mouseY.set(0.5);
-    };
-
-    section.addEventListener("mousemove", handleMouseMove);
-    section.addEventListener("mouseleave", handleMouseLeave);
-    return () => {
-      section.removeEventListener("mousemove", handleMouseMove);
-      section.removeEventListener("mouseleave", handleMouseLeave);
-    };
-  }, [mouseX, mouseY]);
+  const handleMouseLeave = () => {
+    mouseX.set(0.5);
+    mouseY.set(0.5);
+  };
 
   return (
-    <section ref={sectionRef} className="bg-[#070a0a] text-white">
-      <div className="relative min-h-[520px] overflow-hidden sm:min-h-[560px] lg:min-h-[600px]">
-        {hasGoodImage && heroImage ? (
+    <section
+      ref={sectionRef}
+      onMouseMove={prefersReducedMotion ? undefined : handleMouseMove}
+      onMouseLeave={prefersReducedMotion ? undefined : handleMouseLeave}
+      className="relative overflow-hidden bg-cream"
+    >
+      {/* Warm duotone field */}
+      <div className="absolute inset-0 bg-[linear-gradient(118deg,#faf6ef_0%,#f4ecdd_46%,#ecdfc6_100%)]" />
+      <div className="absolute -right-44 -top-44 h-[620px] w-[620px] rounded-full bg-[#dfae78]/45 blur-[140px]" />
+      <div className="absolute -left-36 bottom-[-120px] h-[460px] w-[460px] rounded-full bg-[#c9d5bf]/60 blur-[130px]" />
+
+      {/* Duotone lifestyle image, right half */}
+      {heroImage && (
+        <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[56%] overflow-hidden lg:block">
+          <Image
+            src={heroImage}
+            alt=""
+            aria-hidden
+            fill
+            priority
+            sizes="56vw"
+            className="object-cover object-center opacity-95 [mask-image:linear-gradient(to_right,transparent_0%,black_28%)] [mix-blend-mode:multiply]"
+          />
+        </div>
+      )}
+
+      <Container className="relative z-10 grid items-center gap-12 py-14 sm:py-16 lg:grid-cols-[1.02fr_0.98fr] lg:py-24">
+        {/* Copy */}
+        <div className="max-w-2xl">
           <motion.div
-            className="absolute inset-0"
-            style={{ x: imageX, y: imageY }}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+            className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-amber-brand"
           >
-            <Image
-              src={heroImage}
-              alt="VisionHub eyewear collection"
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover object-center scale-105"
-            />
+            <span className="h-px w-10 bg-amber-brand/70" />
+            Eyewear engineered for every angle
           </motion.div>
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#070a0a] via-[#0f1212] to-[#0a0c0a]" />
-        )}
 
-        <div className="absolute inset-0 bg-gradient-to-r from-[#070a0a]/98 via-[#070a0a]/75 via-40% to-[#070a0a]/15 to-80%" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#070a0a]/70 via-transparent to-transparent" />
+          <motion.h1
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.08, ease: [0.4, 0, 0.2, 1] }}
+            className="font-display mt-5 text-4xl font-black leading-[1.05] tracking-[-0.02em] text-ink sm:text-5xl lg:text-6xl xl:text-7xl"
+          >
+            Frames for every face,{" "}
+            <em className="italic text-amber-brand-deep">every light</em>, every
+            day.
+          </motion.h1>
 
-        {!hasGoodImage && (
-          <>
-            <div className="absolute right-0 top-0 h-full w-1/2 opacity-[0.04]">
-              <div className="absolute right-20 top-1/4 h-72 w-72 rounded-full bg-[#d5b34b] blur-[120px]" />
-              <div className="absolute bottom-1/4 right-40 h-48 w-48 rounded-full bg-white blur-[100px]" />
-            </div>
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(212,175,55,0.08),transparent)]" />
-          </>
-        )}
+          <motion.p
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.16, ease: [0.4, 0, 0.2, 1] }}
+            className="mt-6 max-w-lg text-base leading-7 text-ink-soft sm:text-lg sm:leading-8"
+          >
+            Considered optical, sun, and screen frames — precision-fit to your
+            face, finished to last, and shipped lens-safe across India.
+          </motion.p>
 
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDI1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-60" />
-
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#d5b34b]/30 to-transparent" />
-
-        <Container className="relative z-10 flex min-h-[520px] items-center py-12 sm:min-h-[560px] lg:min-h-[600px] lg:py-16">
-          <div className="max-w-2xl">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.24, ease: [0.4, 0, 0.2, 1] }}
+            className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center"
+          >
+            <Link
+              href="/shop"
+              className="group inline-flex h-13 items-center justify-center gap-2.5 rounded-full bg-amber-brand px-8 text-sm font-bold text-bone shadow-[0_10px_30px_-8px_rgba(180,83,9,0.55)] transition-brand hover:-translate-y-0.5 hover:bg-amber-brand-deep hover:shadow-[0_14px_34px_-8px_rgba(146,64,14,0.55)] active:translate-y-0"
             >
-              <div className="mb-6 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.15em] text-[#e2c86e]">
-                <span className="h-px w-10 bg-[#e2c86e]" />
-                Eyewear engineered for every angle
+              Explore the collection
+              <ArrowRight className="h-4 w-4 transition-transform duration-250 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-x-1" />
+            </Link>
+            <Link
+              href="/ai-stylist"
+              className="group inline-flex h-13 items-center justify-center gap-2.5 rounded-full border border-ink/15 bg-bone/60 px-8 text-sm font-bold text-ink backdrop-blur-sm transition-brand hover:-translate-y-0.5 hover:border-amber-brand/40 hover:bg-bone hover:shadow-[0_10px_28px_-12px_rgba(34,27,18,0.35)] active:translate-y-0"
+            >
+              <ScanFace className="h-4 w-4 text-amber-brand-deep" />
+              Try frames live
+            </Link>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3 text-xs font-semibold text-ink-soft"
+          >
+            <span className="inline-flex items-center gap-1.5">
+              <ShieldCheck className="h-3.5 w-3.5 text-amber-brand" />
+              Free PAN India shipping
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <BadgeCheck className="h-3.5 w-3.5 text-amber-brand" />
+              Secure Razorpay checkout
+            </span>
+            <span>Prescription-ready</span>
+          </motion.div>
+        </div>
+
+        {/* Floating product card */}
+        <motion.div
+          initial={{ opacity: 0, y: 44, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.18, ease: [0.4, 0, 0.2, 1] }}
+          className="relative mx-auto mb-12 w-full max-w-sm [perspective:1400px] sm:max-w-md lg:mb-14"
+        >
+          <div className="glow-amber absolute -inset-8" />
+
+          {/* Supporting card peeking behind */}
+          {supportImage && (
+            <motion.div
+              style={{ x: cardX, y: cardY }}
+              className="absolute -top-6 left-1 z-0 hidden w-32 -rotate-[9deg] overflow-hidden rounded-2xl bg-bone p-2 shadow-[0_18px_40px_-12px_rgba(34,27,18,0.25)] ring-1 ring-ink/5 sm:block lg:-left-8 lg:w-40"
+            >
+              <div className="relative aspect-[5/6] overflow-hidden rounded-xl bg-cream-deep">
+                <Image
+                  src={supportImage}
+                  alt=""
+                  fill
+                  sizes="160px"
+                  className="object-contain p-3"
+                />
               </div>
             </motion.div>
+          )}
 
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-              className="font-display text-5xl font-black leading-[0.95] text-white sm:text-6xl lg:text-7xl"
-            >
-              VisionHub
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-              className="font-display mt-4 text-2xl font-semibold leading-tight text-white/90 sm:text-3xl"
-            >
-              Frames for every face, every light, every day.
-            </motion.p>
+          {/* Main tilt card */}
+          <motion.div
+            style={
+              prefersReducedMotion
+                ? undefined
+                : { rotateX, rotateY, transformStyle: "preserve-3d" }
+            }
+            className="relative z-10 transition-brand"
+          >
+            <div className="animate-float overflow-hidden rounded-[1.5rem] bg-bone shadow-[0_2px_4px_rgba(34,27,18,0.05),0_30px_70px_-18px_rgba(34,27,18,0.35)] ring-1 ring-ink/5">
+              <div className="relative aspect-[5/4] bg-gradient-to-b from-cream to-cream-deep">
+                {cardImage ? (
+                  <Image
+                    src={cardImage}
+                    alt={featured?.name || "Featured VisionHub eyewear"}
+                    fill
+                    priority
+                    sizes="(max-width: 640px) 90vw, 440px"
+                    className="object-contain p-6 sm:p-8"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <Glasses className="h-20 w-20 text-ink/20" />
+                  </div>
+                )}
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
-              className="mt-8 flex flex-col gap-3 sm:flex-row"
-            >
-              <motion.div
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <Link
-                  href="/shop"
-                  className="inline-flex h-12 items-center justify-center gap-2.5 rounded-lg bg-[#d5b34b] px-8 text-sm font-bold text-[#111313] shadow-lg shadow-[#d5b34b]/20 transition-all duration-300 hover:bg-[#ebd47f] hover:shadow-xl hover:shadow-[#d5b34b]/30"
-                >
-                  Explore the collection
-                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                </Link>
-              </motion.div>
-              <motion.div
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <Link
-                  href="/ai-stylist"
-                  className="inline-flex h-12 items-center justify-center gap-2.5 rounded-lg border border-white/25 bg-white/8 px-8 text-sm font-bold text-white backdrop-blur-sm transition-all duration-300 hover:border-white hover:bg-white hover:text-[#111313]"
-                >
-                  <ScanFace className="h-4 w-4" />
-                  Try frames live
-                </Link>
-              </motion.div>
-            </motion.div>
+                {/* Rating chip */}
+                <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-bone/90 px-3 py-1.5 shadow-[0_8px_20px_-8px_rgba(34,27,18,0.35)] ring-1 ring-ink/5 backdrop-blur-sm">
+                  <Star className="h-3.5 w-3.5 fill-amber-brand text-amber-brand" />
+                  <span className="text-xs font-bold text-ink">
+                    {totalReviews >= 5 && averageRating >= 3
+                      ? averageRating.toFixed(1)
+                      : "4.9"}
+                  </span>
+                  <span className="text-[10px] font-semibold text-ink-soft">
+                    ({totalReviews >= 5 ? totalReviews : "1.2k"}) reviews
+                  </span>
+                </div>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }}
-              className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-semibold text-white/60"
-            >
-              <span className="inline-flex items-center gap-1.5">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                Free PAN India shipping
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <BadgeCheck className="h-3.5 w-3.5" />
-                Secure Razorpay checkout
-              </span>
-              <span>Prescription-ready</span>
-            </motion.div>
-          </div>
-        </Container>
-      </div>
+                {/* Status chip */}
+                <div className="absolute right-3 top-3 rounded-full bg-amber-brand px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-bone shadow-[0_8px_20px_-8px_rgba(180,83,9,0.6)]">
+                  {featured?.isFeatured
+                    ? "Editor's choice"
+                    : "Featured frame"}
+                </div>
 
-      <div className="border-t border-black/6 bg-white text-[#171919]">
+                {/* Lens chip */}
+                <div className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-ink/85 px-3 py-1.5 text-[10px] font-bold text-bone backdrop-blur-sm">
+                  <ScanFace className="h-3 w-3 text-amber-brand-soft" />
+                  {featured?.frameShape || "Precision-fit"} /{" "}
+                  {featured?.frameMaterial || "handcrafted"}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-4 border-t border-ink/5 p-4 sm:p-5">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-amber-brand-deep">
+                    Featured frame
+                  </p>
+                  <h3 className="font-display mt-0.5 truncate text-lg font-black text-ink sm:text-xl">
+                    {featured?.name || "The Signature Frame"}
+                  </h3>
+                </div>
+                <div className="shrink-0">
+                  <PriceView
+                    price={featured?.price}
+                    discount={featured?.discount}
+                    className="text-ink"
+                  />
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Shipping chip */}
+          <motion.div
+            style={prefersReducedMotion ? undefined : { x: cardX, y: cardY }}
+            className="absolute -bottom-5 right-2 z-20 flex items-center gap-2 rounded-2xl bg-ink px-4 py-3 text-bone shadow-[0_18px_40px_-12px_rgba(34,27,18,0.45)] sm:-right-4"
+          >
+            <Truck className="h-4 w-4 text-amber-brand-soft" />
+            <div>
+              <p className="text-xs font-bold">Free shipping</p>
+              <p className="text-[10px] text-bone/60">On orders across India</p>
+            </div>
+          </motion.div>
+        </motion.div>
+      </Container>
+
+      {/* Trust bar */}
+      <div className="relative z-10 border-t border-ink/8 bg-bone/70 backdrop-blur-sm">
         <Container>
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-40px" }}
             variants={{
-              visible: { transition: { staggerChildren: 0.08 } },
+              visible: { transition: { staggerChildren: 0.07 } },
             }}
-            className="grid grid-cols-2 divide-x divide-y divide-black/6 lg:grid-cols-4 lg:divide-y-0"
+            className="grid grid-cols-2 divide-x divide-y divide-ink/6 lg:grid-cols-4 lg:divide-y-0"
           >
-            <div className="flex min-h-[72px] items-center gap-3 px-4 py-4 sm:px-6">
-              <Star className="h-5 w-5 shrink-0 fill-[#c9a227] text-[#c9a227]" />
-              <div>
-                <p className="text-sm font-bold">
-                  {totalReviews >= 5 && averageRating >= 3
-                    ? `${averageRating.toFixed(1)} (${totalReviews} reviews)`
-                    : "Rated by customers"}
-                </p>
-                <p className="mt-0.5 text-xs leading-5 text-black/45">
-                  {totalReviews >= 5
-                    ? `Across ${products.length} styles`
-                    : "Join our verified reviewers"}
-                </p>
-              </div>
-            </div>
             {trustItems.map((item) => (
               <motion.div
                 key={item.title}
                 variants={{
-                  hidden: { opacity: 0, y: 12 },
+                  hidden: { opacity: 0, y: 14 },
                   visible: { opacity: 1, y: 0 },
                 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="flex min-h-[72px] items-center gap-3 px-4 py-4 transition-all duration-300 sm:px-6"
+                transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                className="group flex min-h-[76px] items-center gap-3 px-4 py-4 transition-brand sm:px-6"
               >
-                <item.icon className="h-5 w-5 shrink-0 text-[#a17f1a]" />
+                <item.icon className="h-5 w-5 shrink-0 text-amber-brand transition-transform duration-250 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:-translate-y-0.5 group-hover:scale-110" />
                 <div>
-                  <p className="text-sm font-bold">{item.title}</p>
-                  <p className="mt-0.5 text-xs leading-5 text-black/45">
+                  <p className="text-sm font-bold text-ink">{item.title}</p>
+                  <p className="mt-0.5 text-xs leading-5 text-ink-mute">
                     {item.description}
                   </p>
                 </div>

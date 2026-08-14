@@ -100,7 +100,8 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
           <Logo className="text-white" />
           <button
             onClick={onClose}
-            className="hover:text-shop_light_green hoverEffect p-2 rounded-md hover:bg-shop_dark_green/30"
+            aria-label="Close menu"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-zinc-300 transition-brand hover:bg-white/10 hover:text-white"
           >
             <X size={20} />
           </button>
@@ -321,7 +322,7 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, onClose }) => {
           <h3 className="text-sm font-semibold text-shop_light_green uppercase tracking-wider mb-3">
             Follow Us
           </h3>
- <div className="overflow-hidden xl:hidden">
+ <div className="overflow-hidden">
 <SocialMedia
   iconClassName="border-zinc-600"
 />

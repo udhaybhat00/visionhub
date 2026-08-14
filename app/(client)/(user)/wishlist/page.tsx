@@ -14,11 +14,13 @@ const WishListPage = async () => {
       <DynamicBreadcrumb />
 
       {/* Page Header */}
-      <div className="flex items-center gap-2 mb-8">
-        <Heart className="w-6 h-6 text-red-500" />
+      <div className="flex items-center gap-3 mb-8">
+        <Heart className="h-5 w-5 text-amber-brand" />
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Wishlist</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="font-display text-2xl font-black text-ink sm:text-3xl">
+            My Wishlist
+          </h1>
+          <p className="text-ink-soft mt-1 text-sm">
             Save your favorite items for later
           </p>
         </div>

@@ -44,19 +44,19 @@ const QuantityButtons = ({ product, className, borderStyle }: Props) => {
       <Button
         variant="outline"
         size="icon"
-        className="w-6 h-6 border-0 hover:bg-shop_dark_green/20"
+        className="h-9 w-9 border-0 hover:bg-amber-brand/15"
         onClick={handleRemoveProduct}
         disabled={itemCount === 0 || isOutOfStock}
       >
         <HiMinus />
       </Button>
-      <span className="font-semibold text-sm w-6 text-center text-dark-color">
+      <span className="font-semibold text-sm w-8 text-center text-ink">
         {itemCount}
       </span>
       <Button
         variant="outline"
         size="icon"
-        className="w-6 h-6 border-0 hover:bg-shop_dark_green/20"
+        className="h-9 w-9 border-0 hover:bg-amber-brand/15"
         onClick={handleAddToCart}
         disabled={isOutOfStock}
       >

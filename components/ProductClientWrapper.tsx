@@ -30,7 +30,7 @@ export const ProductImageWrapper = ({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.6 }}
-      className="w-full min-[900px]:w-1/2"
+      className="w-full md:w-1/2"
     >
       {children}
     </motion.div>
@@ -45,7 +45,7 @@ export const ProductDetailsWrapper = ({
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.6, delay: 0.1 }}
-      className="w-full min-[900px]:w-1/2 flex flex-col gap-5"
+      className="flex w-full flex-col gap-5 md:w-1/2"
     >
       {children}
     </motion.div>

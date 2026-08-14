@@ -31,16 +31,16 @@ const HeaderMenu = () => {
 
   const navLinkClassName = (isActive: boolean) =>
     cn(
-      "relative inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-[13px] font-semibold tracking-wide whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shop_orange/30",
+      "relative inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-[13px] font-semibold tracking-wide whitespace-nowrap transition-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-brand/30",
       isActive
-        ? "bg-shop_dark_green text-white shadow-sm"
-        : "text-gray-600 hover:bg-gray-50 hover:text-shop_dark_green"
+        ? "link-underline-active text-amber-brand-deep"
+        : "link-underline text-ink-soft hover:text-ink"
     );
 
   return (
     <nav
       aria-label="Main navigation"
-      className="hidden items-center justify-center gap-1 rounded-full border border-black/[0.06] bg-white/85 p-1 capitalize shadow-sm ring-1 ring-black/[0.03] xl:inline-flex"
+      className="hidden items-center justify-center gap-1 rounded-full border border-ink/6 bg-bone/80 p-1 shadow-[0_1px_0_rgba(34,27,18,0.03)] ring-1 ring-ink/[0.03] backdrop-blur-md lg:inline-flex"
     >
       {headerData?.map((item) => {
         const hasChildren = item.children && item.children.length > 0;
@@ -62,9 +62,9 @@ const HeaderMenu = () => {
               </button>
 
               <div className="invisible absolute left-0 top-full h-3 w-full group-hover/collections:visible group-focus-within/collections:visible" />
-              <div className="invisible absolute left-1/2 top-full z-50 mt-3 w-64 -translate-x-1/2 translate-y-2 opacity-0 transition-all duration-200 ease-out group-hover/collections:visible group-hover/collections:translate-y-0 group-hover/collections:opacity-100 group-focus-within/collections:visible group-focus-within/collections:translate-y-0 group-focus-within/collections:opacity-100">
-                <div className="rounded-lg border border-black/[0.06] bg-white p-2 shadow-[0_20px_60px_rgba(15,15,15,0.12)] ring-1 ring-black/[0.03]">
-                  <div className="absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-l border-t border-black/[0.06] bg-white" />
+              <div className="invisible absolute left-1/2 top-full z-50 mt-3 w-64 -translate-x-1/2 translate-y-2 opacity-0 transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover/collections:visible group-hover/collections:translate-y-0 group-hover/collections:opacity-100 group-focus-within/collections:visible group-focus-within/collections:translate-y-0 group-focus-within/collections:opacity-100">
+                <div className="rounded-lg border border-ink/6 bg-bone p-2 shadow-[0_24px_60px_-16px_rgba(34,27,18,0.25)] ring-1 ring-ink/[0.03]">
+                  <div className="absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-l border-t border-ink/6 bg-bone" />
                   {item.children?.map((child) => {
                     const isChildActive = isHrefActive(child.href);
 
@@ -73,13 +73,13 @@ const HeaderMenu = () => {
                         key={child.title}
                         href={child.href}
                         className={cn(
-                          "relative z-10 flex items-center justify-between rounded-md px-4 py-2.5 text-sm font-medium transition-all duration-200",
+                          "relative z-10 flex items-center justify-between rounded-md px-4 py-2.5 text-sm font-medium transition-brand",
                           isChildActive
-                            ? "bg-shop_dark_green text-white"
-                            : "text-gray-700 hover:bg-shop_light_bg hover:text-shop_dark_green"
+                            ? "bg-ink text-bone"
+                            : "text-ink-soft hover:bg-cream hover:text-amber-brand-deep"
                         )}
                       >
-                        {child.title}
+                        <span className="link-underline">{child.title}</span>
                       </Link>
                     );
                   })}

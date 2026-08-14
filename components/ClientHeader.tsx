@@ -54,7 +54,7 @@ const ClientHeader = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-black/[0.06] bg-white/90 shadow-[0_8px_30px_rgba(15,15,15,0.04)] backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-ink/[0.07] bg-cream/90 shadow-[0_8px_30px_rgba(34,27,18,0.05)] backdrop-blur-xl">
       <Container className="h-full xl:max-w-[1480px] xl:px-6">
         <div className="flex h-16 items-center sm:h-[4.5rem] xl:h-20">
           <div className="flex flex-shrink-0 items-center gap-2 sm:gap-3">
@@ -62,7 +62,7 @@ const ClientHeader = () => {
             <Logo />
           </div>
 
-          <div className="hidden flex-1 items-center justify-center px-6 xl:flex 2xl:px-10">
+          <div className="hidden flex-1 items-center justify-center px-6 lg:flex 2xl:px-10">
             <HeaderMenu />
           </div>
 
@@ -76,7 +76,7 @@ const ClientHeader = () => {
                 <SignedOut>
                   <Link
                     href={getSignInUrl()}
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 text-shop_dark_green transition-all hover:border-shop_orange hover:bg-shop_light_bg min-[430px]:h-10 min-[430px]:w-10"
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-ink/10 text-ink transition-brand hover:-translate-y-0.5 hover:border-amber-brand/50 hover:bg-cream-deep min-[430px]:h-10 min-[430px]:w-10"
                   >
                     <User className="h-4 w-4 min-[430px]:h-5 min-[430px]:w-5" />
                   </Link>
@@ -101,13 +101,13 @@ const ClientHeader = () => {
                   <div className="flex flex-shrink-0 items-center gap-2">
                     <Link
                       href={getSignInUrl()}
-                      className="rounded-full border border-black/10 bg-white px-5 py-2 text-sm font-semibold text-gray-700 transition-all hover:border-shop_orange hover:bg-shop_light_bg hover:text-shop_dark_green"
+                      className="rounded-full border border-ink/12 bg-bone px-5 py-2 text-sm font-semibold text-ink-soft transition-brand hover:-translate-y-0.5 hover:border-amber-brand/40 hover:text-ink hover:shadow-[0_10px_24px_-12px_rgba(34,27,18,0.3)]"
                     >
                       Sign In
                     </Link>
                     <Link
                       href={getSignUpUrl()}
-                      className="rounded-full bg-shop_dark_green px-5 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-shop_orange hover:shadow-md"
+                      className="rounded-full bg-ink px-5 py-2 text-sm font-semibold text-bone shadow-sm transition-brand hover:-translate-y-0.5 hover:bg-amber-brand hover:shadow-[0_12px_26px_-10px_rgba(180,83,9,0.55)]"
                     >
                       Sign Up
                     </Link>
@@ -125,16 +125,16 @@ const ClientHeader = () => {
                   <UserDropdown />
                 </SignedIn>
                 <SignedOut>
-                  <div className="hidden min-[820px]:flex items-center gap-2">
+                  <div className="hidden min-[820px]:flex lg:hidden items-center gap-2">
                     <Link
                       href={getSignInUrl()}
-                      className="px-2 py-1 text-sm font-semibold transition-colors duration-200 hover:text-shop_light_green"
+                      className="px-2 py-1 text-sm font-semibold transition-brand hover:text-amber-brand-deep"
                     >
                       Sign In
                     </Link>
                     <Link
                       href={getSignUpUrl()}
-                      className="rounded-full bg-shop_dark_green px-3 py-1.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-shop_orange"
+                      className="rounded-full bg-ink px-3 py-1.5 text-sm font-semibold text-bone transition-brand hover:-translate-y-0.5 hover:bg-amber-brand hover:shadow-[0_10px_22px_-10px_rgba(180,83,9,0.5)]"
                     >
                       Sign Up
                     </Link>

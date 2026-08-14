@@ -10,9 +10,11 @@ function CartPage() {
       <DynamicBreadcrumb />
 
       {/* Cart Header */}
-      <div className="flex items-center gap-2 mb-6">
-        <ShoppingBag className="w-6 h-6" />
-        <h1 className="text-2xl font-bold">Shopping Cart</h1>
+      <div className="flex items-center gap-3 mb-6">
+        <ShoppingBag className="h-5 w-5 text-amber-brand" />
+        <h1 className="font-display text-2xl font-black text-ink sm:text-3xl">
+          Shopping Cart
+        </h1>
       </div>
 
       {/* Client Cart Content with Loading */}

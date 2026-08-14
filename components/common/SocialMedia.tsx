@@ -62,23 +62,23 @@ const SocialMedia = ({
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={cn(
-                    "p-2 border rounded-full transition-all duration-300",
-                    item.color,
-                    iconClassName
-                  )}
-                >
-                  {item.icon}
-                </a>
-              ) : (
-                <span
-                  aria-disabled="true"
-                  className={cn(
-                    "p-2 border rounded-full transition-all duration-300",
-                    item.color,
-                    iconClassName
-                  )}
-                >
+className={cn(
+                      "flex h-11 w-11 items-center justify-center p-2.5 rounded-full transition-all duration-300",
+                      item.color,
+                      iconClassName
+                    )}
+                  >
+                    {item.icon}
+                  </a>
+                ) : (
+                  <span
+                    aria-disabled="true"
+                    className={cn(
+                      "flex h-11 w-11 items-center justify-center p-2.5 rounded-full transition-all duration-300",
+                      item.color,
+                      iconClassName
+                    )}
+                  >
                   {item.icon}
                 </span>
               )}
