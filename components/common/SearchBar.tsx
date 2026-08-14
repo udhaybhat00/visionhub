@@ -428,7 +428,7 @@ const SearchBar = () => {
         <button
           type="button"
           onClick={openSearch}
-          className="group flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white text-gray-500 shadow-sm transition-all hover:border-shop_orange hover:bg-shop_light_bg hover:text-shop_dark_green xl:hidden"
+          className="group flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white text-gray-500 shadow-sm transition-all hover:border-shop_orange hover:bg-shop_light_bg hover:text-shop_dark_green xl:hidden"
           aria-label="Open search"
         >
           <Search className="h-4 w-4 transition-colors" />

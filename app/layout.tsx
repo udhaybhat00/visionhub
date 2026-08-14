@@ -8,6 +8,42 @@ import "./globals.css";
 import Script from "next/script";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 
+const fraunces = localFont({
+  src: [
+    { path: "./fonts/Fraunces-400.woff2", weight: "400" },
+    { path: "./fonts/Fraunces-500.woff2", weight: "500" },
+    { path: "./fonts/Fraunces-600.woff2", weight: "600" },
+    { path: "./fonts/Fraunces-700.woff2", weight: "700" },
+    { path: "./fonts/Fraunces-900.woff2", weight: "900" },
+    {
+      path: "./fonts/Fraunces-400-italic.woff2",
+      weight: "400",
+      style: "italic",
+    },
+    {
+      path: "./fonts/Fraunces-500-italic.woff2",
+      weight: "500",
+      style: "italic",
+    },
+    {
+      path: "./fonts/Fraunces-600-italic.woff2",
+      weight: "600",
+      style: "italic",
+    },
+    {
+      path: "./fonts/Fraunces-700-italic.woff2",
+      weight: "700",
+      style: "italic",
+    },
+    {
+      path: "./fonts/Fraunces-900-italic.woff2",
+      weight: "900",
+      style: "italic",
+    },
+  ],
+  variable: "--font-fraunces",
+});
+
 const poppins = localFont({
   src: "./fonts/Poppins.woff2",
   variable: "--font-poppins",
@@ -104,7 +140,7 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
     <ClerkProvider>
       <html lang="en">
         <body
-          className={`${poppins.variable} ${raleway.variable} ${opensans.variable} antialiased`}
+          className={`${fraunces.variable} ${poppins.variable} ${raleway.variable} ${opensans.variable} antialiased`}
         >
           <UserDataProvider>
   <main className="pb-20 md:pb-0">

@@ -53,11 +53,12 @@ const UserDropdown = () => {
   className="
   inline-flex items-center gap-2
   p-0 md:px-4 md:py-2
-  border-0 md:border md:border-gray-200
+  border-0 md:border md:border-ink/12
   rounded-full
-  hover:border-shop_orange
-  hover:bg-gray-50
-  transition-all
+  bg-bone
+  hover:border-amber-brand/50
+  hover:bg-cream-deep
+  transition-brand
   whitespace-nowrap
   flex-shrink-0
 "
@@ -67,10 +68,10 @@ const UserDropdown = () => {
           <img
   src={user.imageUrl}
   alt={user.fullName || "User"}
-  className="w-8 h-8 md:w-9 md:h-9 rounded-full object-cover border border-gray-200"
+  className="w-9 h-9 md:w-10 md:h-10 rounded-full object-cover border border-gray-200"
 />
             ) : (
-              <UserCircle className="w-8 h-8 text-gray-500 group-hover:text-shop_light_green transition-colors" />
+              <UserCircle className="w-9 h-9 md:w-10 md:h-10 text-gray-500 group-hover:text-shop_light_green transition-colors" />
             )}
           </div>
           <div className="hidden lg:flex items-center flex-shrink-0">

@@ -11,10 +11,14 @@ const MobileMenu = () => {
   };
   return (
     <>
-      <button onClick={toggleSidebar} className="xl:hidden">
-        <AlignLeft className="w-6 h-6 hover:text-hoverColor hoverEffect" />
+      <button
+        onClick={toggleSidebar}
+        aria-label="Open menu"
+        className="flex h-11 w-11 items-center justify-center rounded-full border border-ink/10 bg-bone/60 text-ink transition-brand hover:border-amber-brand/40 hover:bg-cream-deep lg:hidden"
+      >
+        <AlignLeft className="h-5 w-5" />
       </button>
-      <div className="xl:hidden">
+      <div className="lg:hidden">
         <Sidebar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}

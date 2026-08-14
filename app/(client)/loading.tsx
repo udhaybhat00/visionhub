@@ -1,7 +1,7 @@
-import Loading from "@/components/Loading";
+import HomePageSkeleton from "@/components/HomePageSkeleton";
 
 const loading = () => {
-  return <Loading />;
+  return <HomePageSkeleton />;
 };
 
 export default loading;

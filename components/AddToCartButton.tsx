@@ -7,7 +7,7 @@ import { Button } from "./ui/button";
 import useCartStore from "@/store";
 import QuantityButtons from "./QuantityButtons";
 import { cn } from "@/lib/utils";
-import { ShoppingBag } from "lucide-react";
+import { Loader2, ShoppingBag } from "lucide-react";
 
 interface Props {
   product: Product;
@@ -50,13 +50,13 @@ const AddToCartButton = memo(({ product, className }: Props) => {
       <div className="w-full h-12 flex items-center">
         <Button
           disabled
-className={cn(
-  "w-full font-semibold tracking-wide transition-all duration-300",
-  className
-)}
+          className={cn(
+            "w-full font-semibold tracking-wide transition-all duration-250 ease-[cubic-bezier(0.4,0,0.2,1)]",
+            className
+          )}
         >
-          <ShoppingBag className="w-4 h-4 mr-2" />
-Loading...
+          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          Adding…
         </Button>
       </div>
     );
@@ -82,7 +82,7 @@ Loading...
   onClick={handleAddToCart}
   disabled={isOutOfStock}
   className={cn(
-    "w-full font-semibold tracking-wide transition-all duration-300",
+    "w-full font-semibold tracking-wide transition-all duration-250 ease-[cubic-bezier(0.4,0,0.2,1)]",
     className
   )}
 >

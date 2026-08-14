@@ -227,10 +227,10 @@ const applyCoupon = async () => {
       {/* Cart Items */}
       <div className="lg:col-span-2 space-y-4">
         {cart.map((item) => (
-          <div key={item.product._id} className="border rounded-lg p-4">
-            <div className="flex gap-4">
+          <div key={item.product._id} className="border border-ink/8 rounded-xl p-3 sm:p-4">
+            <div className="flex gap-3 sm:gap-4">
               {/* Product Image */}
-              <div className="relative w-28 h-28 flex-shrink-0 bg-shop_light_bg rounded-md">
+              <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 bg-cream-deep rounded-lg">
                 <Image
                   src={
                     item.product.images?.[0]
@@ -239,7 +239,7 @@ const applyCoupon = async () => {
                   }
                   alt={item.product.name || "Product"}
                   fill
-                  className="object-contain rounded-md p-2 bg-shop_light_bg"
+                  className="object-contain rounded-lg p-2 bg-cream-deep"
                 />
               </div>
 

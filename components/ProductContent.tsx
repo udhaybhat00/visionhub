@@ -171,7 +171,7 @@ const ProductContent = ({
           }}
         />
 
-        <div className="flex flex-col min-[900px]:flex-row gap-5 min-[900px]:gap-10 pb-6">
+        <div className="flex flex-col gap-5 pb-6 md:flex-row md:gap-10">
           {/* Product Images */}
           {product?.images && (
             <ProductImageWrapper>

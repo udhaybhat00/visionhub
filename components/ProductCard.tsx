@@ -16,8 +16,8 @@ const ProductCard = memo(({ product }: { product: Product }) => {
   const secondaryImage = images && images.length > 1 ? images[1] : null;
 
   return (
-    <div className="text-sm border rounded-md border-dark-blue/20 group bg-white">
-      <div className="relative group/image overflow-hidden bg-shop_light_bg aspect-square rounded-t-md">
+    <div className="text-sm border rounded-xl border-ink/10 group bg-bone transition-brand hover:-translate-y-1 hover:border-amber-brand/25 hover:shadow-[0_22px_44px_-18px_rgba(34,27,18,0.22)]">
+      <div className="relative group/image overflow-hidden bg-cream-deep aspect-square rounded-t-xl">
         <Link href={`/product/${product?.slug?.current}`}>
           {primaryImage ? (
             <>
